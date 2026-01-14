@@ -70,14 +70,3 @@ export class Project {
 }
 
 export const ProjectSchema = SchemaFactory.createForClass(Project);
-
-// Transform _id to id in JSON output
-ProjectSchema.set('toJSON', {
-  virtuals: true,
-  transform: (_, ret: Record<string, unknown>) => {
-    ret.id = String(ret._id);
-    delete ret._id;
-    delete ret.__v;
-    return ret;
-  },
-});

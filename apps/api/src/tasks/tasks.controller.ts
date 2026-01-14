@@ -15,10 +15,13 @@ import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { ClerkAuthGuard } from '../auth/guards/clerk-auth.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
+import { UseSerializer } from '../common/interceptors/jsonapi.interceptor';
+import { TaskSerializer } from '../common/serializers/task.serializer';
 
 @ApiTags('tasks')
 @ApiBearerAuth()
 @UseGuards(ClerkAuthGuard)
+@UseSerializer(TaskSerializer)
 @Controller('tasks')
 export class TasksController {
   constructor(private readonly tasksService: TasksService) {}

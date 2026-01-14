@@ -1,7 +1,6 @@
 'use client';
 
 import { useApi } from '@/hooks/use-api';
-import { Input } from '@shipshitdev/ui';
 import { CreateTaskDto, TaskPriority } from '@todoist/shared';
 import { Plus } from 'lucide-react';
 import { useRef, useState } from 'react';
@@ -47,7 +46,6 @@ export default function QuickAddTask({
       await tasksApi.create(taskData);
       setTitle('');
       onTaskCreated();
-      // Keep focus for continuous entry
       inputRef.current?.focus();
     } catch (error) {
       console.error('Failed to create task:', error);
@@ -69,19 +67,19 @@ export default function QuickAddTask({
 
   return (
     <div
-      className={`flex items-center gap-3 p-3 rounded-lg border transition-all duration-200 ${
-        isFocused
-          ? 'border-primary bg-card shadow-sm'
-          : 'border-dashed border-border hover:border-primary/50 hover:bg-accent/50'
+      className={`flex items-center gap-3 py-2 transition-all duration-200 cursor-text ${
+        isFocused ? 'opacity-100' : 'opacity-70 hover:opacity-100'
       }`}
+      onClick={() => inputRef.current?.focus()}
     >
       <Plus
-        className={`h-5 w-5 transition-colors ${
+        className={`h-5 w-5 flex-shrink-0 transition-colors ${
           isFocused ? 'text-primary' : 'text-muted-foreground'
         }`}
       />
-      <Input
+      <input
         ref={inputRef}
+        type="text"
         value={title}
         onChange={(e) => setTitle(e.target.value)}
         onKeyDown={handleKeyDown}
@@ -89,11 +87,11 @@ export default function QuickAddTask({
         onBlur={() => setIsFocused(false)}
         disabled={isSubmitting}
         placeholder={placeholder}
-        className="border-0 bg-transparent p-0 h-auto text-base focus-visible:ring-0 focus-visible:ring-offset-0"
+        className="flex-1 bg-transparent text-base outline-none placeholder:text-muted-foreground"
       />
       {title.trim() && (
         <span className="text-xs text-muted-foreground whitespace-nowrap">
-          Press Enter to add
+          Press Enter
         </span>
       )}
     </div>

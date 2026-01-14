@@ -1,60 +1,202 @@
 'use client';
 
-import { Button } from '@shipshitdev/ui';
+import { useApi } from '@/hooks/use-api';
 import { UserButton, useUser } from '@clerk/nextjs';
-import { Calendar, GanttChart, History, Inbox, LayoutDashboard, Target } from 'lucide-react';
+import { format } from 'date-fns';
+import {
+  Calendar,
+  CheckCircle2,
+  ChevronDown,
+  HelpCircle,
+  Inbox,
+  MoreHorizontal,
+  Plus,
+  Search,
+  Target,
+} from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useCallback, useEffect, useState } from 'react';
 import SidebarProjects from './sidebar-projects';
 
-const navigation = [
-  { name: 'Today', href: '/today', icon: LayoutDashboard },
-  { name: 'Inbox', href: '/inbox', icon: Inbox },
-  { name: 'Upcoming', href: '/upcoming', icon: Calendar },
-  { name: 'Timeline', href: '/timeline', icon: GanttChart },
-  { name: 'Goals', href: '/goals', icon: Target },
-  { name: 'History', href: '/history', icon: History },
-];
+interface NavCounts {
+  inbox: number;
+  today: number;
+}
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const { isSignedIn } = useUser();
+  const { isSignedIn, user } = useUser();
+  const { tasks: tasksApi } = useApi();
+  const [counts, setCounts] = useState<NavCounts>({ inbox: 0, today: 0 });
+  const [showMore, setShowMore] = useState(false);
+
+  const loadCounts = useCallback(async () => {
+    try {
+      const allTasks = await tasksApi.getAll({ completed: false });
+      const today = format(new Date(), 'yyyy-MM-dd');
+
+      const inboxCount = allTasks.filter((task) => !task.projectId).length;
+      const todayCount = allTasks.filter((task) => {
+        if (!task.dueDate) return false;
+        const taskDate = format(new Date(task.dueDate), 'yyyy-MM-dd');
+        return taskDate === today;
+      }).length;
+
+      setCounts({ inbox: inboxCount, today: todayCount });
+    } catch (error) {
+      console.error('Failed to load counts:', error);
+    }
+  }, [tasksApi]);
+
+  useEffect(() => {
+    if (isSignedIn) {
+      loadCounts();
+    }
+  }, [isSignedIn, loadCounts]);
 
   if (!isSignedIn) {
     return <>{children}</>;
   }
 
+  const mainNavigation = [
+    { name: 'Inbox', href: '/inbox', icon: Inbox, count: counts.inbox },
+    {
+      name: 'Today',
+      href: '/today',
+      icon: Calendar,
+      count: counts.today,
+      badge: format(new Date(), 'd'),
+    },
+    { name: 'Upcoming', href: '/upcoming', icon: Calendar },
+    { name: 'Completed', href: '/history', icon: CheckCircle2 },
+  ];
+
+  const moreNavigation = [
+    { name: 'Goals', href: '/goals', icon: Target },
+  ];
+
+  const isActive = (href: string) => pathname === href;
+
   return (
     <div className="flex h-screen bg-background">
-      <aside className="w-64 border-r border-border bg-card flex flex-col">
-        <div className="flex h-16 items-center justify-between border-b border-border px-6">
-          <h1 className="text-xl font-semibold">TaskFlow</h1>
-          <UserButton />
+      <aside className="w-[280px] border-r border-border bg-card flex flex-col">
+        {/* User Header */}
+        <div className="flex items-center gap-3 p-4">
+          <UserButton
+            appearance={{
+              elements: {
+                avatarBox: 'w-7 h-7',
+              },
+            }}
+          />
+          <button className="flex items-center gap-1 text-sm font-medium hover:text-foreground/80 transition-colors">
+            <span>{user?.firstName || 'User'}</span>
+            <ChevronDown className="h-4 w-4 text-muted-foreground" />
+          </button>
         </div>
-        <nav className="p-4 space-y-1 flex-1 overflow-auto">
-          {navigation.map((item) => {
-            const isActive = pathname === item.href;
-            const Icon = item.icon;
-            return (
-              <Link key={item.name} href={item.href}>
-                <Button
-                  variant={isActive ? 'default' : 'ghost'}
-                  className="w-full justify-start"
-                >
-                  <Icon className="mr-2 h-4 w-4" />
-                  {item.name}
-                </Button>
-              </Link>
-            );
-          })}
 
-          <SidebarProjects />
+        {/* Add Task Button */}
+        <div className="px-3 py-1">
+          <Link href="/today" className="flex items-center gap-3 px-3 py-2 text-primary font-medium hover:bg-accent rounded-md transition-colors">
+            <Plus className="h-5 w-5" />
+            <span>Add task</span>
+          </Link>
+        </div>
+
+        {/* Search */}
+        <div className="px-3 py-1">
+          <button className="flex items-center gap-3 w-full px-3 py-2 text-muted-foreground hover:bg-accent hover:text-foreground rounded-md transition-colors">
+            <Search className="h-5 w-5" />
+            <span>Search</span>
+          </button>
+        </div>
+
+        {/* Main Navigation */}
+        <nav className="flex-1 overflow-auto px-3 py-2">
+          <div className="space-y-0.5">
+            {mainNavigation.map((item) => {
+              const Icon = item.icon;
+              const active = isActive(item.href);
+              return (
+                <Link key={item.name} href={item.href}>
+                  <div
+                    className={`flex items-center justify-between px-3 py-2 rounded-md text-sm transition-colors ${
+                      active
+                        ? 'bg-accent text-foreground'
+                        : 'text-foreground/80 hover:bg-accent'
+                    }`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="relative">
+                        <Icon className={`h-5 w-5 ${active ? 'text-primary' : 'text-muted-foreground'}`} />
+                        {item.badge && (
+                          <span className="absolute -bottom-0.5 -right-0.5 text-[9px] font-bold text-primary">
+                            {item.badge}
+                          </span>
+                        )}
+                      </div>
+                      <span>{item.name}</span>
+                    </div>
+                    {item.count !== undefined && item.count > 0 && (
+                      <span className="text-xs text-muted-foreground">{item.count}</span>
+                    )}
+                  </div>
+                </Link>
+              );
+            })}
+
+            {/* More Section */}
+            <button
+              onClick={() => setShowMore(!showMore)}
+              className="flex items-center gap-3 w-full px-3 py-2 rounded-md text-sm text-foreground/80 hover:bg-accent transition-colors"
+            >
+              <MoreHorizontal className="h-5 w-5 text-muted-foreground" />
+              <span>More</span>
+            </button>
+
+            {showMore && (
+              <div className="ml-3 space-y-0.5">
+                {moreNavigation.map((item) => {
+                  const Icon = item.icon;
+                  const active = isActive(item.href);
+                  return (
+                    <Link key={item.name} href={item.href}>
+                      <div
+                        className={`flex items-center gap-3 px-3 py-2 rounded-md text-sm transition-colors ${
+                          active
+                            ? 'bg-accent text-foreground'
+                            : 'text-foreground/80 hover:bg-accent'
+                        }`}
+                      >
+                        <Icon className={`h-5 w-5 ${active ? 'text-primary' : 'text-muted-foreground'}`} />
+                        <span>{item.name}</span>
+                      </div>
+                    </Link>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+
+          {/* Projects Section */}
+          <div className="mt-4">
+            <SidebarProjects />
+          </div>
         </nav>
+
+        {/* Footer */}
+        <div className="border-t border-border p-3">
+          <button className="flex items-center gap-3 w-full px-3 py-2 text-sm text-muted-foreground hover:bg-accent hover:text-foreground rounded-md transition-colors">
+            <HelpCircle className="h-5 w-5" />
+            <span>Help & resources</span>
+          </button>
+        </div>
       </aside>
+
       <main className="flex-1 overflow-auto">
         {children}
       </main>
     </div>
   );
 }
-

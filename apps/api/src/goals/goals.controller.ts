@@ -15,10 +15,13 @@ import { CreateGoalDto } from './dto/create-goal.dto';
 import { UpdateGoalDto } from './dto/update-goal.dto';
 import { ClerkAuthGuard } from '../auth/guards/clerk-auth.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
+import { UseSerializer } from '../common/interceptors/jsonapi.interceptor';
+import { GoalSerializer } from '../common/serializers/goal.serializer';
 
 @ApiTags('goals')
 @ApiBearerAuth()
 @UseGuards(ClerkAuthGuard)
+@UseSerializer(GoalSerializer)
 @Controller('goals')
 export class GoalsController {
   constructor(private readonly goalsService: GoalsService) {}

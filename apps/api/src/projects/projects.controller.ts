@@ -14,10 +14,13 @@ import { CreateProjectDto } from './dto/create-project.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
 import { ClerkAuthGuard } from '../auth/guards/clerk-auth.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
+import { UseSerializer } from '../common/interceptors/jsonapi.interceptor';
+import { ProjectSerializer } from '../common/serializers/project.serializer';
 
 @ApiTags('projects')
 @ApiBearerAuth()
 @UseGuards(ClerkAuthGuard)
+@UseSerializer(ProjectSerializer)
 @Controller('projects')
 export class ProjectsController {
   constructor(private readonly projectsService: ProjectsService) {}

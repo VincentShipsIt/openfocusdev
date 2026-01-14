@@ -7,6 +7,15 @@
       }
     }
   },
+  "files": {
+    "includes": [
+      "**",
+      "!**/coverage",
+      "!**/node_modules",
+      "!**/.next",
+      "!**/dist"
+    ]
+  },
   "formatter": {
     "enabled": true,
     "indentStyle": "space",
@@ -31,14 +40,5 @@
         "noNonNullAssertion": "off"
       }
     }
-  },
-  "files": {
-    "includes": [
-      "**",
-      "!**/coverage",
-      "!**/node_modules",
-      "!**/.next",
-      "!**/dist"
-    ]
   }
 }

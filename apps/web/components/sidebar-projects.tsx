@@ -1,9 +1,9 @@
 'use client';
 
 import { useApi } from '@/hooks/use-api';
-import { Button, Input } from '@shipshitdev/ui';
+import { Input } from '@shipshitdev/ui';
 import { Project, Task } from '@todoist/shared';
-import { ChevronDown, ChevronRight, Plus } from 'lucide-react';
+import { ChevronDown, ChevronRight, Hash, Plus } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useCallback, useEffect, useRef, useState } from 'react';
@@ -31,7 +31,6 @@ export default function SidebarProjects() {
         tasksApi.getAll({ completed: false }),
       ]);
 
-      // Count tasks per project
       const projectsWithCounts = projectsData.map((project) => ({
         ...project,
         taskCount: tasksData.filter((task: Task) => task.projectId === project.id).length,
@@ -88,59 +87,52 @@ export default function SidebarProjects() {
   };
 
   return (
-    <div className="mt-4">
-      <div className="flex items-center justify-between w-full px-2 py-1 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+    <div className="space-y-1">
+      {/* Section Header */}
+      <div className="flex items-center justify-between px-3 py-1.5 group">
         <button
           onClick={() => setIsCollapsed(!isCollapsed)}
-          className="flex items-center gap-2"
+          className="flex items-center gap-1 text-xs font-semibold text-muted-foreground uppercase tracking-wide hover:text-foreground transition-colors"
         >
           {isCollapsed ? (
-            <ChevronRight className="h-4 w-4" />
+            <ChevronRight className="h-3 w-3" />
           ) : (
-            <ChevronDown className="h-4 w-4" />
+            <ChevronDown className="h-3 w-3" />
           )}
-          <span>Projects</span>
+          <span>My Projects</span>
         </button>
-        <Button
-          variant="ghost"
-          size="sm"
-          className="h-6 w-6 p-0"
+        <button
           onClick={() => setIsAdding(true)}
+          className="p-1 text-muted-foreground hover:text-foreground hover:bg-accent rounded opacity-0 group-hover:opacity-100 transition-all"
         >
           <Plus className="h-4 w-4" />
-        </Button>
+        </button>
       </div>
 
       {!isCollapsed && (
-        <div className="mt-1 space-y-1">
+        <div className="space-y-0.5">
           {loading ? (
-            <div className="px-4 py-2 text-sm text-muted-foreground">Loading...</div>
+            <div className="px-6 py-2 text-sm text-muted-foreground">Loading...</div>
           ) : (
             <>
               {projects.map((project) => (
                 <Link key={project.id} href={`/projects/${project.id}`}>
                   <div
-                    className={`flex items-center justify-between px-4 py-2 rounded-md text-sm transition-colors ${
+                    className={`flex items-center justify-between px-3 py-1.5 rounded-md text-sm transition-colors ${
                       isProjectActive(project.id)
-                        ? 'bg-primary text-primary-foreground'
-                        : 'hover:bg-accent'
+                        ? 'bg-accent text-foreground'
+                        : 'text-foreground/80 hover:bg-accent'
                     }`}
                   >
                     <div className="flex items-center gap-2 min-w-0">
-                      <div
-                        className="w-2 h-2 rounded-full flex-shrink-0"
-                        style={{ backgroundColor: project.color || '#6b7280' }}
+                      <Hash
+                        className="h-4 w-4 flex-shrink-0"
+                        style={{ color: project.color || '#6b7280' }}
                       />
                       <span className="truncate">{project.name}</span>
                     </div>
                     {project.taskCount > 0 && (
-                      <span
-                        className={`text-xs ${
-                          isProjectActive(project.id)
-                            ? 'text-primary-foreground/70'
-                            : 'text-muted-foreground'
-                        }`}
-                      >
+                      <span className="text-xs text-muted-foreground ml-2">
                         {project.taskCount}
                       </span>
                     )}
@@ -149,27 +141,30 @@ export default function SidebarProjects() {
               ))}
 
               {projects.length === 0 && !isAdding && (
-                <div className="px-4 py-2 text-sm text-muted-foreground">
+                <div className="px-6 py-2 text-sm text-muted-foreground">
                   No projects yet
                 </div>
               )}
 
               {isAdding && (
-                <div className="px-2">
-                  <Input
-                    ref={inputRef}
-                    value={newProjectName}
-                    onChange={(e) => setNewProjectName(e.target.value)}
-                    onKeyDown={handleKeyDown}
-                    onBlur={() => {
-                      if (!newProjectName.trim()) {
-                        setIsAdding(false);
-                      }
-                    }}
-                    disabled={isSubmitting}
-                    placeholder="Project name..."
-                    className="h-8 text-sm"
-                  />
+                <div className="px-3 py-1">
+                  <div className="flex items-center gap-2">
+                    <Hash className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                    <Input
+                      ref={inputRef}
+                      value={newProjectName}
+                      onChange={(e) => setNewProjectName(e.target.value)}
+                      onKeyDown={handleKeyDown}
+                      onBlur={() => {
+                        if (!newProjectName.trim()) {
+                          setIsAdding(false);
+                        }
+                      }}
+                      disabled={isSubmitting}
+                      placeholder="Project name"
+                      className="h-7 text-sm border-0 bg-transparent p-0 focus-visible:ring-0"
+                    />
+                  </div>
                 </div>
               )}
             </>
