@@ -8,7 +8,6 @@ import {
   Target,
   Zap,
 } from 'lucide-react';
-import Link from 'next/link';
 import { redirect } from 'next/navigation';
 
 export default async function HomePage() {
@@ -30,18 +29,9 @@ export default async function HomePage() {
             <span className="text-xl font-bold">TaskFlow</span>
           </div>
           <div className="flex items-center gap-4">
-            <Link
-              href="/sign-in"
-              className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-            >
-              Log in
-            </Link>
-            <Link
-              href="/sign-up"
-              className="px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors"
-            >
-              Start for free
-            </Link>
+            <span className="px-3 py-1 bg-primary/10 text-primary text-xs font-medium rounded-full">
+              Private Beta
+            </span>
           </div>
         </div>
       </nav>
@@ -54,19 +44,23 @@ export default async function HomePage() {
           and life, finally.
         </h1>
         <p className="text-xl text-muted-foreground max-w-2xl mx-auto mb-10">
-          Become focused, organized, and calm with TaskFlow. The world's #1 task
-          manager and to-do list app.
+          Become focused, organized, and calm with TaskFlow. A beautifully simple
+          task manager and to-do list app.
         </p>
-        <div className="flex items-center justify-center gap-4">
-          <Link
-            href="/sign-up"
-            className="px-8 py-3 bg-primary text-primary-foreground rounded-lg text-lg font-medium hover:bg-primary/90 transition-colors"
+        <div className="flex flex-col items-center gap-4">
+          <div className="flex items-baseline gap-1">
+            <span className="text-4xl font-bold">$4.99</span>
+            <span className="text-muted-foreground">/month</span>
+          </div>
+          <button
+            disabled
+            className="px-8 py-3 bg-muted text-muted-foreground rounded-lg text-lg font-medium cursor-not-allowed"
           >
-            Start for free
-          </Link>
+            Join Waitlist
+          </button>
         </div>
         <p className="text-sm text-muted-foreground mt-4">
-          Free forever. No credit card required.
+          Currently in private beta. Invites coming soon.
         </p>
       </section>
 
@@ -210,14 +204,14 @@ export default async function HomePage() {
             Ready to get more done?
           </h2>
           <p className="text-muted-foreground max-w-xl mx-auto mb-8">
-            Join millions of people who organize their work and life with TaskFlow.
+            TaskFlow is currently in private beta. Sign up to be notified when we launch.
           </p>
-          <Link
-            href="/sign-up"
-            className="inline-flex px-8 py-3 bg-primary text-primary-foreground rounded-lg text-lg font-medium hover:bg-primary/90 transition-colors"
+          <button
+            disabled
+            className="inline-flex px-8 py-3 bg-muted text-muted-foreground rounded-lg text-lg font-medium cursor-not-allowed"
           >
-            Get started — it's free
-          </Link>
+            Join Waitlist
+          </button>
         </div>
       </section>
 
@@ -232,7 +226,7 @@ export default async function HomePage() {
               <span className="font-semibold">TaskFlow</span>
             </div>
             <div className="text-sm text-muted-foreground">
-              Built with care. Free forever.
+              $4.99/mo · Private Beta
             </div>
           </div>
         </div>
