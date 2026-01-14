@@ -9,10 +9,13 @@ async function apiRequest<T>(
   options: RequestInit = {},
   getToken?: () => Promise<string | null>
 ): Promise<T> {
-  const headers: HeadersInit = {
+  const headers: Record<string, string> = {
     'Content-Type': 'application/json',
-    ...options.headers,
   };
+
+  if (options.headers) {
+    Object.assign(headers, options.headers);
+  }
 
   if (getToken) {
     const token = await getToken();
@@ -117,16 +120,28 @@ export function createProjectsApi(getToken: () => Promise<string | null>) {
   };
 }
 
+export interface PaginationResult {
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
+}
+
+export interface HistoryResult {
+  tasks: Task[];
+  pagination: PaginationResult;
+}
+
 export function createHistoryApi(getToken: () => Promise<string | null>) {
   return {
-    getAll: (params?: { projectId?: string; startDate?: string; endDate?: string; page?: number; limit?: number }): Promise<{ tasks: Task[]; pagination: unknown }> => {
+    getAll: (params?: { projectId?: string; startDate?: string; endDate?: string; page?: number; limit?: number }): Promise<HistoryResult> => {
       const query = new URLSearchParams();
       if (params?.projectId) query.append('projectId', params.projectId);
       if (params?.startDate) query.append('startDate', params.startDate);
       if (params?.endDate) query.append('endDate', params.endDate);
       if (params?.page) query.append('page', String(params.page));
       if (params?.limit) query.append('limit', String(params.limit));
-      return apiRequest<{ tasks: Task[]; pagination: unknown }>(`/history?${query.toString()}`, {}, getToken);
+      return apiRequest<HistoryResult>(`/history?${query.toString()}`, {}, getToken);
     },
   };
 }

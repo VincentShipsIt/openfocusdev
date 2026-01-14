@@ -85,14 +85,14 @@ export default function ProjectPage() {
         </div>
         <div className="flex items-center justify-end gap-2">
           <Button
-            variant={viewMode === ViewMode.LIST ? 'default' : 'outline'}
+            variant={viewMode === ViewMode.LIST ? 'primary' : 'outline'}
             size="sm"
             onClick={() => setViewMode(ViewMode.LIST)}
           >
             <List className="h-4 w-4" />
           </Button>
           <Button
-            variant={viewMode === ViewMode.KANBAN ? 'default' : 'outline'}
+            variant={viewMode === ViewMode.KANBAN ? 'primary' : 'outline'}
             size="sm"
             onClick={() => setViewMode(ViewMode.KANBAN)}
           >

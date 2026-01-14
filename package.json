@@ -31,7 +31,6 @@
     "format:check": "biome format --check .",
     "lint": "bun --filter '*' run lint",
     "pre:install": "bun update --latest --recursive && bun install",
-    "prepare": "husky",
     "prepare:deploy": "bun install",
     "start": "bun --filter '*' run start",
     "test": "vitest run",
@@ -44,3 +43,5 @@
     "packages/*"
   ]
 }
+
+

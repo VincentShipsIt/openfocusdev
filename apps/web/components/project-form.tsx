@@ -1,8 +1,8 @@
 'use client';
 
 import { useApi } from '@/hooks/use-api';
-import { Button, Dialog, DialogContent, DialogHeader, DialogTitle, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Textarea } from '@shipshitdev/ui';
-import { CreateProjectDto, ProjectStatus, ProjectCategory } from '@todoist/shared';
+import { Button, Dialog, DialogContent, DialogHeader, DialogTitle, Input, Label, Textarea } from '@shipshitdev/ui';
+import { CreateProjectDto, ProjectCategory, ProjectStatus } from '@todoist/shared';
 import { useState } from 'react';
 
 interface ProjectFormProps {
@@ -99,34 +99,34 @@ export default function ProjectForm({ onClose, onSuccess }: ProjectFormProps) {
           <div className="grid grid-cols-2 gap-4">
             <div>
               <Label htmlFor="status">Status</Label>
-              <Select value={status} onValueChange={(v) => setStatus(v as ProjectStatus)}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {STATUS_OPTIONS.map((opt) => (
-                    <SelectItem key={opt.value} value={opt.value}>
-                      {opt.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <select
+                id="status"
+                value={status}
+                onChange={(e) => setStatus(e.target.value as ProjectStatus)}
+                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              >
+                {STATUS_OPTIONS.map((opt) => (
+                  <option key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </option>
+                ))}
+              </select>
             </div>
 
             <div>
               <Label htmlFor="category">Category</Label>
-              <Select value={category} onValueChange={(v) => setCategory(v as ProjectCategory)}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {CATEGORY_OPTIONS.map((opt) => (
-                    <SelectItem key={opt.value} value={opt.value}>
-                      {opt.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <select
+                id="category"
+                value={category}
+                onChange={(e) => setCategory(e.target.value as ProjectCategory)}
+                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              >
+                {CATEGORY_OPTIONS.map((opt) => (
+                  <option key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </option>
+                ))}
+              </select>
             </div>
           </div>
 
@@ -184,4 +184,3 @@ export default function ProjectForm({ onClose, onSuccess }: ProjectFormProps) {
     </Dialog>
   );
 }
-

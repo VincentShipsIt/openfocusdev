@@ -7,6 +7,7 @@ const nextConfig: NextConfig = {
     // Resolve symlinks for workspace packages
     externalDir: true,
   },
+  turbopack: {},
   webpack: (config) => {
     // Add alias for @todoist/shared workspace package
     config.resolve.alias = {
