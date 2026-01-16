@@ -18,6 +18,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
 import SidebarProjects from './sidebar-projects';
+import SearchModal from './search-modal';
 
 interface NavCounts {
   inbox: number;
@@ -30,6 +31,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   const { tasks: tasksApi } = useApi();
   const [counts, setCounts] = useState<NavCounts>({ inbox: 0, today: 0 });
   const [showMore, setShowMore] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
 
   const loadCounts = useCallback(async () => {
     try {
@@ -55,6 +57,18 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     }
   }, [isSignedIn, loadCounts]);
 
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        setSearchOpen(true);
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
   if (!isSignedIn) {
     return <>{children}</>;
   }
@@ -76,7 +90,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     { name: 'Goals', href: '/goals', icon: Target },
   ];
 
-  const isActive = (href: string) => pathname === href;
+  const isActive = (href: string) => pathname === href || pathname.startsWith(`${href}/`);
 
   return (
     <div className="flex h-screen bg-background">
@@ -106,9 +120,17 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
         {/* Search */}
         <div className="px-3 py-1">
-          <button className="flex items-center gap-3 w-full px-3 py-2 text-muted-foreground hover:bg-accent hover:text-foreground rounded-md transition-colors">
-            <Search className="h-5 w-5" />
-            <span>Search</span>
+          <button
+            onClick={() => setSearchOpen(true)}
+            className="flex items-center justify-between w-full px-3 py-2 text-muted-foreground hover:bg-accent hover:text-foreground rounded-md transition-colors"
+          >
+            <span className="flex items-center gap-3">
+              <Search className="h-5 w-5" />
+              <span>Search</span>
+            </span>
+            <kbd className="pointer-events-none hidden h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium opacity-100 sm:flex">
+              <span className="text-xs">⌘</span>K
+            </kbd>
           </button>
         </div>
 
@@ -197,6 +219,8 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       <main className="flex-1 overflow-auto">
         {children}
       </main>
+
+      <SearchModal open={searchOpen} onOpenChange={setSearchOpen} />
     </div>
   );
 }

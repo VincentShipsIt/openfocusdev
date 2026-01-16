@@ -15,6 +15,7 @@ export const ProjectSerializer = new Serializer('projects', {
     'launchedAt',
     'distributionChannels',
     'tags',
+    'isFavorite',
     'order',
     'createdAt',
     'updatedAt',

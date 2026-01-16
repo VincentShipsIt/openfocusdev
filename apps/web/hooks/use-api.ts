@@ -2,7 +2,7 @@
 
 import { useAuth } from '@clerk/nextjs';
 import { useMemo } from 'react';
-import { createTasksApi, createProjectsApi, createHistoryApi, createGoalsApi } from '@/lib/api';
+import { createTasksApi, createProjectsApi, createHistoryApi, createGoalsApi, createCommentsApi, createConnectionsApi } from '@/lib/api';
 
 export function useApi() {
   const { getToken } = useAuth();
@@ -12,6 +12,8 @@ export function useApi() {
     projects: createProjectsApi(getToken),
     history: createHistoryApi(getToken),
     goals: createGoalsApi(getToken),
+    comments: createCommentsApi(getToken),
+    connections: createConnectionsApi(getToken),
   }), [getToken]);
 
   return api;

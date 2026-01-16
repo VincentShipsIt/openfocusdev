@@ -1,5 +1,6 @@
-import { IsString, IsOptional, IsEnum, IsArray, IsDateString, IsNumber } from 'class-validator';
-import { TaskPriority } from './create-task.dto';
+import { IsString, IsOptional, IsEnum, IsArray, IsDateString, IsNumber, IsBoolean, IsObject, ValidateNested } from 'class-validator';
+import { Type } from 'class-transformer';
+import { TaskPriority, NodePositionDto } from './create-task.dto';
 
 export class UpdateTaskDto {
   @IsString()
@@ -34,5 +35,19 @@ export class UpdateTaskDto {
   @IsNumber()
   @IsOptional()
   order?: number;
+
+  @IsBoolean()
+  @IsOptional()
+  aiEnabled?: boolean;
+
+  @IsString()
+  @IsOptional()
+  aiPrompt?: string;
+
+  @IsObject()
+  @ValidateNested()
+  @Type(() => NodePositionDto)
+  @IsOptional()
+  nodePosition?: NodePositionDto;
 }
 

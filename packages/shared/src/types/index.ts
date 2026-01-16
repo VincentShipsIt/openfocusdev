@@ -9,6 +9,45 @@ export enum ViewMode {
   LIST = 'list',
   KANBAN = 'kanban',
   TIMELINE = 'timeline',
+  WORKFLOW = 'workflow',
+}
+
+export type ConnectionType = 'dependency' | 'sequence';
+
+export type AIExecutionStatus = 'pending' | 'running' | 'completed' | 'failed';
+
+export interface NodePosition {
+  x: number;
+  y: number;
+}
+
+export interface TaskConnection {
+  id: string;
+  sourceTaskId: string;
+  targetTaskId: string;
+  type: ConnectionType;
+  projectId?: string;
+  userId: string;
+  createdAt: Date | string;
+}
+
+export type RecurrenceRule = 'daily' | 'weekly' | 'monthly' | 'yearly';
+
+export interface Recurrence {
+  rule: RecurrenceRule;
+  interval: number;
+  daysOfWeek?: number[]; // 0-6 for weekly
+  endDate?: Date | string;
+}
+
+export type ReminderType = 'relative' | 'absolute';
+
+export interface Reminder {
+  id: string;
+  type: ReminderType;
+  time?: Date | string; // For absolute reminders
+  offset?: number; // Minutes before due date for relative reminders
+  notified: boolean;
 }
 
 export enum ProjectStatus {
@@ -39,14 +78,25 @@ export interface Task {
   projectId?: string;
   goalId?: string;
   milestoneId?: string;
+  parentTaskId?: string;
   dueDate?: Date | string;
   completedAt?: Date | string;
   priority: TaskPriority;
   labels?: string[];
+  recurrence?: Recurrence;
+  reminders?: Reminder[];
   order: number;
   createdAt: Date | string;
   updatedAt: Date | string;
   userId: string;
+  subtasks?: Task[];
+  // Workflow fields
+  aiEnabled?: boolean;
+  aiPrompt?: string;
+  aiExecutionStatus?: AIExecutionStatus;
+  aiExecutionResult?: string;
+  nodePosition?: NodePosition;
+  isBlocked?: boolean;
 }
 
 export interface Project {
@@ -64,6 +114,7 @@ export interface Project {
   distributionChannels?: string[];
   tags?: string[];
   order: number;
+  isFavorite: boolean;
   userId: string;
   createdAt: Date | string;
   updatedAt: Date | string;
@@ -90,9 +141,14 @@ export interface CreateTaskDto {
   projectId?: string;
   goalId?: string;
   milestoneId?: string;
+  parentTaskId?: string;
   dueDate?: Date | string;
   priority?: TaskPriority;
   labels?: string[];
+  recurrence?: Recurrence;
+  aiEnabled?: boolean;
+  aiPrompt?: string;
+  nodePosition?: NodePosition;
 }
 
 export interface UpdateTaskDto {
@@ -105,7 +161,11 @@ export interface UpdateTaskDto {
   completedAt?: Date | string | null;
   priority?: TaskPriority;
   labels?: string[];
+  recurrence?: Recurrence | null;
   order?: number;
+  aiEnabled?: boolean;
+  aiPrompt?: string;
+  nodePosition?: NodePosition;
 }
 
 export interface CreateProjectDto {
@@ -188,5 +248,43 @@ export interface UpdateGoalDto {
   category?: GoalCategory;
   targetYear?: number;
   milestones?: Milestone[];
+}
+
+export interface Comment {
+  id: string;
+  taskId: string;
+  userId: string;
+  content: string;
+  createdAt: Date | string;
+  updatedAt: Date | string;
+}
+
+export interface CreateCommentDto {
+  content: string;
+}
+
+export interface UpdateCommentDto {
+  content: string;
+}
+
+export interface AddReminderDto {
+  type: ReminderType;
+  time?: Date | string; // For absolute reminders
+  offset?: number; // Minutes before due date for relative reminders
+}
+
+export interface CreateConnectionDto {
+  sourceTaskId: string;
+  targetTaskId: string;
+  type: ConnectionType;
+}
+
+export interface UpdateNodePositionDto {
+  x: number;
+  y: number;
+}
+
+export interface TriggerAIExecutionDto {
+  prompt?: string;
 }
 

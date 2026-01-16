@@ -1,9 +1,13 @@
 'use client';
 
 import { useApi } from '@/hooks/use-api';
-import { Button, Dialog, DialogContent, DialogHeader, DialogTitle, Input, Label } from '@shipshitdev/ui';
-import * as Select from '@radix-ui/react-select';
+import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { CreateGoalDto, Goal, GoalCategory, UpdateGoalDto } from '@todoist/shared';
+import { toast } from 'sonner';
 import { X } from 'lucide-react';
 import { useState } from 'react';
 
@@ -65,7 +69,7 @@ export default function GoalForm({ goal, onClose, onSuccess }: GoalFormProps) {
       onSuccess();
     } catch (error) {
       console.error('Failed to save goal:', error);
-      alert('Failed to save goal');
+      toast.error('Failed to save goal');
     } finally {
       setLoading(false);
     }
@@ -119,23 +123,15 @@ export default function GoalForm({ goal, onClose, onSuccess }: GoalFormProps) {
           <div className="grid grid-cols-2 gap-4">
             <div>
               <Label htmlFor="category">Category</Label>
-              <Select.Root value={category} onValueChange={(value) => setCategory(value as GoalCategory)}>
-                <Select.Trigger className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm">
-                  <Select.Value />
-                </Select.Trigger>
-                <Select.Portal>
-                  <Select.Content className="overflow-hidden rounded-md border bg-popover text-popover-foreground shadow-md">
-                    <Select.Viewport className="p-1">
-                      <Select.Item value="business" className="relative flex cursor-pointer select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none hover:bg-accent">
-                        <Select.ItemText>Business</Select.ItemText>
-                      </Select.Item>
-                      <Select.Item value="personal" className="relative flex cursor-pointer select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none hover:bg-accent">
-                        <Select.ItemText>Personal</Select.ItemText>
-                      </Select.Item>
-                    </Select.Viewport>
-                  </Select.Content>
-                </Select.Portal>
-              </Select.Root>
+              <Select value={category} onValueChange={(value) => setCategory(value as GoalCategory)}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="business">Business</SelectItem>
+                  <SelectItem value="personal">Personal</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
 
             <div>

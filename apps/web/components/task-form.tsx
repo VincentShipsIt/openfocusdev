@@ -1,10 +1,16 @@
 'use client';
 
 import { useApi } from '@/hooks/use-api';
-import { Button, Dialog, DialogContent, DialogHeader, DialogTitle, Input, Label } from '@shipshitdev/ui';
-import * as Select from '@radix-ui/react-select';
-import { CreateTaskDto, Project, Task, TaskPriority, UpdateTaskDto } from '@todoist/shared';
+import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { CreateTaskDto, Project, Recurrence, Task, TaskPriority, UpdateTaskDto } from '@todoist/shared';
+import { toast } from 'sonner';
 import { useCallback, useEffect, useState } from 'react';
+import LabelPicker from './label-picker';
+import RecurrencePicker from './recurrence-picker';
 
 interface TaskFormProps {
   task?: Task;
@@ -19,14 +25,16 @@ export default function TaskForm({ task, projectId, onClose, onSuccess }: TaskFo
   const [description, setDescription] = useState(task?.description || '');
   const [selectedProjectId, setSelectedProjectId] = useState(task?.projectId || projectId || '');
   const [dueDate, setDueDate] = useState(
-    task?.dueDate ? new Date(task.dueDate).toISOString().slice(0, 16) : ''
+    task?.dueDate ? new Date(task.dueDate).toISOString().slice(0, 10) : ''
   );
   const [dueTime, setDueTime] = useState(
-    task?.dueDate ? new Date(task.dueDate).toTimeString().slice(0, 5) : ''
+    task?.dueDate ? new Date(task.dueDate).toISOString().slice(11, 16) : ''
   );
   const [priority, setPriority] = useState<TaskPriority>(
     (task?.priority as TaskPriority) || TaskPriority.MEDIUM
   );
+  const [labels, setLabels] = useState<string[]>(task?.labels || []);
+  const [recurrence, setRecurrence] = useState<Recurrence | null>(task?.recurrence || null);
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(false);
 
@@ -62,6 +70,8 @@ export default function TaskForm({ task, projectId, onClose, onSuccess }: TaskFo
           projectId: selectedProjectId || undefined,
           dueDate: dueDateTime,
           priority,
+          labels,
+          recurrence: recurrence || null,
         };
         await tasksApi.update(task.id, updateData);
       } else {
@@ -71,13 +81,15 @@ export default function TaskForm({ task, projectId, onClose, onSuccess }: TaskFo
           projectId: selectedProjectId || undefined,
           dueDate: dueDateTime,
           priority,
+          labels,
+          recurrence: recurrence || undefined,
         };
         await tasksApi.create(createData);
       }
       onSuccess();
     } catch (error) {
       console.error('Failed to save task:', error);
-      alert('Failed to save task');
+      toast.error('Failed to save task');
     } finally {
       setLoading(false);
     }
@@ -111,25 +123,19 @@ export default function TaskForm({ task, projectId, onClose, onSuccess }: TaskFo
 
           <div>
             <Label htmlFor="project">Project</Label>
-            <Select.Root value={selectedProjectId} onValueChange={setSelectedProjectId}>
-              <Select.Trigger className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm">
-                <Select.Value placeholder="Select project" />
-              </Select.Trigger>
-              <Select.Portal>
-                <Select.Content className="overflow-hidden rounded-md border bg-popover text-popover-foreground shadow-md">
-                  <Select.Viewport className="p-1">
-                    <Select.Item value="" className="relative flex cursor-pointer select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none hover:bg-accent">
-                      <Select.ItemText>None (Inbox)</Select.ItemText>
-                    </Select.Item>
-                    {projects.map(project => (
-                      <Select.Item key={project.id} value={project.id} className="relative flex cursor-pointer select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none hover:bg-accent">
-                        <Select.ItemText>{project.name}</Select.ItemText>
-                      </Select.Item>
-                    ))}
-                  </Select.Viewport>
-                </Select.Content>
-              </Select.Portal>
-            </Select.Root>
+            <Select value={selectedProjectId} onValueChange={setSelectedProjectId}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select project" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">None (Inbox)</SelectItem>
+                {projects.map(project => (
+                  <SelectItem key={project.id} value={project.id}>
+                    {project.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
@@ -155,29 +161,35 @@ export default function TaskForm({ task, projectId, onClose, onSuccess }: TaskFo
 
           <div>
             <Label htmlFor="priority">Priority</Label>
-            <Select.Root value={priority} onValueChange={(value) => setPriority(value as TaskPriority)}>
-              <Select.Trigger className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm">
-                <Select.Value />
-              </Select.Trigger>
-              <Select.Portal>
-                <Select.Content className="overflow-hidden rounded-md border bg-popover text-popover-foreground shadow-md">
-                  <Select.Viewport className="p-1">
-                    <Select.Item value={TaskPriority.LOW} className="relative flex cursor-pointer select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none hover:bg-accent">
-                      <Select.ItemText>Low</Select.ItemText>
-                    </Select.Item>
-                    <Select.Item value={TaskPriority.MEDIUM} className="relative flex cursor-pointer select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none hover:bg-accent">
-                      <Select.ItemText>Medium</Select.ItemText>
-                    </Select.Item>
-                    <Select.Item value={TaskPriority.HIGH} className="relative flex cursor-pointer select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none hover:bg-accent">
-                      <Select.ItemText>High</Select.ItemText>
-                    </Select.Item>
-                    <Select.Item value={TaskPriority.URGENT} className="relative flex cursor-pointer select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none hover:bg-accent">
-                      <Select.ItemText>Urgent</Select.ItemText>
-                    </Select.Item>
-                  </Select.Viewport>
-                </Select.Content>
-              </Select.Portal>
-            </Select.Root>
+            <Select value={priority} onValueChange={(value) => setPriority(value as TaskPriority)}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value={TaskPriority.LOW}>Low</SelectItem>
+                <SelectItem value={TaskPriority.MEDIUM}>Medium</SelectItem>
+                <SelectItem value={TaskPriority.HIGH}>High</SelectItem>
+                <SelectItem value={TaskPriority.URGENT}>Urgent</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div>
+            <Label>Labels</Label>
+            <LabelPicker
+              selectedLabels={labels}
+              onChange={setLabels}
+              disabled={loading}
+            />
+          </div>
+
+          <div>
+            <Label>Repeat</Label>
+            <RecurrencePicker
+              value={recurrence}
+              onChange={setRecurrence}
+              disabled={loading}
+            />
           </div>
 
           <div className="flex justify-end gap-2">

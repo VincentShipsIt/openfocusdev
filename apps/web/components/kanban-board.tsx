@@ -99,7 +99,7 @@ export default function KanbanBoard({ tasks, onUpdate, onDelete }: KanbanBoardPr
           return (
             <div key={column.id} className="flex flex-col">
               <h3 className="font-semibold mb-2">{column.title} ({columnTasks.length})</h3>
-              <Droppable droppableId={column.id}>
+              <Droppable droppableId={column.id} isDropDisabled={false}>
                 {(provided, snapshot) => (
                   <div
                     ref={provided.innerRef}

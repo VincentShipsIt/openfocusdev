@@ -65,6 +65,9 @@ export class Project {
   @Prop({ required: true, default: 0 })
   order: number;
 
+  @Prop({ required: true, default: false })
+  isFavorite: boolean;
+
   @Prop({ required: true })
   userId: string;
 }

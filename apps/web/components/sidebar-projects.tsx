@@ -1,12 +1,13 @@
 'use client';
 
 import { useApi } from '@/hooks/use-api';
-import { Input } from '@shipshitdev/ui';
+import { Input } from '@/components/ui/input';
 import { Project, Task } from '@todoist/shared';
-import { ChevronDown, ChevronRight, Hash, Plus } from 'lucide-react';
+import { ChevronDown, ChevronRight, Hash, Plus, Star } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { toast } from 'sonner';
 
 interface ProjectWithCount extends Project {
   taskCount: number;
@@ -17,7 +18,8 @@ export default function SidebarProjects() {
   const pathname = usePathname();
   const [projects, setProjects] = useState<ProjectWithCount[]>([]);
   const [loading, setLoading] = useState(true);
-  const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isFavoritesCollapsed, setIsFavoritesCollapsed] = useState(false);
+  const [isProjectsCollapsed, setIsProjectsCollapsed] = useState(false);
   const [isAdding, setIsAdding] = useState(false);
   const [newProjectName, setNewProjectName] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -71,6 +73,18 @@ export default function SidebarProjects() {
     }
   };
 
+  const handleToggleFavorite = async (e: React.MouseEvent, projectId: string) => {
+    e.preventDefault();
+    e.stopPropagation();
+    try {
+      await projectsApi.toggleFavorite(projectId);
+      loadProjects();
+    } catch (error) {
+      console.error('Failed to toggle favorite:', error);
+      toast.error('Failed to update favorite');
+    }
+  };
+
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
       e.preventDefault();
@@ -83,94 +97,141 @@ export default function SidebarProjects() {
   };
 
   const isProjectActive = (projectId: string) => {
-    return pathname === `/projects/${projectId}`;
+    return pathname.startsWith(`/projects/${projectId}`);
   };
 
-  return (
-    <div className="space-y-1">
-      {/* Section Header */}
-      <div className="flex items-center justify-between px-3 py-1.5 group">
-        <button
-          onClick={() => setIsCollapsed(!isCollapsed)}
-          className="flex items-center gap-1 text-xs font-semibold text-muted-foreground uppercase tracking-wide hover:text-foreground transition-colors"
-        >
-          {isCollapsed ? (
-            <ChevronRight className="h-3 w-3" />
-          ) : (
-            <ChevronDown className="h-3 w-3" />
+  const favoriteProjects = projects.filter((p) => p.isFavorite);
+  const nonFavoriteProjects = projects.filter((p) => !p.isFavorite);
+
+  const renderProject = (project: ProjectWithCount, showStar = true) => (
+    <Link key={project.id} href={`/projects/${project.id}`}>
+      <div
+        className={`flex items-center justify-between px-3 py-1.5 rounded-md text-sm transition-colors group/item ${
+          isProjectActive(project.id)
+            ? 'bg-accent text-foreground'
+            : 'text-foreground/80 hover:bg-accent'
+        }`}
+      >
+        <div className="flex items-center gap-2 min-w-0">
+          <Hash
+            className="h-4 w-4 flex-shrink-0"
+            style={{ color: project.color || '#6b7280' }}
+          />
+          <span className="truncate">{project.name}</span>
+        </div>
+        <div className="flex items-center gap-1">
+          {project.taskCount > 0 && (
+            <span className="text-xs text-muted-foreground">
+              {project.taskCount}
+            </span>
           )}
-          <span>My Projects</span>
-        </button>
-        <button
-          onClick={() => setIsAdding(true)}
-          className="p-1 text-muted-foreground hover:text-foreground hover:bg-accent rounded opacity-0 group-hover:opacity-100 transition-all"
-        >
-          <Plus className="h-4 w-4" />
-        </button>
+          {showStar && (
+            <button
+              onClick={(e) => handleToggleFavorite(e, project.id)}
+              className={`p-0.5 rounded transition-all ${
+                project.isFavorite
+                  ? 'text-yellow-500'
+                  : 'text-muted-foreground opacity-0 group-hover/item:opacity-100 hover:text-yellow-500'
+              }`}
+            >
+              <Star className={`h-3.5 w-3.5 ${project.isFavorite ? 'fill-current' : ''}`} />
+            </button>
+          )}
+        </div>
       </div>
+    </Link>
+  );
 
-      {!isCollapsed && (
-        <div className="space-y-0.5">
-          {loading ? (
-            <div className="px-6 py-2 text-sm text-muted-foreground">Loading...</div>
-          ) : (
-            <>
-              {projects.map((project) => (
-                <Link key={project.id} href={`/projects/${project.id}`}>
-                  <div
-                    className={`flex items-center justify-between px-3 py-1.5 rounded-md text-sm transition-colors ${
-                      isProjectActive(project.id)
-                        ? 'bg-accent text-foreground'
-                        : 'text-foreground/80 hover:bg-accent'
-                    }`}
-                  >
-                    <div className="flex items-center gap-2 min-w-0">
-                      <Hash
-                        className="h-4 w-4 flex-shrink-0"
-                        style={{ color: project.color || '#6b7280' }}
-                      />
-                      <span className="truncate">{project.name}</span>
-                    </div>
-                    {project.taskCount > 0 && (
-                      <span className="text-xs text-muted-foreground ml-2">
-                        {project.taskCount}
-                      </span>
-                    )}
-                  </div>
-                </Link>
-              ))}
-
-              {projects.length === 0 && !isAdding && (
-                <div className="px-6 py-2 text-sm text-muted-foreground">
-                  No projects yet
-                </div>
+  return (
+    <div className="space-y-4">
+      {/* Favorites Section */}
+      {favoriteProjects.length > 0 && (
+        <div className="space-y-1">
+          <div className="flex items-center justify-between px-3 py-1.5 group">
+            <button
+              onClick={() => setIsFavoritesCollapsed(!isFavoritesCollapsed)}
+              className="flex items-center gap-1 text-xs font-semibold text-muted-foreground uppercase tracking-wide hover:text-foreground transition-colors"
+            >
+              {isFavoritesCollapsed ? (
+                <ChevronRight className="h-3 w-3" />
+              ) : (
+                <ChevronDown className="h-3 w-3" />
               )}
+              <Star className="h-3 w-3 text-yellow-500 fill-yellow-500" />
+              <span>Favorites</span>
+            </button>
+          </div>
 
-              {isAdding && (
-                <div className="px-3 py-1">
-                  <div className="flex items-center gap-2">
-                    <Hash className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                    <Input
-                      ref={inputRef}
-                      value={newProjectName}
-                      onChange={(e) => setNewProjectName(e.target.value)}
-                      onKeyDown={handleKeyDown}
-                      onBlur={() => {
-                        if (!newProjectName.trim()) {
-                          setIsAdding(false);
-                        }
-                      }}
-                      disabled={isSubmitting}
-                      placeholder="Project name"
-                      className="h-7 text-sm border-0 bg-transparent p-0 focus-visible:ring-0"
-                    />
-                  </div>
-                </div>
-              )}
-            </>
+          {!isFavoritesCollapsed && (
+            <div className="space-y-0.5">
+              {favoriteProjects.map((project) => renderProject(project, false))}
+            </div>
           )}
         </div>
       )}
+
+      {/* My Projects Section */}
+      <div className="space-y-1">
+        <div className="flex items-center justify-between px-3 py-1.5 group">
+          <button
+            onClick={() => setIsProjectsCollapsed(!isProjectsCollapsed)}
+            className="flex items-center gap-1 text-xs font-semibold text-muted-foreground uppercase tracking-wide hover:text-foreground transition-colors"
+          >
+            {isProjectsCollapsed ? (
+              <ChevronRight className="h-3 w-3" />
+            ) : (
+              <ChevronDown className="h-3 w-3" />
+            )}
+            <span>My Projects</span>
+          </button>
+          <button
+            onClick={() => setIsAdding(true)}
+            className="p-1 text-muted-foreground hover:text-foreground hover:bg-accent rounded opacity-0 group-hover:opacity-100 transition-all"
+          >
+            <Plus className="h-4 w-4" />
+          </button>
+        </div>
+
+        {!isProjectsCollapsed && (
+          <div className="space-y-0.5">
+            {loading ? (
+              <div className="px-6 py-2 text-sm text-muted-foreground">Loading...</div>
+            ) : (
+              <>
+                {nonFavoriteProjects.map((project) => renderProject(project))}
+
+                {nonFavoriteProjects.length === 0 && favoriteProjects.length === 0 && !isAdding && (
+                  <div className="px-6 py-2 text-sm text-muted-foreground">
+                    No projects yet
+                  </div>
+                )}
+
+                {isAdding && (
+                  <div className="px-3 py-1">
+                    <div className="flex items-center gap-2">
+                      <Hash className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                      <Input
+                        ref={inputRef}
+                        value={newProjectName}
+                        onChange={(e) => setNewProjectName(e.target.value)}
+                        onKeyDown={handleKeyDown}
+                        onBlur={() => {
+                          if (!newProjectName.trim()) {
+                            setIsAdding(false);
+                          }
+                        }}
+                        disabled={isSubmitting}
+                        placeholder="Project name"
+                        className="h-7 text-sm border-0 bg-transparent p-0 focus-visible:ring-0"
+                      />
+                    </div>
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

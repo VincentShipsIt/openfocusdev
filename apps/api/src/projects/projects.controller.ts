@@ -67,5 +67,14 @@ export class ProjectsController {
   ) {
     return this.projectsService.remove(id, user.userId);
   }
+
+  @Post(':id/favorite')
+  @ApiOperation({ summary: 'Toggle project favorite status' })
+  toggleFavorite(
+    @Param('id') id: string,
+    @CurrentUser() user: { userId: string },
+  ) {
+    return this.projectsService.toggleFavorite(id, user.userId);
+  }
 }
 

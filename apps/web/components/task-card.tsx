@@ -1,7 +1,7 @@
 'use client';
 
 import { useApi } from '@/hooks/use-api';
-import { Button } from '@shipshitdev/ui';
+import { Button } from '@/components/ui/button';
 import { formatTaskDueDate, Task } from '@todoist/shared';
 import { Edit, Trash2 } from 'lucide-react';
 import { useState } from 'react';

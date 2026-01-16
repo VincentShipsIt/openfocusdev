@@ -7,6 +7,8 @@ import { TasksModule } from './tasks/tasks.module';
 import { ProjectsModule } from './projects/projects.module';
 import { HistoryModule } from './history/history.module';
 import { GoalsModule } from './goals/goals.module';
+import { CommentsModule } from './comments/comments.module';
+import { ConnectionsModule } from './connections/connections.module';
 import { JsonApiInterceptor } from './common/interceptors/jsonapi.interceptor';
 
 @Module({
@@ -15,13 +17,15 @@ import { JsonApiInterceptor } from './common/interceptors/jsonapi.interceptor';
       isGlobal: true,
     }),
     MongooseModule.forRoot(
-      process.env.DATABASE_URL || 'mongodb://localhost:27017/todoist',
+      process.env.MONGODB_URI || 'mongodb://localhost:27017/taskflow',
     ),
     AuthModule,
     TasksModule,
     ProjectsModule,
     HistoryModule,
     GoalsModule,
+    CommentsModule,
+    ConnectionsModule,
   ],
   providers: [
     {

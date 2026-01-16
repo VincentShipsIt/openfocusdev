@@ -63,5 +63,15 @@ export class ProjectsService {
       throw new NotFoundException(`Project with ID ${id} not found`);
     }
   }
+
+  async toggleFavorite(id: string, userId: string): Promise<Project> {
+    const project = await this.projectModel.findOne({ _id: id, userId }).exec();
+    if (!project) {
+      throw new NotFoundException(`Project with ID ${id} not found`);
+    }
+
+    project.isFavorite = !project.isFavorite;
+    return project.save();
+  }
 }
 

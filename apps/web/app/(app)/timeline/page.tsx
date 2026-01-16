@@ -3,7 +3,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useApi } from '@/hooks/use-api';
 import { Project, ProjectStatus, Task } from '@todoist/shared';
-import { Button } from '@shipshitdev/ui';
+import { Button } from '@/components/ui/button';
 import { Plus, ChevronLeft, ChevronRight, Rocket, Pause, Archive, Lightbulb, ClipboardList, Play, TestTube, Send } from 'lucide-react';
 import ProjectForm from '@/components/project-form';
 import Link from 'next/link';

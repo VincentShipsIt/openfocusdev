@@ -4,8 +4,8 @@ import { useEffect, useState, useCallback } from 'react';
 import Link from 'next/link';
 import { useApi } from '@/hooks/use-api';
 import { Project, ProjectStatus } from '@todoist/shared';
-import { Card, CardContent, CardHeader } from '@shipshitdev/ui';
-import { Button } from '@shipshitdev/ui';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { Plus, Rocket, Pause, Archive, Lightbulb, ClipboardList, Play, TestTube, Send } from 'lucide-react';
 import ProjectForm from '@/components/project-form';
 

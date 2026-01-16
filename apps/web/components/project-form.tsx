@@ -1,8 +1,13 @@
 'use client';
 
 import { useApi } from '@/hooks/use-api';
-import { Button, Dialog, DialogContent, DialogHeader, DialogTitle, Input, Label, Textarea } from '@shipshitdev/ui';
+import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import { CreateProjectDto, ProjectCategory, ProjectStatus } from '@todoist/shared';
+import { toast } from 'sonner';
 import { useState } from 'react';
 
 interface ProjectFormProps {
@@ -61,7 +66,7 @@ export default function ProjectForm({ onClose, onSuccess }: ProjectFormProps) {
       onSuccess();
     } catch (error) {
       console.error('Failed to create project:', error);
-      alert('Failed to create project');
+      toast.error('Failed to create project');
     } finally {
       setLoading(false);
     }
