@@ -6,6 +6,7 @@
     "dev": "next dev --port 3000 --webpack",
     "build": "next build",
     "pre:install": "bun update --latest --recursive && bun install",
+    "test": "vitest run",
     "start": "next start",
     "lint": "biome check .",
     "lint:fix": "biome check --write .",
