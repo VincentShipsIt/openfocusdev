@@ -73,3 +73,9 @@ export class Project {
 }
 
 export const ProjectSchema = SchemaFactory.createForClass(Project);
+
+ProjectSchema.index({ userId: 1 });
+ProjectSchema.index({ userId: 1, status: 1 });
+ProjectSchema.index({ userId: 1, category: 1 });
+ProjectSchema.index({ userId: 1, isFavorite: 1 });
+ProjectSchema.index({ userId: 1, order: 1 });
