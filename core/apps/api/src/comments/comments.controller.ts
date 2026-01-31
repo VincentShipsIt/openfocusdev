@@ -1,19 +1,10 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Patch,
-  Param,
-  Delete,
-  UseGuards,
-} from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
+import { Body, Controller, Delete, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { CurrentUser } from '../auth/decorators/current-user.decorator';
+import { ClerkAuthGuard } from '../auth/guards/clerk-auth.guard';
 import { CommentsService } from './comments.service';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { UpdateCommentDto } from './dto/update-comment.dto';
-import { ClerkAuthGuard } from '../auth/guards/clerk-auth.guard';
-import { CurrentUser } from '../auth/decorators/current-user.decorator';
 
 @ApiTags('comments')
 @ApiBearerAuth()
@@ -27,7 +18,7 @@ export class CommentsController {
   create(
     @Param('taskId') taskId: string,
     @Body() createCommentDto: CreateCommentDto,
-    @CurrentUser() user: { userId: string },
+    @CurrentUser() user: { userId: string }
   ) {
     return this.commentsService.create(taskId, createCommentDto, user.userId);
   }
@@ -43,17 +34,14 @@ export class CommentsController {
   update(
     @Param('id') id: string,
     @Body() updateCommentDto: UpdateCommentDto,
-    @CurrentUser() user: { userId: string },
+    @CurrentUser() user: { userId: string }
   ) {
     return this.commentsService.update(id, updateCommentDto, user.userId);
   }
 
   @Delete('comments/:id')
   @ApiOperation({ summary: 'Delete a comment' })
-  remove(
-    @Param('id') id: string,
-    @CurrentUser() user: { userId: string },
-  ) {
+  remove(@Param('id') id: string, @CurrentUser() user: { userId: string }) {
     return this.commentsService.remove(id, user.userId);
   }
 }

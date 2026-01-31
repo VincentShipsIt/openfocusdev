@@ -45,4 +45,3 @@ export class Goal {
 }
 
 export const GoalSchema = SchemaFactory.createForClass(Goal);
-

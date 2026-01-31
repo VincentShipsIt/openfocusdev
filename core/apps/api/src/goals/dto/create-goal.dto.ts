@@ -1,5 +1,14 @@
-import { IsString, IsOptional, IsEnum, IsNumber, IsArray, ValidateNested, IsDateString, IsBoolean } from 'class-validator';
 import { Type } from 'class-transformer';
+import {
+  IsArray,
+  IsBoolean,
+  IsDateString,
+  IsEnum,
+  IsNumber,
+  IsOptional,
+  IsString,
+  ValidateNested,
+} from 'class-validator';
 
 export enum GoalCategory {
   BUSINESS = 'business',
@@ -39,4 +48,3 @@ export class CreateGoalDto {
   @IsOptional()
   milestones?: CreateMilestoneDto[];
 }
-

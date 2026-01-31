@@ -1,4 +1,4 @@
-import { IsString, IsEnum } from 'class-validator';
+import { IsEnum, IsString } from 'class-validator';
 
 export type ConnectionType = 'dependency' | 'sequence';
 

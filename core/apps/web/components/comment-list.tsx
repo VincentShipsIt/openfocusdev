@@ -1,12 +1,12 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
 import { Comment } from '@todoist/shared';
-import { useApi } from '@/hooks/use-api';
+import { MessageSquare, Send, Trash2 } from 'lucide-react';
+import { useCallback, useEffect, useState } from 'react';
+import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { toast } from 'sonner';
-import { MessageSquare, Send, Trash2 } from 'lucide-react';
+import { useApi } from '@/hooks/use-api';
 
 interface CommentListProps {
   taskId: string;
@@ -91,15 +91,10 @@ export default function CommentList({ taskId, currentUserId }: CommentListProps)
       ) : comments.length > 0 ? (
         <div className="space-y-3">
           {comments.map((comment) => (
-            <div
-              key={comment.id}
-              className="group bg-accent/50 rounded-lg p-3"
-            >
+            <div key={comment.id} className="group bg-accent/50 rounded-lg p-3">
               <div className="flex items-start justify-between gap-2">
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm whitespace-pre-wrap break-words">
-                    {comment.content}
-                  </p>
+                  <p className="text-sm whitespace-pre-wrap break-words">{comment.content}</p>
                   <p className="text-xs text-muted-foreground mt-1">
                     {formatDate(comment.createdAt)}
                   </p>
@@ -137,11 +132,7 @@ export default function CommentList({ taskId, currentUserId }: CommentListProps)
           }}
         />
         <div className="flex justify-end">
-          <Button
-            size="sm"
-            onClick={handleSubmit}
-            disabled={!newComment.trim() || isSubmitting}
-          >
+          <Button size="sm" onClick={handleSubmit} disabled={!newComment.trim() || isSubmitting}>
             <Send className="h-3 w-3 mr-1" />
             {isSubmitting ? 'Sending...' : 'Send'}
           </Button>

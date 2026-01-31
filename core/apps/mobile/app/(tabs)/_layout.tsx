@@ -4,9 +4,7 @@ import { Text } from 'react-native';
 
 // Simple text-based tab icons
 function TabIcon({ icon, color }: { icon: string; color: string }) {
-  return (
-    <Text style={{ fontSize: 20, color }}>{icon}</Text>
-  );
+  return <Text style={{ fontSize: 20, color }}>{icon}</Text>;
 }
 
 export default function TabsLayout() {

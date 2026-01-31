@@ -1,5 +1,5 @@
-import { IsString, IsOptional, IsIn, IsArray, IsDateString } from 'class-validator';
-import { PROJECT_STATUSES, PROJECT_CATEGORIES } from '../schemas/project.schema';
+import { IsArray, IsDateString, IsIn, IsOptional, IsString } from 'class-validator';
+import { PROJECT_CATEGORIES, PROJECT_STATUSES } from '../schemas/project.schema';
 
 export class CreateProjectDto {
   @IsString()
@@ -40,4 +40,3 @@ export class CreateProjectDto {
   @IsOptional()
   tags?: string[];
 }
-

@@ -1,11 +1,11 @@
 'use client';
 
-import { useApi } from '@/hooks/use-api';
 import { formatTaskDueDate, isOverdue, Task, TaskPriority } from '@todoist/shared';
 import { Calendar, ChevronDown, ChevronRight, Edit2, Plus, Repeat, Trash2 } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import TaskForm from './task-form';
+import { useApi } from '@/hooks/use-api';
 import LabelBadge from './label-badge';
+import TaskForm from './task-form';
 
 interface TaskItemProps {
   task: Task;
@@ -215,9 +215,7 @@ export default function TaskItem({ task, onUpdate, onDelete, level = 0, onClick 
         >
           <div
             className={`w-5 h-5 rounded-full border-2 transition-all duration-200 flex items-center justify-center ${
-              task.completedAt
-                ? 'bg-primary border-primary'
-                : 'hover:bg-opacity-20'
+              task.completedAt ? 'bg-primary border-primary' : 'hover:bg-opacity-20'
             }`}
             style={{
               borderColor: task.completedAt ? undefined : priorityColor,
@@ -225,8 +223,18 @@ export default function TaskItem({ task, onUpdate, onDelete, level = 0, onClick 
             }}
           >
             {task.completedAt && (
-              <svg className="w-3 h-3 text-primary-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+              <svg
+                className="w-3 h-3 text-primary-foreground"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={3}
+                  d="M5 13l4 4L19 7"
+                />
               </svg>
             )}
           </div>
@@ -254,7 +262,6 @@ export default function TaskItem({ task, onUpdate, onDelete, level = 0, onClick 
                   : 'text-foreground hover:text-foreground/80'
               }`}
               onClick={handleInlineEditStart}
-              role="button"
               tabIndex={0}
               onKeyDown={(e) => e.key === 'Enter' && handleInlineEditStart()}
             >
@@ -270,38 +277,43 @@ export default function TaskItem({ task, onUpdate, onDelete, level = 0, onClick 
           )}
 
           {/* Labels, Recurrence, and Due Date */}
-          {!isInlineEditing && (task.dueDate || (task.labels && task.labels.length > 0) || task.recurrence) && (
-            <div className="flex items-center gap-2 mt-1.5 flex-wrap">
-              {/* Labels */}
-              {task.labels && task.labels.length > 0 && (
-                <div className="flex items-center gap-1 flex-wrap">
-                  {task.labels.map((label) => (
-                    <LabelBadge key={label} label={label} />
-                  ))}
-                </div>
-              )}
-              {/* Recurrence */}
-              {task.recurrence && (
-                <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                  <Repeat className="h-3 w-3" />
-                </div>
-              )}
-              {/* Due Date */}
-              {task.dueDate && (
-                <div className={`flex items-center gap-1 text-xs ${
-                  isTaskOverdue ? 'text-destructive' : 'text-muted-foreground'
-                }`}>
-                  <Calendar className="h-3 w-3" />
-                  <span>{formatTaskDueDate(task.dueDate)}</span>
-                </div>
-              )}
-            </div>
-          )}
+          {!isInlineEditing &&
+            (task.dueDate || (task.labels && task.labels.length > 0) || task.recurrence) && (
+              <div className="flex items-center gap-2 mt-1.5 flex-wrap">
+                {/* Labels */}
+                {task.labels && task.labels.length > 0 && (
+                  <div className="flex items-center gap-1 flex-wrap">
+                    {task.labels.map((label) => (
+                      <LabelBadge key={label} label={label} />
+                    ))}
+                  </div>
+                )}
+                {/* Recurrence */}
+                {task.recurrence && (
+                  <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                    <Repeat className="h-3 w-3" />
+                  </div>
+                )}
+                {/* Due Date */}
+                {task.dueDate && (
+                  <div
+                    className={`flex items-center gap-1 text-xs ${
+                      isTaskOverdue ? 'text-destructive' : 'text-muted-foreground'
+                    }`}
+                  >
+                    <Calendar className="h-3 w-3" />
+                    <span>{formatTaskDueDate(task.dueDate)}</span>
+                  </div>
+                )}
+              </div>
+            )}
         </div>
 
         {/* Actions */}
         {!isInlineEditing && (
-          <div className={`flex items-center gap-1 transition-opacity ${isHovered ? 'opacity-100' : 'opacity-0'}`}>
+          <div
+            className={`flex items-center gap-1 transition-opacity ${isHovered ? 'opacity-100' : 'opacity-0'}`}
+          >
             {level < maxLevel && !task.completedAt && (
               <button
                 onClick={() => setIsAddingSubtask(true)}
@@ -337,7 +349,10 @@ export default function TaskItem({ task, onUpdate, onDelete, level = 0, onClick 
 
       {/* Add subtask input */}
       {isAddingSubtask && (
-        <div className="flex items-center gap-3 py-2 pl-12" style={{ paddingLeft: paddingLeft + 48 }}>
+        <div
+          className="flex items-center gap-3 py-2 pl-12"
+          style={{ paddingLeft: paddingLeft + 48 }}
+        >
           <input
             ref={subtaskInputRef}
             type="text"

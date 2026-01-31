@@ -1,15 +1,20 @@
-import { Injectable, NotFoundException, BadRequestException, ConflictException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { Connection, ConnectionDocument } from './schemas/connection.schema';
-import { CreateConnectionDto } from './dto/create-connection.dto';
 import { Task, TaskDocument } from '../tasks/schemas/task.schema';
+import { CreateConnectionDto } from './dto/create-connection.dto';
+import { Connection, ConnectionDocument } from './schemas/connection.schema';
 
 @Injectable()
 export class ConnectionsService {
   constructor(
     @InjectModel(Connection.name) private connectionModel: Model<ConnectionDocument>,
-    @InjectModel(Task.name) private taskModel: Model<TaskDocument>,
+    @InjectModel(Task.name) private taskModel: Model<TaskDocument>
   ) {}
 
   async create(createConnectionDto: CreateConnectionDto, userId: string): Promise<Connection> {
@@ -42,11 +47,13 @@ export class ConnectionsService {
     }
 
     // Check for duplicate connection
-    const existing = await this.connectionModel.findOne({
-      sourceTaskId,
-      targetTaskId,
-      userId,
-    }).exec();
+    const existing = await this.connectionModel
+      .findOne({
+        sourceTaskId,
+        targetTaskId,
+        userId,
+      })
+      .exec();
 
     if (existing) {
       throw new ConflictException('Connection already exists');
@@ -72,11 +79,13 @@ export class ConnectionsService {
       if (visited.has(current)) continue;
       visited.add(current);
 
-      const outgoing = await this.connectionModel.find({
-        sourceTaskId: current,
-        type: 'dependency',
-        userId,
-      }).exec();
+      const outgoing = await this.connectionModel
+        .find({
+          sourceTaskId: current,
+          type: 'dependency',
+          userId,
+        })
+        .exec();
 
       for (const conn of outgoing) {
         if (!visited.has(conn.targetTaskId)) {
@@ -119,20 +128,24 @@ export class ConnectionsService {
 
   async getBlockedStatus(taskId: string, userId: string): Promise<boolean> {
     // Find all dependency connections where this task is the target
-    const dependencies = await this.connectionModel.find({
-      targetTaskId: taskId,
-      type: 'dependency',
-      userId,
-    }).exec();
+    const dependencies = await this.connectionModel
+      .find({
+        targetTaskId: taskId,
+        type: 'dependency',
+        userId,
+      })
+      .exec();
 
     if (dependencies.length === 0) return false;
 
     // Check if any source task is incomplete
     for (const dep of dependencies) {
-      const sourceTask = await this.taskModel.findOne({
-        _id: dep.sourceTaskId,
-        userId,
-      }).exec();
+      const sourceTask = await this.taskModel
+        .findOne({
+          _id: dep.sourceTaskId,
+          userId,
+        })
+        .exec();
 
       if (sourceTask && !sourceTask.completedAt) {
         return true;
@@ -143,9 +156,11 @@ export class ConnectionsService {
   }
 
   async removeByTask(taskId: string, userId: string): Promise<void> {
-    await this.connectionModel.deleteMany({
-      $or: [{ sourceTaskId: taskId }, { targetTaskId: taskId }],
-      userId,
-    }).exec();
+    await this.connectionModel
+      .deleteMany({
+        $or: [{ sourceTaskId: taskId }, { targetTaskId: taskId }],
+        userId,
+      })
+      .exec();
   }
 }

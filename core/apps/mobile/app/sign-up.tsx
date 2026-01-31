@@ -1,5 +1,5 @@
-import { View, Text, StyleSheet } from 'react-native';
 import { SignUp } from '@clerk/expo';
+import { StyleSheet, View } from 'react-native';
 
 export default function SignUpScreen() {
   return (
@@ -17,4 +17,3 @@ const styles = StyleSheet.create({
     padding: 16,
   },
 });
-

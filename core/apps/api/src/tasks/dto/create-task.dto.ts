@@ -1,5 +1,15 @@
-import { IsString, IsOptional, IsEnum, IsArray, IsDateString, IsObject, ValidateNested, IsNumber, IsBoolean } from 'class-validator';
 import { Type } from 'class-transformer';
+import {
+  IsArray,
+  IsBoolean,
+  IsDateString,
+  IsEnum,
+  IsNumber,
+  IsObject,
+  IsOptional,
+  IsString,
+  ValidateNested,
+} from 'class-validator';
 
 export enum TaskPriority {
   LOW = 'low',
@@ -83,4 +93,3 @@ export class CreateTaskDto {
   @IsOptional()
   nodePosition?: NodePositionDto;
 }
-

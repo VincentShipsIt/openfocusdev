@@ -1,9 +1,9 @@
 'use client';
 
-import { useApi } from '@/hooks/use-api';
 import { Task } from '@todoist/shared';
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { DragDropContext, Draggable, Droppable, DropResult } from 'react-beautiful-dnd';
+import { useApi } from '@/hooks/use-api';
 import TaskCard from './task-card';
 
 interface KanbanBoardProps {
@@ -22,7 +22,7 @@ const columns: { id: ColumnId; title: string }[] = [
 
 export default function KanbanBoard({ tasks, onUpdate, onDelete }: KanbanBoardProps) {
   const { tasks: tasksApi } = useApi();
-  const [isDragging, setIsDragging] = useState(false);
+  const [_isDragging, setIsDragging] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
 
   // Handle SSR - react-beautiful-dnd requires client-side only rendering
@@ -32,12 +32,12 @@ export default function KanbanBoard({ tasks, onUpdate, onDelete }: KanbanBoardPr
 
   const getTasksByColumn = (columnId: ColumnId): Task[] => {
     if (columnId === 'done') {
-      return tasks.filter(task => task.completedAt);
+      return tasks.filter((task) => task.completedAt);
     }
     if (columnId === 'in-progress') {
-      return tasks.filter(task => !task.completedAt && task.priority === 'high');
+      return tasks.filter((task) => !task.completedAt && task.priority === 'high');
     }
-    return tasks.filter(task => !task.completedAt && task.priority !== 'high');
+    return tasks.filter((task) => !task.completedAt && task.priority !== 'high');
   };
 
   const handleDragEnd = async (result: DropResult) => {
@@ -47,7 +47,7 @@ export default function KanbanBoard({ tasks, onUpdate, onDelete }: KanbanBoardPr
 
     if (source.droppableId === destination.droppableId) return;
 
-    const task = tasks.find(t => t.id === draggableId);
+    const task = tasks.find((t) => t.id === draggableId);
     if (!task) return;
 
     try {
@@ -79,7 +79,7 @@ export default function KanbanBoard({ tasks, onUpdate, onDelete }: KanbanBoardPr
   if (!isMounted) {
     return (
       <div className="grid grid-cols-3 gap-4 h-full">
-        {columns.map(column => (
+        {columns.map((column) => (
           <div key={column.id} className="flex flex-col">
             <h3 className="font-semibold mb-2">{column.title}</h3>
             <div className="flex-1 p-2 rounded-lg border-2 border-border">
@@ -94,11 +94,13 @@ export default function KanbanBoard({ tasks, onUpdate, onDelete }: KanbanBoardPr
   return (
     <DragDropContext onDragStart={handleDragStart} onDragEnd={onDragEndHandler}>
       <div className="grid grid-cols-3 gap-4 h-full">
-        {columns.map(column => {
+        {columns.map((column) => {
           const columnTasks = getTasksByColumn(column.id);
           return (
             <div key={column.id} className="flex flex-col">
-              <h3 className="font-semibold mb-2">{column.title} ({columnTasks.length})</h3>
+              <h3 className="font-semibold mb-2">
+                {column.title} ({columnTasks.length})
+              </h3>
               <Droppable droppableId={column.id} isDropDisabled={false}>
                 {(provided, snapshot) => (
                   <div
@@ -135,4 +137,3 @@ export default function KanbanBoard({ tasks, onUpdate, onDelete }: KanbanBoardPr
     </DragDropContext>
   );
 }
-

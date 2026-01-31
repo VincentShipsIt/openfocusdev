@@ -1,13 +1,13 @@
 'use client';
 
-import { useApi } from '@/hooks/use-api';
-import { Input } from '@/components/ui/input';
 import { Project, Task } from '@todoist/shared';
 import { ChevronDown, ChevronRight, Hash, Plus, Star } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
+import { Input } from '@/components/ui/input';
+import { useApi } from '@/hooks/use-api';
 
 interface ProjectWithCount extends Project {
   taskCount: number;
@@ -113,17 +113,12 @@ export default function SidebarProjects() {
         }`}
       >
         <div className="flex items-center gap-2 min-w-0">
-          <Hash
-            className="h-4 w-4 flex-shrink-0"
-            style={{ color: project.color || '#6b7280' }}
-          />
+          <Hash className="h-4 w-4 flex-shrink-0" style={{ color: project.color || '#6b7280' }} />
           <span className="truncate">{project.name}</span>
         </div>
         <div className="flex items-center gap-1">
           {project.taskCount > 0 && (
-            <span className="text-xs text-muted-foreground">
-              {project.taskCount}
-            </span>
+            <span className="text-xs text-muted-foreground">{project.taskCount}</span>
           )}
           {showStar && (
             <button
@@ -201,9 +196,7 @@ export default function SidebarProjects() {
                 {nonFavoriteProjects.map((project) => renderProject(project))}
 
                 {nonFavoriteProjects.length === 0 && favoriteProjects.length === 0 && !isAdding && (
-                  <div className="px-6 py-2 text-sm text-muted-foreground">
-                    No projects yet
-                  </div>
+                  <div className="px-6 py-2 text-sm text-muted-foreground">No projects yet</div>
                 )}
 
                 {isAdding && (

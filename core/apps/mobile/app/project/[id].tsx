@@ -111,12 +111,7 @@ export default function ProjectDetailScreen() {
 
       <View style={styles.header}>
         <View style={styles.headerLeft}>
-          <View
-            style={[
-              styles.projectDot,
-              { backgroundColor: project?.color || '#6b7280' },
-            ]}
-          />
+          <View style={[styles.projectDot, { backgroundColor: project?.color || '#6b7280' }]} />
           <Text style={styles.title}>{project?.name || 'Loading...'}</Text>
         </View>
         <Text style={styles.taskCount}>

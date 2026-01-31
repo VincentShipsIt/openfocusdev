@@ -1,6 +1,6 @@
-import { Task, TaskPriority } from '@todoist/shared';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { Task, TaskPriority } from '@todoist/shared';
 import { describe, expect, it, vi } from 'vitest';
 import TaskItem from '../task-item';
 
@@ -133,7 +133,7 @@ describe('TaskItem', () => {
     }
 
     // The delete button may be visible on hover
-    const deleteButton = screen.queryByRole('button', { name: /delete/i });
+    const _deleteButton = screen.queryByRole('button', { name: /delete/i });
     // Note: actual visibility depends on CSS, we just check it exists
   });
 });

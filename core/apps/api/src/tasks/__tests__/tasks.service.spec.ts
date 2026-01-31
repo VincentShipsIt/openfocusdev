@@ -3,7 +3,6 @@ import { getModelToken } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Model } from 'mongoose';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { CreateTaskDto } from '../dto/create-task.dto';
 import { UpdateTaskDto } from '../dto/update-task.dto';
 import { Task } from '../schemas/task.schema';
 import { TasksService } from '../tasks.service';
@@ -24,7 +23,7 @@ const mockTask = {
 
 describe('TasksService', () => {
   let service: TasksService;
-  let model: Model<Task>;
+  let _model: Model<Task>;
 
   const mockTaskModel = {
     new: vi.fn().mockResolvedValue(mockTask),
@@ -50,7 +49,7 @@ describe('TasksService', () => {
     }).compile();
 
     service = module.get<TasksService>(TasksService);
-    model = module.get<Model<Task>>(getModelToken(Task.name));
+    _model = module.get<Model<Task>>(getModelToken(Task.name));
   });
 
   describe('create', () => {
@@ -143,9 +142,7 @@ describe('TasksService', () => {
         exec: vi.fn().mockResolvedValue(null),
       });
 
-      await expect(
-        service.findOne('non-existent', 'user-id-1')
-      ).rejects.toThrow(NotFoundException);
+      await expect(service.findOne('non-existent', 'user-id-1')).rejects.toThrow(NotFoundException);
     });
   });
 
@@ -174,9 +171,9 @@ describe('TasksService', () => {
         exec: vi.fn().mockResolvedValue(null),
       });
 
-      await expect(
-        service.update('non-existent', { title: 'Test' }, 'user-id-1')
-      ).rejects.toThrow(NotFoundException);
+      await expect(service.update('non-existent', { title: 'Test' }, 'user-id-1')).rejects.toThrow(
+        NotFoundException
+      );
     });
   });
 
@@ -199,9 +196,7 @@ describe('TasksService', () => {
         exec: vi.fn().mockResolvedValue({ deletedCount: 0 }),
       });
 
-      await expect(
-        service.remove('non-existent', 'user-id-1')
-      ).rejects.toThrow(NotFoundException);
+      await expect(service.remove('non-existent', 'user-id-1')).rejects.toThrow(NotFoundException);
     });
   });
 

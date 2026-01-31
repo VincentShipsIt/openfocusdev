@@ -1,17 +1,17 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
-import { useParams, useRouter, notFound } from 'next/navigation';
+import { Project, Task, ViewMode } from '@todoist/shared';
+import { ArrowLeft, LayoutGrid, List, Plus, Workflow } from 'lucide-react';
 import Link from 'next/link';
-import { useApi } from '@/hooks/use-api';
-import { Task, Project, ViewMode } from '@todoist/shared';
-import TaskList from '@/components/task-list';
+import { notFound, useParams, useRouter } from 'next/navigation';
+import { useCallback, useEffect, useState } from 'react';
 import KanbanBoard from '@/components/kanban-board';
-import WorkflowView from '@/components/workflow-view';
-import TaskForm from '@/components/task-form';
 import QuickAddTask from '@/components/quick-add-task';
+import TaskForm from '@/components/task-form';
+import TaskList from '@/components/task-list';
 import { Button } from '@/components/ui/button';
-import { Plus, List, LayoutGrid, ArrowLeft, Workflow } from 'lucide-react';
+import WorkflowView from '@/components/workflow-view';
+import { useApi } from '@/hooks/use-api';
 
 const validViews = ['list', 'board', 'workflow'] as const;
 type ViewType = (typeof validViews)[number];
@@ -154,7 +154,11 @@ export default function ProjectViewPage() {
       </div>
 
       {showTaskForm && (
-        <TaskForm projectId={projectId} onClose={() => setShowTaskForm(false)} onSuccess={handleTaskCreated} />
+        <TaskForm
+          projectId={projectId}
+          onClose={() => setShowTaskForm(false)}
+          onSuccess={handleTaskCreated}
+        />
       )}
     </div>
   );

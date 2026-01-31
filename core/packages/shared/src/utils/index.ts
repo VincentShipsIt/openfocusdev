@@ -1,39 +1,39 @@
-import { format, formatDistanceToNow, isToday, isTomorrow, isPast, parseISO } from 'date-fns';
+import { format, formatDistanceToNow, isPast, isToday, isTomorrow, parseISO } from 'date-fns';
 
 export function formatTaskDueDate(dueDate: Date | string | undefined): string {
   if (!dueDate) return '';
-  
+
   const date = typeof dueDate === 'string' ? parseISO(dueDate) : dueDate;
-  
+
   if (isToday(date)) {
     return `Today, ${format(date, 'h:mm a')}`;
   }
-  
+
   if (isTomorrow(date)) {
     return `Tomorrow, ${format(date, 'h:mm a')}`;
   }
-  
+
   if (isPast(date)) {
     return formatDistanceToNow(date, { addSuffix: true });
   }
-  
+
   return format(date, 'MMM d, yyyy h:mm a');
 }
 
 export function formatDateOnly(date: Date | string | undefined): string {
   if (!date) return '';
-  
+
   const d = typeof date === 'string' ? parseISO(date) : date;
-  
+
   if (isToday(d)) return 'Today';
   if (isTomorrow(d)) return 'Tomorrow';
-  
+
   return format(d, 'MMM d, yyyy');
 }
 
 export function isOverdue(dueDate: Date | string | undefined): boolean {
   if (!dueDate) return false;
-  
+
   const date = typeof dueDate === 'string' ? parseISO(dueDate) : dueDate;
   return isPast(date) && !isToday(date);
 }
@@ -64,13 +64,10 @@ export function removeAuthToken(): void {
   }
 }
 
-export async function apiRequest<T>(
-  endpoint: string,
-  options: RequestInit = {}
-): Promise<T> {
+export async function apiRequest<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
   const token = getAuthToken();
   const url = `${getApiUrl()}${endpoint}`;
-  
+
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
   };
@@ -80,19 +77,18 @@ export async function apiRequest<T>(
   }
 
   if (token) {
-    headers['Authorization'] = `Bearer ${token}`;
+    headers.Authorization = `Bearer ${token}`;
   }
-  
+
   const response = await fetch(url, {
     ...options,
     headers,
   });
-  
+
   if (!response.ok) {
     const error = await response.json().catch(() => ({ message: 'Request failed' }));
     throw new Error(error.message || `HTTP ${response.status}`);
   }
-  
+
   return response.json();
 }
-

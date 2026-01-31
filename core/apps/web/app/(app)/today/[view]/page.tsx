@@ -1,19 +1,27 @@
 'use client';
 
-import KanbanBoard from '@/components/kanban-board';
-import QuickAddTask from '@/components/quick-add-task';
-import TaskForm from '@/components/task-form';
-import TaskList from '@/components/task-list';
-import WorkflowView from '@/components/workflow-view';
-import { useApi } from '@/hooks/use-api';
-import { Button } from '@/components/ui/button';
 import { Task, ViewMode } from '@todoist/shared';
-import { startOfDay, isBefore, isEqual, parseISO } from 'date-fns';
-import { AlertCircle, ChevronDown, ChevronUp, Circle, LayoutGrid, List, Workflow } from 'lucide-react';
+import { isBefore, isEqual, parseISO, startOfDay } from 'date-fns';
+import {
+  AlertCircle,
+  ChevronDown,
+  ChevronUp,
+  Circle,
+  LayoutGrid,
+  List,
+  Workflow,
+} from 'lucide-react';
 import Link from 'next/link';
 import { notFound, useParams } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
+import KanbanBoard from '@/components/kanban-board';
+import QuickAddTask from '@/components/quick-add-task';
+import TaskForm from '@/components/task-form';
+import TaskList from '@/components/task-list';
+import { Button } from '@/components/ui/button';
+import WorkflowView from '@/components/workflow-view';
+import { useApi } from '@/hooks/use-api';
 
 const validViews = ['list', 'board', 'workflow'] as const;
 type ViewType = (typeof validViews)[number];
@@ -212,7 +220,11 @@ export default function TodayViewPage() {
                 onClick={() => setShowOverdue(!showOverdue)}
                 className="flex items-center gap-2 text-destructive font-medium"
               >
-                {showOverdue ? <ChevronDown className="h-4 w-4" /> : <ChevronUp className="h-4 w-4" />}
+                {showOverdue ? (
+                  <ChevronDown className="h-4 w-4" />
+                ) : (
+                  <ChevronUp className="h-4 w-4" />
+                )}
                 <AlertCircle className="h-4 w-4" />
                 <span>Overdue ({overdueTasks.length})</span>
               </button>
@@ -227,7 +239,11 @@ export default function TodayViewPage() {
             </div>
             {showOverdue && (
               <div className="border-l-2 border-destructive pl-4">
-                <TaskList tasks={overdueTasks} onUpdate={handleTaskUpdated} onDelete={handleTaskDeleted} />
+                <TaskList
+                  tasks={overdueTasks}
+                  onUpdate={handleTaskUpdated}
+                  onDelete={handleTaskDeleted}
+                />
               </div>
             )}
           </div>
@@ -251,12 +267,22 @@ export default function TodayViewPage() {
             ) : todayTasks.length > 0 ? (
               <>
                 {overdueTasks.length > 0 && (
-                  <h3 className="text-sm font-medium text-muted-foreground mb-3 uppercase">Today</h3>
+                  <h3 className="text-sm font-medium text-muted-foreground mb-3 uppercase">
+                    Today
+                  </h3>
                 )}
                 {viewMode === ViewMode.LIST ? (
-                  <TaskList tasks={todayTasks} onUpdate={handleTaskUpdated} onDelete={handleTaskDeleted} />
+                  <TaskList
+                    tasks={todayTasks}
+                    onUpdate={handleTaskUpdated}
+                    onDelete={handleTaskDeleted}
+                  />
                 ) : (
-                  <KanbanBoard tasks={todayTasks} onUpdate={handleTaskUpdated} onDelete={handleTaskDeleted} />
+                  <KanbanBoard
+                    tasks={todayTasks}
+                    onUpdate={handleTaskUpdated}
+                    onDelete={handleTaskDeleted}
+                  />
                 )}
               </>
             ) : null}
@@ -264,7 +290,9 @@ export default function TodayViewPage() {
         )}
       </div>
 
-      {showTaskForm && <TaskForm onClose={() => setShowTaskForm(false)} onSuccess={handleTaskCreated} />}
+      {showTaskForm && (
+        <TaskForm onClose={() => setShowTaskForm(false)} onSuccess={handleTaskCreated} />
+      )}
     </div>
   );
 }

@@ -19,8 +19,16 @@ interface ProjectWithCount extends Project {
 }
 
 const PROJECT_COLORS = [
-  '#ef4444', '#f97316', '#eab308', '#22c55e', '#14b8a6',
-  '#3b82f6', '#6366f1', '#a855f7', '#ec4899', '#6b7280',
+  '#ef4444',
+  '#f97316',
+  '#eab308',
+  '#22c55e',
+  '#14b8a6',
+  '#3b82f6',
+  '#6366f1',
+  '#a855f7',
+  '#ec4899',
+  '#6b7280',
 ];
 
 export default function ProjectsScreen() {
@@ -146,12 +154,7 @@ export default function ProjectsScreen() {
       }}
     >
       <View style={styles.projectLeft}>
-        <View
-          style={[
-            styles.projectDot,
-            { backgroundColor: item.color || '#6b7280' },
-          ]}
-        />
+        <View style={[styles.projectDot, { backgroundColor: item.color || '#6b7280' }]} />
         <Text style={styles.projectName}>{item.name}</Text>
       </View>
       <Text style={styles.taskCount}>{item.taskCount}</Text>
@@ -163,9 +166,7 @@ export default function ProjectsScreen() {
     return (
       <View style={styles.empty}>
         <Text style={styles.emptyTitle}>No projects yet</Text>
-        <Text style={styles.emptySubtitle}>
-          Create your first project to organize your tasks
-        </Text>
+        <Text style={styles.emptySubtitle}>Create your first project to organize your tasks</Text>
       </View>
     );
   };
@@ -180,10 +181,7 @@ export default function ProjectsScreen() {
       </View>
 
       {/* Inbox section */}
-      <Pressable
-        style={styles.inboxItem}
-        onPress={() => router.push('/(tabs)/inbox')}
-      >
+      <Pressable style={styles.inboxItem} onPress={() => router.push('/(tabs)/inbox')}>
         <View style={styles.projectLeft}>
           <View style={[styles.projectDot, { backgroundColor: '#3b82f6' }]} />
           <Text style={styles.projectName}>Inbox</Text>
@@ -198,9 +196,7 @@ export default function ProjectsScreen() {
         keyExtractor={(item) => item.id}
         renderItem={renderProject}
         ListEmptyComponent={renderEmpty}
-        refreshControl={
-          <RefreshControl refreshing={loading} onRefresh={loadData} />
-        }
+        refreshControl={<RefreshControl refreshing={loading} onRefresh={loadData} />}
         contentContainerStyle={projects.length === 0 ? styles.emptyList : undefined}
       />
 
@@ -216,13 +212,8 @@ export default function ProjectsScreen() {
             <Pressable onPress={() => setShowCreateModal(false)}>
               <Text style={styles.cancelButton}>Cancel</Text>
             </Pressable>
-            <Text style={styles.modalTitle}>
-              {editingProject ? 'Edit Project' : 'New Project'}
-            </Text>
-            <Pressable
-              onPress={handleSaveProject}
-              disabled={saving || !projectName.trim()}
-            >
+            <Text style={styles.modalTitle}>{editingProject ? 'Edit Project' : 'New Project'}</Text>
+            <Pressable onPress={handleSaveProject} disabled={saving || !projectName.trim()}>
               <Text
                 style={[
                   styles.saveButton,

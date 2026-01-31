@@ -82,7 +82,9 @@ test.describe('Projects', () => {
       await page.goto('/today');
 
       // Project should show count of 1
-      const projectItem = page.locator('[data-testid="sidebar-project"]').filter({ hasText: projectName });
+      const projectItem = page
+        .locator('[data-testid="sidebar-project"]')
+        .filter({ hasText: projectName });
       await expect(projectItem.getByText('1')).toBeVisible();
     });
   });

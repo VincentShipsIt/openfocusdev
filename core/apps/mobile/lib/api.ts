@@ -26,7 +26,7 @@ class ApiClient {
     if (this.getToken) {
       const token = await this.getToken();
       if (token) {
-        headers['Authorization'] = `Bearer ${token}`;
+        headers.Authorization = `Bearer ${token}`;
       }
     }
 
@@ -56,8 +56,7 @@ class ApiClient {
     }): Promise<Task[]> => {
       const query = new URLSearchParams();
       if (params?.projectId) query.append('projectId', params.projectId);
-      if (params?.completed !== undefined)
-        query.append('completed', String(params.completed));
+      if (params?.completed !== undefined) query.append('completed', String(params.completed));
       if (params?.dueDate) query.append('dueDate', params.dueDate);
       return this.request<Task[]>(`/tasks?${query.toString()}`);
     },
@@ -147,9 +146,7 @@ class ApiClient {
       if (params?.endDate) query.append('endDate', params.endDate);
       if (params?.page) query.append('page', String(params.page));
       if (params?.limit) query.append('limit', String(params.limit));
-      return this.request<{ tasks: Task[]; pagination: unknown }>(
-        `/history?${query.toString()}`
-      );
+      return this.request<{ tasks: Task[]; pagination: unknown }>(`/history?${query.toString()}`);
     },
   };
 }

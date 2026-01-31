@@ -1,15 +1,7 @@
+import DateTimePicker from '@react-native-community/datetimepicker';
 import { CreateTaskDto, Project, Task, TaskPriority, UpdateTaskDto } from '@todoist/shared';
 import { useState } from 'react';
-import {
-  Modal,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-} from 'react-native';
-import DateTimePicker from '@react-native-community/datetimepicker';
+import { Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 
 interface TaskFormProps {
   visible: boolean;
@@ -85,15 +77,10 @@ export default function TaskForm({
           <Pressable onPress={onClose}>
             <Text style={styles.cancelButton}>Cancel</Text>
           </Pressable>
-          <Text style={styles.headerTitle}>
-            {task ? 'Edit Task' : 'New Task'}
-          </Text>
+          <Text style={styles.headerTitle}>{task ? 'Edit Task' : 'New Task'}</Text>
           <Pressable onPress={handleSave} disabled={loading || !title.trim()}>
             <Text
-              style={[
-                styles.saveButton,
-                (!title.trim() || loading) && styles.saveButtonDisabled,
-              ]}
+              style={[styles.saveButton, (!title.trim() || loading) && styles.saveButtonDisabled]}
             >
               {loading ? 'Saving...' : 'Save'}
             </Text>
@@ -126,10 +113,7 @@ export default function TaskForm({
 
           <View style={styles.field}>
             <Text style={styles.label}>Project</Text>
-            <Pressable
-              style={styles.picker}
-              onPress={() => setShowProjectPicker(true)}
-            >
+            <Pressable style={styles.picker} onPress={() => setShowProjectPicker(true)}>
               <View style={styles.pickerContent}>
                 {selectedProject ? (
                   <>
@@ -151,20 +135,14 @@ export default function TaskForm({
 
           <View style={styles.field}>
             <Text style={styles.label}>Due Date</Text>
-            <Pressable
-              style={styles.picker}
-              onPress={() => setShowDatePicker(true)}
-            >
+            <Pressable style={styles.picker} onPress={() => setShowDatePicker(true)}>
               <Text style={dueDate ? styles.pickerText : styles.pickerPlaceholder}>
                 {dueDate ? dueDate.toLocaleDateString() : 'No due date'}
               </Text>
               <Text style={styles.pickerArrow}>›</Text>
             </Pressable>
             {dueDate && (
-              <Pressable
-                style={styles.clearButton}
-                onPress={() => setDueDate(undefined)}
-              >
+              <Pressable style={styles.clearButton} onPress={() => setDueDate(undefined)}>
                 <Text style={styles.clearButtonText}>Clear date</Text>
               </Pressable>
             )}
@@ -244,16 +222,11 @@ export default function TaskForm({
                 >
                   <View style={styles.pickerItemContent}>
                     <View
-                      style={[
-                        styles.projectDot,
-                        { backgroundColor: project.color || '#6b7280' },
-                      ]}
+                      style={[styles.projectDot, { backgroundColor: project.color || '#6b7280' }]}
                     />
                     <Text style={styles.pickerItemText}>{project.name}</Text>
                   </View>
-                  {projectId === project.id && (
-                    <Text style={styles.checkmark}>✓</Text>
-                  )}
+                  {projectId === project.id && <Text style={styles.checkmark}>✓</Text>}
                 </Pressable>
               ))}
             </ScrollView>

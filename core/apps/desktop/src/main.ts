@@ -1,6 +1,6 @@
+import * as path from 'node:path';
 import { app, BrowserWindow, Menu, shell } from 'electron';
 import { autoUpdater } from 'electron-updater';
-import * as path from 'path';
 
 let mainWindow: BrowserWindow | null = null;
 
@@ -96,15 +96,15 @@ function createMenu() {
     template.unshift({
       label: app.getName(),
       submenu: [
-        { role: 'about', label: 'About ' + app.getName() },
+        { role: 'about', label: `About ${app.getName()}` },
         { type: 'separator' },
         { role: 'services', label: 'Services' },
         { type: 'separator' },
-        { role: 'hide', label: 'Hide ' + app.getName() },
+        { role: 'hide', label: `Hide ${app.getName()}` },
         { role: 'hideOthers', label: 'Hide Others' },
         { role: 'unhide', label: 'Show All' },
         { type: 'separator' },
-        { role: 'quit', label: 'Quit ' + app.getName() },
+        { role: 'quit', label: `Quit ${app.getName()}` },
       ],
     });
   }
@@ -144,4 +144,3 @@ autoUpdater.on('update-downloaded', () => {
   console.log('Update downloaded');
   autoUpdater.quitAndInstall();
 });
-

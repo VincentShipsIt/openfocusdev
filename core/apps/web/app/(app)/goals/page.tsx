@@ -1,12 +1,12 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
-import { useApi } from '@/hooks/use-api';
 import { Goal, GoalCategory } from '@todoist/shared';
-import { Button } from '@/components/ui/button';
-import { Plus, Target, TrendingUp } from 'lucide-react';
-import GoalForm from '@/components/goal-form';
+import { Plus, Target } from 'lucide-react';
+import { useCallback, useEffect, useState } from 'react';
 import GoalCard from '@/components/goal-card';
+import GoalForm from '@/components/goal-form';
+import { Button } from '@/components/ui/button';
+import { useApi } from '@/hooks/use-api';
 
 type TimelineRange = '5-year' | '10-year';
 
@@ -48,7 +48,7 @@ export default function GoalsPage() {
   const totalMilestones = goals.reduce((sum, g) => sum + g.milestones.length, 0);
   const completedMilestones = goals.reduce(
     (sum, g) => sum + g.milestones.filter((m) => m.completed).length,
-    0,
+    0
   );
 
   const handleGoalCreated = () => {
@@ -200,4 +200,3 @@ export default function GoalsPage() {
     </div>
   );
 }
-

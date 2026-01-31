@@ -1,25 +1,25 @@
 'use client';
 
-import { useCallback, useEffect, useState, useMemo } from 'react';
 import {
-  ReactFlow,
   Background,
-  Controls,
-  MiniMap,
   type Connection,
+  Controls,
   type Edge,
-  type Node,
-  useNodesState,
-  useEdgesState,
   MarkerType,
+  MiniMap,
+  type Node,
   Panel,
+  ReactFlow,
+  useEdgesState,
+  useNodesState,
 } from '@xyflow/react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import '@xyflow/react/dist/style.css';
 
 import { Task, TaskConnection } from '@todoist/shared';
+import { toast } from 'sonner';
 import { useApi } from '@/hooks/use-api';
 import TaskWorkflowNode, { type TaskNodeData } from './task-workflow-node';
-import { toast } from 'sonner';
 
 interface WorkflowViewProps {
   tasks: Task[];
@@ -38,32 +38,41 @@ export default function WorkflowView({ tasks, projectId, onUpdate, onDelete }: W
   const [connectionMode, setConnectionMode] = useState<'dependency' | 'sequence'>('sequence');
   const [isMounted, setIsMounted] = useState(false);
 
-  const nodeTypes = useMemo(() => ({
-    task: TaskWorkflowNode,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  }), []) as any;
+  const nodeTypes = useMemo(
+    () => ({
+      task: TaskWorkflowNode,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    }),
+    []
+  ) as any;
 
   useEffect(() => {
     setIsMounted(true);
   }, []);
 
-  const handleTriggerAI = useCallback(async (taskId: string) => {
-    try {
-      await tasksApi.triggerAI(taskId);
-      toast.success('AI execution started');
-      onUpdate();
-    } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : 'Failed to trigger AI';
-      toast.error(message);
-    }
-  }, [tasksApi, onUpdate]);
+  const handleTriggerAI = useCallback(
+    async (taskId: string) => {
+      try {
+        await tasksApi.triggerAI(taskId);
+        toast.success('AI execution started');
+        onUpdate();
+      } catch (error: unknown) {
+        const message = error instanceof Error ? error.message : 'Failed to trigger AI';
+        toast.error(message);
+      }
+    },
+    [tasksApi, onUpdate]
+  );
 
   // Convert tasks to nodes
   useEffect(() => {
     const taskNodes: TaskNode[] = tasks.map((task, index) => ({
       id: task.id,
       type: 'task' as const,
-      position: task.nodePosition || { x: (index % 4) * 300 + 50, y: Math.floor(index / 4) * 200 + 50 },
+      position: task.nodePosition || {
+        x: (index % 4) * 300 + 50,
+        y: Math.floor(index / 4) * 200 + 50,
+      },
       data: {
         task,
         onUpdate,
@@ -104,48 +113,57 @@ export default function WorkflowView({ tasks, projectId, onUpdate, onDelete }: W
     if (isMounted) {
       loadConnections();
     }
-  }, [loadConnections, tasks, isMounted]);
+  }, [loadConnections, isMounted]);
 
-  const onConnect = useCallback(async (params: Connection) => {
-    if (!params.source || !params.target) return;
+  const onConnect = useCallback(
+    async (params: Connection) => {
+      if (!params.source || !params.target) return;
 
-    try {
-      await connectionsApi.create({
-        sourceTaskId: params.source,
-        targetTaskId: params.target,
-        type: connectionMode,
-      });
+      try {
+        await connectionsApi.create({
+          sourceTaskId: params.source,
+          targetTaskId: params.target,
+          type: connectionMode,
+        });
+        loadConnections();
+        onUpdate();
+        toast.success(`${connectionMode === 'dependency' ? 'Dependency' : 'Sequence'} created`);
+      } catch (error: unknown) {
+        const message = error instanceof Error ? error.message : 'Failed to create connection';
+        toast.error(message);
+      }
+    },
+    [connectionsApi, connectionMode, loadConnections, onUpdate]
+  );
+
+  const onEdgesDelete = useCallback(
+    async (edgesToDelete: Edge[]) => {
+      for (const edge of edgesToDelete) {
+        try {
+          await connectionsApi.delete(edge.id);
+        } catch (error) {
+          console.error('Failed to delete connection:', error);
+        }
+      }
       loadConnections();
       onUpdate();
-      toast.success(`${connectionMode === 'dependency' ? 'Dependency' : 'Sequence'} created`);
-    } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : 'Failed to create connection';
-      toast.error(message);
-    }
-  }, [connectionsApi, connectionMode, loadConnections, onUpdate]);
+    },
+    [connectionsApi, loadConnections, onUpdate]
+  );
 
-  const onEdgesDelete = useCallback(async (edgesToDelete: Edge[]) => {
-    for (const edge of edgesToDelete) {
+  const onNodeDragStop = useCallback(
+    async (_event: React.MouseEvent, node: Node) => {
       try {
-        await connectionsApi.delete(edge.id);
+        await tasksApi.updatePosition(node.id, {
+          x: node.position.x,
+          y: node.position.y,
+        });
       } catch (error) {
-        console.error('Failed to delete connection:', error);
+        console.error('Failed to update position:', error);
       }
-    }
-    loadConnections();
-    onUpdate();
-  }, [connectionsApi, loadConnections, onUpdate]);
-
-  const onNodeDragStop = useCallback(async (_event: React.MouseEvent, node: Node) => {
-    try {
-      await tasksApi.updatePosition(node.id, {
-        x: node.position.x,
-        y: node.position.y,
-      });
-    } catch (error) {
-      console.error('Failed to update position:', error);
-    }
-  }, [tasksApi]);
+    },
+    [tasksApi]
+  );
 
   if (!isMounted) {
     return (
@@ -174,7 +192,10 @@ export default function WorkflowView({ tasks, projectId, onUpdate, onDelete }: W
         <Controls />
         <MiniMap />
 
-        <Panel position="top-left" className="bg-card p-3 rounded-lg border border-border shadow-md">
+        <Panel
+          position="top-left"
+          className="bg-card p-3 rounded-lg border border-border shadow-md"
+        >
           <div className="flex items-center gap-3 text-sm">
             <span className="text-muted-foreground font-medium">Connect as:</span>
             <button

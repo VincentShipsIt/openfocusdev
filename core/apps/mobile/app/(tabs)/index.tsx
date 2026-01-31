@@ -1,4 +1,4 @@
-import { Project, Task, isOverdue } from '@todoist/shared';
+import { isOverdue, Project, Task } from '@todoist/shared';
 import { isToday, parseISO } from 'date-fns';
 import { useCallback, useEffect, useState } from 'react';
 import { Alert, SectionList, StyleSheet, Text, View } from 'react-native';
@@ -146,18 +146,8 @@ export default function TodayScreen() {
           />
         )}
         renderSectionHeader={({ section: { title, data } }) => (
-          <View
-            style={[
-              styles.sectionHeader,
-              title === 'Overdue' && styles.overdueHeader,
-            ]}
-          >
-            <Text
-              style={[
-                styles.sectionTitle,
-                title === 'Overdue' && styles.overdueTitle,
-              ]}
-            >
+          <View style={[styles.sectionHeader, title === 'Overdue' && styles.overdueHeader]}>
+            <Text style={[styles.sectionTitle, title === 'Overdue' && styles.overdueTitle]}>
               {title}
             </Text>
             <Text style={styles.sectionCount}>{data.length}</Text>

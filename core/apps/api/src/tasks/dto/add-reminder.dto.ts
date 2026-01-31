@@ -1,4 +1,4 @@
-import { IsString, IsOptional, IsNumber, IsDateString, ValidateIf } from 'class-validator';
+import { IsDateString, IsNumber, IsString, ValidateIf } from 'class-validator';
 
 export class AddReminderDto {
   @IsString()

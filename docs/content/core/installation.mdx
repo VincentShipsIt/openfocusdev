@@ -1,0 +1,55 @@
+# Installation
+
+## Requirements
+
+- **Bun** (latest) — package manager and runtime
+- **MongoDB 7+** — primary database
+- **Node.js 24+** — for Next.js and NestJS
+- **Clerk account** — authentication provider
+
+## From Source
+
+```bash
+git clone https://github.com/shipshitdev/todo.git
+cd todo/core
+bun install
+```
+
+The `core/` directory is a Bun workspace monorepo containing:
+
+```
+core/
+├── apps/
+│   ├── api/       # NestJS REST API
+│   ├── web/       # Next.js web app
+│   ├── mobile/    # Expo React Native app
+│   └── desktop/   # Tauri desktop app
+└── packages/
+    └── shared/    # Shared types and utilities
+```
+
+## With Docker
+
+The fastest way to get everything running:
+
+```bash
+cd core
+docker compose up -d
+```
+
+This starts:
+- **MongoDB** on port 27017
+- **API** on port 4000
+- **Web** on port 3000
+
+You'll need to set `CLERK_SECRET_KEY` and `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` as environment variables. See [Configuration](/core/configuration).
+
+## Verify Installation
+
+```bash
+# Check API health
+curl http://localhost:4000/health
+
+# Open web app
+open http://localhost:3000
+```

@@ -1,9 +1,9 @@
 'use client';
 
-import { memo, useState } from 'react';
-import { Handle, Position } from '@xyflow/react';
 import { Task } from '@todoist/shared';
-import { Bot, Check, Clock, Lock, Play, AlertCircle } from 'lucide-react';
+import { Handle, Position } from '@xyflow/react';
+import { AlertCircle, Bot, Check, Clock, Lock, Play } from 'lucide-react';
+import { memo, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import TaskDetailPanel from './task-detail-panel';
 
@@ -73,14 +73,10 @@ function TaskWorkflowNode({ data }: { data: TaskNodeData }) {
           )}
         </div>
 
-        <h3 className={`font-medium text-sm ${isCompleted ? 'line-through' : ''}`}>
-          {task.title}
-        </h3>
+        <h3 className={`font-medium text-sm ${isCompleted ? 'line-through' : ''}`}>{task.title}</h3>
 
         {task.description && (
-          <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
-            {task.description}
-          </p>
+          <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{task.description}</p>
         )}
 
         {task.aiEnabled && !isCompleted && !isBlocked && (

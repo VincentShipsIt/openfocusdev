@@ -1,0 +1,39 @@
+# FAQ
+
+## Is TaskFlow free?
+
+**TaskFlow Core is 100% free and open-source** under the MIT license. You can self-host it with no restrictions.
+
+TaskFlow Cloud is a paid managed service that adds AI agents, team features, and hosted infrastructure.
+
+## What database does TaskFlow use?
+
+MongoDB 7+. The API uses Mongoose schemas via NestJS.
+
+## How does authentication work?
+
+TaskFlow uses [Clerk](https://clerk.com) for authentication. The API validates Clerk JWTs via `ClerkAuthGuard`. You need a Clerk account (free tier available) for both self-hosted and cloud deployments.
+
+## Can I use TaskFlow without Clerk?
+
+Not currently. Clerk is deeply integrated into the auth layer. Community contributions for alternative auth providers are welcome.
+
+## What's the difference between Core and Cloud?
+
+| | Core (OSS) | Cloud (SaaS) |
+|---|---|---|
+| Task management | ✅ | ✅ |
+| Projects & goals | ✅ | ✅ |
+| Web, mobile, desktop | ✅ | ✅ |
+| Self-hosting | ✅ | Managed |
+| AI agents | ❌ | ✅ |
+| Team collaboration | ❌ | ✅ |
+| Price | Free | Paid plans |
+
+## How do I contribute?
+
+See the [Contributing guide](/guides/contributing).
+
+## Can I run the mobile app on my own device?
+
+Yes. The mobile app uses Expo, so you can run it on a physical device or emulator. See [Mobile](/core/mobile) for setup instructions.

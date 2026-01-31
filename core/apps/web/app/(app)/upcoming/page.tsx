@@ -1,11 +1,11 @@
 'use client';
 
-import { useApi } from '@/hooks/use-api';
-import TaskList from '@/components/task-list';
 import { Task } from '@todoist/shared';
 import { addDays, format, isSameDay } from 'date-fns';
 import { Circle } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
+import TaskList from '@/components/task-list';
+import { useApi } from '@/hooks/use-api';
 
 export default function UpcomingPage() {
   const { tasks: tasksApi } = useApi();
@@ -73,7 +73,9 @@ export default function UpcomingPage() {
           <h1 className="text-2xl font-bold">Upcoming</h1>
           <div className="flex items-center gap-2 mt-1 text-sm text-muted-foreground">
             <Circle className="h-3.5 w-3.5" />
-            <span>{tasks.length} {tasks.length === 1 ? 'task' : 'tasks'}</span>
+            <span>
+              {tasks.length} {tasks.length === 1 ? 'task' : 'tasks'}
+            </span>
           </div>
         </div>
       </div>
@@ -91,11 +93,7 @@ export default function UpcomingPage() {
               <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3">
                 {getDateLabel(dateKey)}
               </h3>
-              <TaskList
-                tasks={groupedTasks[dateKey]}
-                onUpdate={loadTasks}
-                onDelete={loadTasks}
-              />
+              <TaskList tasks={groupedTasks[dateKey]} onUpdate={loadTasks} onDelete={loadTasks} />
             </div>
           ))
         )}

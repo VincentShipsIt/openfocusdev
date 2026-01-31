@@ -1,10 +1,10 @@
 'use client';
 
-import TaskList from '@/components/task-list';
-import { useApi } from '@/hooks/use-api';
-import { Button } from '@/components/ui/button';
 import { Task } from '@todoist/shared';
-import { useEffect, useState, useCallback } from 'react';
+import { useCallback, useEffect, useState } from 'react';
+import TaskList from '@/components/task-list';
+import { Button } from '@/components/ui/button';
+import { useApi } from '@/hooks/use-api';
 
 export default function HistoryPage() {
   const { history: historyApi } = useApi();
@@ -20,7 +20,7 @@ export default function HistoryPage() {
       if (page === 1) {
         setTasks(result.tasks);
       } else {
-        setTasks(prev => [...prev, ...result.tasks]);
+        setTasks((prev) => [...prev, ...result.tasks]);
       }
       setHasMore(result.pagination.page < result.pagination.totalPages);
     } catch (error) {
@@ -49,14 +49,10 @@ export default function HistoryPage() {
           <p className="text-muted-foreground">No completed tasks</p>
         ) : (
           <>
-            <TaskList
-              tasks={tasks}
-              onUpdate={loadTasks}
-              onDelete={loadTasks}
-            />
+            <TaskList tasks={tasks} onUpdate={loadTasks} onDelete={loadTasks} />
             {hasMore && (
               <div className="mt-4 text-center">
-                <Button onClick={() => setPage(prev => prev + 1)} disabled={loading}>
+                <Button onClick={() => setPage((prev) => prev + 1)} disabled={loading}>
                   {loading ? 'Loading...' : 'Load More'}
                 </Button>
               </div>
@@ -67,4 +63,3 @@ export default function HistoryPage() {
     </div>
   );
 }
-

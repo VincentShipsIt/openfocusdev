@@ -1,14 +1,27 @@
 'use client';
 
-import { useApi } from '@/hooks/use-api';
+import {
+  CreateTaskDto,
+  Project,
+  Recurrence,
+  Task,
+  TaskPriority,
+  UpdateTaskDto,
+} from '@todoist/shared';
+import { useCallback, useEffect, useState } from 'react';
+import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { CreateTaskDto, Project, Recurrence, Task, TaskPriority, UpdateTaskDto } from '@todoist/shared';
-import { toast } from 'sonner';
-import { useCallback, useEffect, useState } from 'react';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { useApi } from '@/hooks/use-api';
 import LabelPicker from './label-picker';
 import RecurrencePicker from './recurrence-picker';
 
@@ -57,11 +70,12 @@ export default function TaskForm({ task, projectId, onClose, onSuccess }: TaskFo
 
     try {
       setLoading(true);
-      const dueDateTime = dueDate && dueTime
-        ? new Date(`${dueDate}T${dueTime}`).toISOString()
-        : dueDate
-        ? new Date(`${dueDate}T00:00`).toISOString()
-        : undefined;
+      const dueDateTime =
+        dueDate && dueTime
+          ? new Date(`${dueDate}T${dueTime}`).toISOString()
+          : dueDate
+            ? new Date(`${dueDate}T00:00`).toISOString()
+            : undefined;
 
       if (task) {
         const updateData: UpdateTaskDto = {
@@ -104,12 +118,7 @@ export default function TaskForm({ task, projectId, onClose, onSuccess }: TaskFo
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <Label htmlFor="title">Title *</Label>
-            <Input
-              id="title"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              required
-            />
+            <Input id="title" value={title} onChange={(e) => setTitle(e.target.value)} required />
           </div>
 
           <div>
@@ -129,7 +138,7 @@ export default function TaskForm({ task, projectId, onClose, onSuccess }: TaskFo
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="none">None (Inbox)</SelectItem>
-                {projects.map(project => (
+                {projects.map((project) => (
                   <SelectItem key={project.id} value={project.id}>
                     {project.name}
                   </SelectItem>
@@ -176,20 +185,12 @@ export default function TaskForm({ task, projectId, onClose, onSuccess }: TaskFo
 
           <div>
             <Label>Labels</Label>
-            <LabelPicker
-              selectedLabels={labels}
-              onChange={setLabels}
-              disabled={loading}
-            />
+            <LabelPicker selectedLabels={labels} onChange={setLabels} disabled={loading} />
           </div>
 
           <div>
             <Label>Repeat</Label>
-            <RecurrencePicker
-              value={recurrence}
-              onChange={setRecurrence}
-              disabled={loading}
-            />
+            <RecurrencePicker value={recurrence} onChange={setRecurrence} disabled={loading} />
           </div>
 
           <div className="flex justify-end gap-2">
@@ -205,4 +206,3 @@ export default function TaskForm({ task, projectId, onClose, onSuccess }: TaskFo
     </Dialog>
   );
 }
-

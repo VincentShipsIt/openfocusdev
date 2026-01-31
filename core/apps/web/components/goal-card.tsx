@@ -1,10 +1,10 @@
 'use client';
 
-import { useState } from 'react';
 import { Goal } from '@todoist/shared';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { ChevronDown, ChevronUp, Edit, Target, Trash2 } from 'lucide-react';
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Target, Edit, Trash2, ChevronDown, ChevronUp, CheckCircle2, Circle, Calendar } from 'lucide-react';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import MilestoneItem from './milestone-item';
 
 interface GoalCardProps {
@@ -38,7 +38,9 @@ export default function GoalCard({ goal, onEdit, onDelete, onMilestoneToggle }: 
         <div className="flex items-start justify-between">
           <div className="flex-1">
             <div className="flex items-center gap-2 mb-2">
-              <div className={`w-8 h-8 rounded-lg ${categoryColors[goal.category]} flex items-center justify-center`}>
+              <div
+                className={`w-8 h-8 rounded-lg ${categoryColors[goal.category]} flex items-center justify-center`}
+              >
                 <Target className="w-4 h-4 text-white" />
               </div>
               <div className="flex-1">
@@ -56,18 +58,10 @@ export default function GoalCard({ goal, onEdit, onDelete, onMilestoneToggle }: 
             )}
           </div>
           <div className="flex items-center gap-1">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => onEdit(goal)}
-            >
+            <Button variant="ghost" size="sm" onClick={() => onEdit(goal)}>
               <Edit className="w-4 h-4" />
             </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleDelete}
-            >
+            <Button variant="ghost" size="sm" onClick={handleDelete}>
               <Trash2 className="w-4 h-4" />
             </Button>
           </div>
@@ -96,12 +90,10 @@ export default function GoalCard({ goal, onEdit, onDelete, onMilestoneToggle }: 
               className="w-full justify-between"
               onClick={() => setExpanded(!expanded)}
             >
-              <span>Milestones ({completedCount}/{totalCount})</span>
-              {expanded ? (
-                <ChevronUp className="w-4 h-4" />
-              ) : (
-                <ChevronDown className="w-4 h-4" />
-              )}
+              <span>
+                Milestones ({completedCount}/{totalCount})
+              </span>
+              {expanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
             </Button>
 
             {expanded && (
@@ -121,4 +113,3 @@ export default function GoalCard({ goal, onEdit, onDelete, onMilestoneToggle }: 
     </Card>
   );
 }
-

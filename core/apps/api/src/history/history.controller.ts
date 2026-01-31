@@ -1,13 +1,8 @@
-import {
-  Controller,
-  Get,
-  Query,
-  UseGuards,
-} from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
-import { HistoryService } from './history.service';
-import { ClerkAuthGuard } from '../auth/guards/clerk-auth.guard';
+import { Controller, Get, Query, UseGuards } from '@nestjs/common';
+import { ApiBearerAuth, ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
+import { ClerkAuthGuard } from '../auth/guards/clerk-auth.guard';
+import { HistoryService } from './history.service';
 
 @ApiTags('history')
 @ApiBearerAuth()
@@ -29,7 +24,7 @@ export class HistoryController {
     @Query('endDate') endDate?: string,
     @Query('page') page?: string,
     @Query('limit') limit?: string,
-    @CurrentUser() user: { userId: string } = { userId: '' },
+    @CurrentUser() user: { userId: string } = { userId: '' }
   ) {
     return this.historyService.findAll(
       user.userId,
@@ -37,8 +32,7 @@ export class HistoryController {
       startDate,
       endDate,
       page ? parseInt(page, 10) : 1,
-      limit ? parseInt(limit, 10) : 50,
+      limit ? parseInt(limit, 10) : 50
     );
   }
 }
-

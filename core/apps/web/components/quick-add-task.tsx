@@ -1,9 +1,9 @@
 'use client';
 
-import { useApi } from '@/hooks/use-api';
 import { CreateTaskDto, TaskPriority } from '@todoist/shared';
 import { Plus } from 'lucide-react';
 import { useRef, useState } from 'react';
+import { useApi } from '@/hooks/use-api';
 
 interface QuickAddTaskProps {
   projectId?: string;
@@ -90,9 +90,7 @@ export default function QuickAddTask({
         className="flex-1 bg-transparent text-base outline-none placeholder:text-muted-foreground"
       />
       {title.trim() && (
-        <span className="text-xs text-muted-foreground whitespace-nowrap">
-          Press Enter
-        </span>
+        <span className="text-xs text-muted-foreground whitespace-nowrap">Press Enter</span>
       )}
     </div>
   );

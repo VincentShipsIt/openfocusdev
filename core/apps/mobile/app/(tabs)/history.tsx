@@ -1,15 +1,7 @@
-import { Task, formatTaskDueDate } from '@todoist/shared';
+import { formatTaskDueDate, Task } from '@todoist/shared';
 import { format, parseISO } from 'date-fns';
 import { useCallback, useEffect, useState } from 'react';
-import {
-  Alert,
-  FlatList,
-  Pressable,
-  RefreshControl,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import { Alert, FlatList, Pressable, RefreshControl, StyleSheet, Text, View } from 'react-native';
 import { useApiClient } from '../../lib/api';
 
 export default function HistoryScreen() {
@@ -49,25 +41,21 @@ export default function HistoryScreen() {
   };
 
   const handleDelete = async (task: Task) => {
-    Alert.alert(
-      'Delete Task',
-      'Are you sure you want to permanently delete this task?',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Delete',
-          style: 'destructive',
-          onPress: async () => {
-            try {
-              await api.tasks.delete(task.id);
-              loadData();
-            } catch (error) {
-              console.error('Failed to delete task:', error);
-            }
-          },
+    Alert.alert('Delete Task', 'Are you sure you want to permanently delete this task?', [
+      { text: 'Cancel', style: 'cancel' },
+      {
+        text: 'Delete',
+        style: 'destructive',
+        onPress: async () => {
+          try {
+            await api.tasks.delete(task.id);
+            loadData();
+          } catch (error) {
+            console.error('Failed to delete task:', error);
+          }
         },
-      ]
-    );
+      },
+    ]);
   };
 
   const handleClearAll = () => {
@@ -128,17 +116,12 @@ export default function HistoryScreen() {
               </Text>
             )}
             {item.dueDate && (
-              <Text style={styles.dueDate}>
-                Due: {formatTaskDueDate(item.dueDate)}
-              </Text>
+              <Text style={styles.dueDate}>Due: {formatTaskDueDate(item.dueDate)}</Text>
             )}
           </View>
         </View>
       </View>
-      <Pressable
-        style={styles.restoreButton}
-        onPress={() => handleUncomplete(item)}
-      >
+      <Pressable style={styles.restoreButton} onPress={() => handleUncomplete(item)}>
         <Text style={styles.restoreText}>Restore</Text>
       </Pressable>
     </Pressable>
@@ -149,9 +132,7 @@ export default function HistoryScreen() {
     return (
       <View style={styles.empty}>
         <Text style={styles.emptyTitle}>No completed tasks</Text>
-        <Text style={styles.emptySubtitle}>
-          Completed tasks will appear here
-        </Text>
+        <Text style={styles.emptySubtitle}>Completed tasks will appear here</Text>
       </View>
     );
   };
@@ -177,9 +158,7 @@ export default function HistoryScreen() {
         keyExtractor={(item) => item.id}
         renderItem={renderTask}
         ListEmptyComponent={renderEmpty}
-        refreshControl={
-          <RefreshControl refreshing={loading} onRefresh={loadData} />
-        }
+        refreshControl={<RefreshControl refreshing={loading} onRefresh={loadData} />}
         contentContainerStyle={tasks.length === 0 ? styles.emptyList : undefined}
       />
     </View>

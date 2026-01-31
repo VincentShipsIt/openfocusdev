@@ -21,7 +21,7 @@ const mockProject = {
 
 describe('ProjectsService', () => {
   let service: ProjectsService;
-  let model: Model<Project>;
+  let _model: Model<Project>;
 
   const mockProjectModel = {
     new: vi.fn().mockResolvedValue(mockProject),
@@ -45,12 +45,12 @@ describe('ProjectsService', () => {
     }).compile();
 
     service = module.get<ProjectsService>(ProjectsService);
-    model = module.get<Model<Project>>(getModelToken(Project.name));
+    _model = module.get<Model<Project>>(getModelToken(Project.name));
   });
 
   describe('create', () => {
     it('should create a new project', async () => {
-      const createProjectDto: CreateProjectDto = {
+      const _createProjectDto: CreateProjectDto = {
         name: 'New Project',
         color: '#ef4444',
       };
@@ -65,7 +65,7 @@ describe('ProjectsService', () => {
     });
 
     it('should increment order based on existing projects', async () => {
-      const createProjectDto: CreateProjectDto = {
+      const _createProjectDto: CreateProjectDto = {
         name: 'New Project',
       };
 
@@ -128,9 +128,7 @@ describe('ProjectsService', () => {
         exec: vi.fn().mockResolvedValue(null),
       });
 
-      await expect(
-        service.findOne('non-existent', 'user-id-1')
-      ).rejects.toThrow(NotFoundException);
+      await expect(service.findOne('non-existent', 'user-id-1')).rejects.toThrow(NotFoundException);
     });
   });
 
@@ -161,9 +159,9 @@ describe('ProjectsService', () => {
         exec: vi.fn().mockResolvedValue(null),
       });
 
-      await expect(
-        service.update('non-existent', { name: 'Test' }, 'user-id-1')
-      ).rejects.toThrow(NotFoundException);
+      await expect(service.update('non-existent', { name: 'Test' }, 'user-id-1')).rejects.toThrow(
+        NotFoundException
+      );
     });
 
     it('should update only provided fields', async () => {
@@ -201,9 +199,7 @@ describe('ProjectsService', () => {
         exec: vi.fn().mockResolvedValue({ deletedCount: 0 }),
       });
 
-      await expect(
-        service.remove('non-existent', 'user-id-1')
-      ).rejects.toThrow(NotFoundException);
+      await expect(service.remove('non-existent', 'user-id-1')).rejects.toThrow(NotFoundException);
     });
 
     it('should only delete project belonging to user', async () => {
@@ -211,9 +207,7 @@ describe('ProjectsService', () => {
         exec: vi.fn().mockResolvedValue({ deletedCount: 0 }),
       });
 
-      await expect(
-        service.remove('project-id-1', 'other-user')
-      ).rejects.toThrow(NotFoundException);
+      await expect(service.remove('project-id-1', 'other-user')).rejects.toThrow(NotFoundException);
     });
   });
 });

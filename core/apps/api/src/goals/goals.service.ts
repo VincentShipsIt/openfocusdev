@@ -1,15 +1,13 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { Goal, GoalDocument } from './schemas/goal.schema';
 import { CreateGoalDto } from './dto/create-goal.dto';
 import { UpdateGoalDto } from './dto/update-goal.dto';
+import { Goal, GoalDocument } from './schemas/goal.schema';
 
 @Injectable()
 export class GoalsService {
-  constructor(
-    @InjectModel(Goal.name) private goalModel: Model<GoalDocument>,
-  ) {}
+  constructor(@InjectModel(Goal.name) private goalModel: Model<GoalDocument>) {}
 
   async create(createGoalDto: CreateGoalDto, userId: string): Promise<Goal> {
     const milestones = (createGoalDto.milestones || []).map((m, index) => ({
@@ -50,11 +48,7 @@ export class GoalsService {
     return goal;
   }
 
-  async update(
-    id: string,
-    updateGoalDto: UpdateGoalDto,
-    userId: string,
-  ): Promise<Goal> {
+  async update(id: string, updateGoalDto: UpdateGoalDto, userId: string): Promise<Goal> {
     const goal = await this.goalModel
       .findOneAndUpdate({ _id: id, userId }, updateGoalDto, { new: true })
       .exec();
@@ -67,20 +61,14 @@ export class GoalsService {
   }
 
   async remove(id: string, userId: string): Promise<void> {
-    const result = await this.goalModel
-      .deleteOne({ _id: id, userId })
-      .exec();
+    const result = await this.goalModel.deleteOne({ _id: id, userId }).exec();
 
     if (result.deletedCount === 0) {
       throw new NotFoundException(`Goal with ID ${id} not found`);
     }
   }
 
-  async toggleMilestone(
-    goalId: string,
-    milestoneId: string,
-    userId: string,
-  ): Promise<Goal> {
+  async toggleMilestone(goalId: string, milestoneId: string, userId: string): Promise<Goal> {
     const goal = await this.findOne(goalId, userId);
     const milestone = goal.milestones.find((m) => m.id === milestoneId);
 
@@ -92,12 +80,7 @@ export class GoalsService {
     milestone.completedAt = milestone.completed ? new Date() : undefined;
 
     return this.goalModel
-      .findOneAndUpdate(
-        { _id: goalId, userId },
-        { milestones: goal.milestones },
-        { new: true },
-      )
+      .findOneAndUpdate({ _id: goalId, userId }, { milestones: goal.milestones }, { new: true })
       .exec();
   }
 }
-

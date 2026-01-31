@@ -105,9 +105,9 @@ describe('QuickAddTask', () => {
   });
 
   it('shows loading state while submitting', async () => {
-    const onAdd = vi.fn().mockImplementation(
-      () => new Promise((resolve) => setTimeout(resolve, 100))
-    );
+    const onAdd = vi
+      .fn()
+      .mockImplementation(() => new Promise((resolve) => setTimeout(resolve, 100)));
     render(<QuickAddTask {...defaultProps} onAdd={onAdd} />);
 
     const input = screen.getByPlaceholderText('Add a task...');

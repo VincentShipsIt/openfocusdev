@@ -1,26 +1,26 @@
-import "@testing-library/jest-dom/vitest";
-import { cleanup } from "@testing-library/react";
-import { afterEach, vi } from "vitest";
+import '@testing-library/jest-dom/vitest';
+import { cleanup } from '@testing-library/react';
+import { afterEach, vi } from 'vitest';
 
 afterEach(() => {
-	cleanup();
+  cleanup();
 });
 
-vi.mock("next/navigation", () => ({
-	useRouter: () => ({
-		push: vi.fn(),
-		replace: vi.fn(),
-		prefetch: vi.fn(),
-		back: vi.fn(),
-		forward: vi.fn(),
-	}),
-	useSearchParams: () => new URLSearchParams(),
-	usePathname: () => "/",
-	useParams: () => ({}),
+vi.mock('next/navigation', () => ({
+  useRouter: () => ({
+    push: vi.fn(),
+    replace: vi.fn(),
+    prefetch: vi.fn(),
+    back: vi.fn(),
+    forward: vi.fn(),
+  }),
+  useSearchParams: () => new URLSearchParams(),
+  usePathname: () => '/',
+  useParams: () => ({}),
 }));
 
-vi.mock("next/image", () => ({
-	default: ({ src, alt, ...props }: { src: string; alt: string }) => {
-		return { type: "img", props: { src, alt, ...props } };
-	},
+vi.mock('next/image', () => ({
+  default: ({ src, alt, ...props }: { src: string; alt: string }) => {
+    return { type: 'img', props: { src, alt, ...props } };
+  },
 }));

@@ -287,4 +287,3 @@ export interface UpdateNodePositionDto {
 export interface TriggerAIExecutionDto {
   prompt?: string;
 }
-

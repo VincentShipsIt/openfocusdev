@@ -1,13 +1,19 @@
 'use client';
 
+import { Reminder, ReminderType } from '@todoist/shared';
+import { Bell, Clock, Plus, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Reminder, ReminderType } from '@todoist/shared';
-import { Bell, Plus, Trash2, Clock } from 'lucide-react';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 interface ReminderPickerProps {
   reminders: Reminder[];

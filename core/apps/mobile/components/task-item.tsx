@@ -1,16 +1,7 @@
-import { Task, formatTaskDueDate, isOverdue } from '@todoist/shared';
+import { formatTaskDueDate, isOverdue, Task } from '@todoist/shared';
 import { useRef } from 'react';
-import {
-  Animated,
-  Pressable,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
-import {
-  GestureHandlerRootView,
-  Swipeable,
-} from 'react-native-gesture-handler';
+import { Animated, Pressable, StyleSheet, Text, View } from 'react-native';
+import { GestureHandlerRootView, Swipeable } from 'react-native-gesture-handler';
 
 interface TaskItemProps {
   task: Task;
@@ -19,16 +10,10 @@ interface TaskItemProps {
   onPress: (task: Task) => void;
 }
 
-export default function TaskItem({
-  task,
-  onComplete,
-  onDelete,
-  onPress,
-}: TaskItemProps) {
+export default function TaskItem({ task, onComplete, onDelete, onPress }: TaskItemProps) {
   const swipeableRef = useRef<Swipeable>(null);
 
-  const isTaskOverdue =
-    task.dueDate && !task.completedAt && isOverdue(task.dueDate);
+  const isTaskOverdue = task.dueDate && !task.completedAt && isOverdue(task.dueDate);
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
@@ -113,10 +98,7 @@ export default function TaskItem({
           onPress={() => onPress(task)}
         >
           <Pressable
-            style={[
-              styles.checkbox,
-              task.completedAt && styles.checkboxChecked,
-            ]}
+            style={[styles.checkbox, task.completedAt && styles.checkboxChecked]}
             onPress={() => onComplete(task)}
           >
             {task.completedAt && <Text style={styles.checkmark}>✓</Text>}
@@ -138,19 +120,14 @@ export default function TaskItem({
 
             <View style={styles.meta}>
               {task.dueDate && (
-                <Text
-                  style={[styles.dueDate, isTaskOverdue && styles.overdue]}
-                >
+                <Text style={[styles.dueDate, isTaskOverdue && styles.overdue]}>
                   {formatTaskDueDate(task.dueDate)}
                 </Text>
               )}
 
               {task.priority && task.priority !== 'low' && (
                 <View
-                  style={[
-                    styles.priority,
-                    { backgroundColor: getPriorityColor(task.priority) },
-                  ]}
+                  style={[styles.priority, { backgroundColor: getPriorityColor(task.priority) }]}
                 >
                   <Text style={styles.priorityText}>{task.priority}</Text>
                 </View>

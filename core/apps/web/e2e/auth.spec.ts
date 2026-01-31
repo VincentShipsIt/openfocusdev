@@ -85,7 +85,7 @@ test.describe('Authentication', () => {
 
 test.describe('Authenticated User', () => {
   // Skip these tests if not in an authenticated test environment
-  test.skip(({ }) => !process.env.TEST_USER_EMAIL, 'Requires test user credentials');
+  test.skip((_info) => !process.env.TEST_USER_EMAIL, 'Requires test user credentials');
 
   test('should access protected routes when authenticated', async ({ page }) => {
     // This would require setting up Clerk authentication in tests

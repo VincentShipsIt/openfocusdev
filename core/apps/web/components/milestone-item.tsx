@@ -1,7 +1,7 @@
 'use client';
 
 import { Milestone } from '@todoist/shared';
-import { CheckCircle2, Circle, Calendar } from 'lucide-react';
+import { Calendar, CheckCircle2, Circle } from 'lucide-react';
 
 interface MilestoneItemProps {
   milestone: Milestone;
@@ -36,4 +36,3 @@ export default function MilestoneItem({ milestone, onToggle }: MilestoneItemProp
     </div>
   );
 }
-

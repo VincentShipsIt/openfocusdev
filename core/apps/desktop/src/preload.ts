@@ -5,4 +5,3 @@ contextBridge.exposeInMainWorld('electron', {
     ipcRenderer.on('menu-new-task', callback);
   },
 });
-

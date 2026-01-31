@@ -1,13 +1,5 @@
 import { auth } from '@clerk/nextjs/server';
-import {
-  Calendar,
-  CheckCircle2,
-  FolderKanban,
-  Inbox,
-  Sparkles,
-  Target,
-  Zap,
-} from 'lucide-react';
+import { Calendar, CheckCircle2, FolderKanban, Inbox, Sparkles, Target, Zap } from 'lucide-react';
 import { redirect } from 'next/navigation';
 
 export default async function HomePage() {
@@ -44,8 +36,8 @@ export default async function HomePage() {
           and life, finally.
         </h1>
         <p className="text-xl text-muted-foreground max-w-2xl mx-auto mb-10">
-          Become focused, organized, and calm with TaskFlow. A beautifully simple
-          task manager and to-do list app.
+          Become focused, organized, and calm with TaskFlow. A beautifully simple task manager and
+          to-do list app.
         </p>
         <div className="flex flex-col items-center gap-4">
           <div className="flex items-baseline gap-1">
@@ -143,8 +135,8 @@ export default async function HomePage() {
           Everything you need to stay organized
         </h2>
         <p className="text-muted-foreground text-center max-w-2xl mx-auto mb-16">
-          TaskFlow helps you manage tasks, track habits, and achieve your goals with
-          powerful features designed for productivity.
+          TaskFlow helps you manage tasks, track habits, and achieve your goals with powerful
+          features designed for productivity.
         </p>
 
         <div className="grid md:grid-cols-3 gap-8">
@@ -200,9 +192,7 @@ export default async function HomePage() {
       {/* CTA Section */}
       <section className="max-w-6xl mx-auto px-6 py-20">
         <div className="bg-card border border-border rounded-2xl p-12 text-center">
-          <h2 className="text-3xl font-bold mb-4">
-            Ready to get more done?
-          </h2>
+          <h2 className="text-3xl font-bold mb-4">Ready to get more done?</h2>
           <p className="text-muted-foreground max-w-xl mx-auto mb-8">
             TaskFlow is currently in private beta. Sign up to be notified when we launch.
           </p>
@@ -225,9 +215,7 @@ export default async function HomePage() {
               </div>
               <span className="font-semibold">TaskFlow</span>
             </div>
-            <div className="text-sm text-muted-foreground">
-              $4.99/mo · Private Beta
-            </div>
+            <div className="text-sm text-muted-foreground">$4.99/mo · Private Beta</div>
           </div>
         </div>
       </footer>

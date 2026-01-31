@@ -1,15 +1,21 @@
 'use client';
 
-import { useApi } from '@/hooks/use-api';
+import { CreateGoalDto, Goal, GoalCategory, UpdateGoalDto } from '@todoist/shared';
+import { X } from 'lucide-react';
+import { useState } from 'react';
+import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { CreateGoalDto, Goal, GoalCategory, UpdateGoalDto } from '@todoist/shared';
-import { toast } from 'sonner';
-import { X } from 'lucide-react';
-import { useState } from 'react';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { useApi } from '@/hooks/use-api';
 
 interface GoalFormProps {
   goal?: Goal;
@@ -76,18 +82,11 @@ export default function GoalForm({ goal, onClose, onSuccess }: GoalFormProps) {
   };
 
   const addMilestone = () => {
-    setMilestones([
-      ...milestones,
-      { id: Date.now().toString(), title: '', completed: false },
-    ]);
+    setMilestones([...milestones, { id: Date.now().toString(), title: '', completed: false }]);
   };
 
   const updateMilestone = (id: string, field: 'title' | 'targetDate', value: string) => {
-    setMilestones(
-      milestones.map((m) =>
-        m.id === id ? { ...m, [field]: value } : m
-      )
-    );
+    setMilestones(milestones.map((m) => (m.id === id ? { ...m, [field]: value } : m)));
   };
 
   const removeMilestone = (id: string) => {
@@ -103,12 +102,7 @@ export default function GoalForm({ goal, onClose, onSuccess }: GoalFormProps) {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <Label htmlFor="title">Title *</Label>
-            <Input
-              id="title"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              required
-            />
+            <Input id="title" value={title} onChange={(e) => setTitle(e.target.value)} required />
           </div>
 
           <div>
@@ -123,7 +117,10 @@ export default function GoalForm({ goal, onClose, onSuccess }: GoalFormProps) {
           <div className="grid grid-cols-2 gap-4">
             <div>
               <Label htmlFor="category">Category</Label>
-              <Select value={category} onValueChange={(value) => setCategory(value as GoalCategory)}>
+              <Select
+                value={category}
+                onValueChange={(value) => setCategory(value as GoalCategory)}
+              >
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
@@ -140,7 +137,7 @@ export default function GoalForm({ goal, onClose, onSuccess }: GoalFormProps) {
                 id="targetYear"
                 type="number"
                 value={targetYear}
-                onChange={(e) => setTargetYear(parseInt(e.target.value) || 2026)}
+                onChange={(e) => setTargetYear(parseInt(e.target.value, 10) || 2026)}
                 min="2026"
                 max="2036"
               />
@@ -165,7 +162,11 @@ export default function GoalForm({ goal, onClose, onSuccess }: GoalFormProps) {
                   />
                   <Input
                     type="date"
-                    value={milestone.targetDate ? new Date(milestone.targetDate).toISOString().slice(0, 10) : ''}
+                    value={
+                      milestone.targetDate
+                        ? new Date(milestone.targetDate).toISOString().slice(0, 10)
+                        : ''
+                    }
                     onChange={(e) => updateMilestone(milestone.id, 'targetDate', e.target.value)}
                     className="w-40"
                   />
@@ -197,4 +198,3 @@ export default function GoalForm({ goal, onClose, onSuccess }: GoalFormProps) {
     </Dialog>
   );
 }
-

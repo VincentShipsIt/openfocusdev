@@ -2,8 +2,8 @@
 
 import { Task } from '@todoist/shared';
 import { useState } from 'react';
-import TaskItem from './task-item';
 import TaskDetailPanel from './task-detail-panel';
+import TaskItem from './task-item';
 
 interface TaskListProps {
   tasks: Task[];
@@ -27,7 +27,7 @@ export default function TaskList({ tasks, onUpdate, onDelete }: TaskListProps) {
   return (
     <>
       <div className="space-y-2">
-        {tasks.map(task => (
+        {tasks.map((task) => (
           <TaskItem
             key={task.id}
             task={task}
@@ -46,7 +46,7 @@ export default function TaskList({ tasks, onUpdate, onDelete }: TaskListProps) {
           onUpdate();
           // Refresh the selected task if it exists
           if (selectedTask) {
-            const updated = tasks.find(t => t.id === selectedTask.id);
+            const updated = tasks.find((t) => t.id === selectedTask.id);
             if (updated) setSelectedTask(updated);
           }
         }}
@@ -58,4 +58,3 @@ export default function TaskList({ tasks, onUpdate, onDelete }: TaskListProps) {
     </>
   );
 }
-

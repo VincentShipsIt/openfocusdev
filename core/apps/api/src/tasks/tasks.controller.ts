@@ -32,10 +32,7 @@ export class TasksController {
 
   @Post()
   @ApiOperation({ summary: 'Create a new task' })
-  create(
-    @Body() createTaskDto: CreateTaskDto,
-    @CurrentUser() user: { userId: string },
-  ) {
+  create(@Body() createTaskDto: CreateTaskDto, @CurrentUser() user: { userId: string }) {
     return this.tasksService.create(createTaskDto, user.userId);
   }
 
@@ -49,27 +46,28 @@ export class TasksController {
     @Query('projectId') projectId?: string,
     @Query('completed') completed?: string,
     @Query('dueDate') dueDate?: string,
-    @CurrentUser() user: { userId: string } = { userId: '' },
+    @CurrentUser() user: { userId: string } = { userId: '' }
   ) {
     const completedBool = completed === 'true' ? true : completed === 'false' ? false : undefined;
-    return this.tasksService.findAll(user.userId, projectId, completedBool, dueDate, false, pagination);
+    return this.tasksService.findAll(
+      user.userId,
+      projectId,
+      completedBool,
+      dueDate,
+      false,
+      pagination
+    );
   }
 
   @Get(':id')
   @ApiOperation({ summary: 'Get a task by ID' })
-  findOne(
-    @Param('id') id: string,
-    @CurrentUser() user: { userId: string },
-  ) {
+  findOne(@Param('id') id: string, @CurrentUser() user: { userId: string }) {
     return this.tasksService.findOne(id, user.userId);
   }
 
   @Get(':id/subtasks')
   @ApiOperation({ summary: 'Get subtasks for a task' })
-  getSubtasks(
-    @Param('id') id: string,
-    @CurrentUser() user: { userId: string },
-  ) {
+  getSubtasks(@Param('id') id: string, @CurrentUser() user: { userId: string }) {
     return this.tasksService.getSubtasks(id, user.userId);
   }
 
@@ -78,27 +76,21 @@ export class TasksController {
   update(
     @Param('id') id: string,
     @Body() updateTaskDto: UpdateTaskDto,
-    @CurrentUser() user: { userId: string },
+    @CurrentUser() user: { userId: string }
   ) {
     return this.tasksService.update(id, updateTaskDto, user.userId);
   }
 
   @Delete(':id')
   @ApiOperation({ summary: 'Delete a task' })
-  remove(
-    @Param('id') id: string,
-    @CurrentUser() user: { userId: string },
-  ) {
+  remove(@Param('id') id: string, @CurrentUser() user: { userId: string }) {
     return this.tasksService.remove(id, user.userId);
   }
 
   @Get('search')
   @ApiOperation({ summary: 'Search tasks by title or description' })
   @ApiQuery({ name: 'q', required: true })
-  search(
-    @Query('q') query: string,
-    @CurrentUser() user: { userId: string },
-  ) {
+  search(@Query('q') query: string, @CurrentUser() user: { userId: string }) {
     return this.tasksService.search(user.userId, query);
   }
 
@@ -107,7 +99,7 @@ export class TasksController {
   addReminder(
     @Param('id') id: string,
     @Body() addReminderDto: AddReminderDto,
-    @CurrentUser() user: { userId: string },
+    @CurrentUser() user: { userId: string }
   ) {
     return this.tasksService.addReminder(id, addReminderDto, user.userId);
   }
@@ -117,7 +109,7 @@ export class TasksController {
   removeReminder(
     @Param('id') id: string,
     @Param('reminderId') reminderId: string,
-    @CurrentUser() user: { userId: string },
+    @CurrentUser() user: { userId: string }
   ) {
     return this.tasksService.removeReminder(id, reminderId, user.userId);
   }
@@ -127,7 +119,7 @@ export class TasksController {
   updatePosition(
     @Param('id') id: string,
     @Body() updateNodePositionDto: UpdateNodePositionDto,
-    @CurrentUser() user: { userId: string },
+    @CurrentUser() user: { userId: string }
   ) {
     return this.tasksService.updateNodePosition(id, updateNodePositionDto, user.userId);
   }
@@ -137,27 +129,20 @@ export class TasksController {
   triggerAIExecution(
     @Param('id') id: string,
     @Body() triggerAIExecutionDto: TriggerAIExecutionDto,
-    @CurrentUser() user: { userId: string },
+    @CurrentUser() user: { userId: string }
   ) {
     return this.tasksService.triggerAIExecution(id, triggerAIExecutionDto, user.userId);
   }
 
   @Post('bulk/complete')
   @ApiOperation({ summary: 'Complete multiple tasks' })
-  bulkComplete(
-    @Body() body: { ids: string[] },
-    @CurrentUser() user: { userId: string },
-  ) {
+  bulkComplete(@Body() body: { ids: string[] }, @CurrentUser() user: { userId: string }) {
     return this.tasksService.bulkComplete(body.ids, user.userId);
   }
 
   @Post('bulk/delete')
   @ApiOperation({ summary: 'Delete multiple tasks' })
-  bulkDelete(
-    @Body() body: { ids: string[] },
-    @CurrentUser() user: { userId: string },
-  ) {
+  bulkDelete(@Body() body: { ids: string[] }, @CurrentUser() user: { userId: string }) {
     return this.tasksService.bulkDelete(body.ids, user.userId);
   }
 }
-

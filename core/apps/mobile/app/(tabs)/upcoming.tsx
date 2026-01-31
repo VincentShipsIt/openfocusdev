@@ -1,13 +1,5 @@
-import { Project, Task, isOverdue } from '@todoist/shared';
-import {
-  addDays,
-  format,
-  isSameDay,
-  isToday,
-  isTomorrow,
-  parseISO,
-  startOfDay,
-} from 'date-fns';
+import { isOverdue, Project, Task } from '@todoist/shared';
+import { addDays, format, isSameDay, isToday, isTomorrow, parseISO, startOfDay } from 'date-fns';
 import { useCallback, useEffect, useState } from 'react';
 import { Alert, SectionList, StyleSheet, Text, View } from 'react-native';
 import FAB from '../../components/fab';
@@ -170,9 +162,7 @@ export default function UpcomingScreen() {
     return (
       <View style={styles.empty}>
         <Text style={styles.emptyTitle}>No upcoming tasks</Text>
-        <Text style={styles.emptySubtitle}>
-          Tasks with due dates will appear here
-        </Text>
+        <Text style={styles.emptySubtitle}>Tasks with due dates will appear here</Text>
       </View>
     );
   };

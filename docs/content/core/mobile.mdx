@@ -1,0 +1,35 @@
+# Mobile App
+
+The TaskFlow mobile app is built with **React Native** and **Expo**.
+
+## Running
+
+```bash
+cd core
+bun run dev:mobile
+```
+
+This starts the Expo development server. You can then:
+
+- Press `i` for iOS simulator
+- Press `a` for Android emulator
+- Scan the QR code with Expo Go on a physical device
+
+## Prerequisites
+
+- [Expo CLI](https://docs.expo.dev/get-started/installation/)
+- iOS Simulator (macOS) or Android Studio (any OS)
+- Or the **Expo Go** app on your phone
+
+## Architecture
+
+The mobile app shares the `packages/shared` types with the web and API, ensuring consistent data structures across platforms. It communicates with the same NestJS API backend.
+
+## Building
+
+For production builds, use EAS Build:
+
+```bash
+npx eas-cli build --platform ios
+npx eas-cli build --platform android
+```

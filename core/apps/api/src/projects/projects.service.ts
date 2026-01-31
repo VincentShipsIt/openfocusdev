@@ -8,15 +8,10 @@ import { Project, type ProjectDocument } from './schemas/project.schema';
 
 @Injectable()
 export class ProjectsService {
-  constructor(
-    @InjectModel(Project.name) private projectModel: Model<ProjectDocument>,
-  ) {}
+  constructor(@InjectModel(Project.name) private projectModel: Model<ProjectDocument>) {}
 
   async create(createProjectDto: CreateProjectDto, userId: string): Promise<Project> {
-    const maxOrder = await this.projectModel
-      .findOne({ userId })
-      .sort({ order: -1 })
-      .exec();
+    const maxOrder = await this.projectModel.findOne({ userId }).sort({ order: -1 }).exec();
 
     const project = new this.projectModel({
       ...createProjectDto,
@@ -62,11 +57,7 @@ export class ProjectsService {
     return project;
   }
 
-  async update(
-    id: string,
-    updateProjectDto: UpdateProjectDto,
-    userId: string,
-  ): Promise<Project> {
+  async update(id: string, updateProjectDto: UpdateProjectDto, userId: string): Promise<Project> {
     const project = await this.projectModel
       .findOneAndUpdate({ _id: id, userId }, updateProjectDto, { new: true })
       .exec();
@@ -79,9 +70,7 @@ export class ProjectsService {
   }
 
   async remove(id: string, userId: string): Promise<void> {
-    const result = await this.projectModel
-      .deleteOne({ _id: id, userId })
-      .exec();
+    const result = await this.projectModel.deleteOne({ _id: id, userId }).exec();
 
     if (result.deletedCount === 0) {
       throw new NotFoundException(`Project with ID ${id} not found`);
@@ -98,4 +87,3 @@ export class ProjectsService {
     return project.save();
   }
 }
-

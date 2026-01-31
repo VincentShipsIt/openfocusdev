@@ -1,10 +1,10 @@
 'use client';
 
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Check, Plus, Tag } from 'lucide-react';
 import { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import LabelBadge from './label-badge';
 
 // Common label suggestions
@@ -66,11 +66,7 @@ export default function LabelPicker({ selectedLabels, onChange, disabled }: Labe
           {selectedLabels.length > 0 ? (
             <div className="flex flex-wrap gap-1">
               {selectedLabels.map((label) => (
-                <LabelBadge
-                  key={label}
-                  label={label}
-                  onRemove={() => toggleLabel(label)}
-                />
+                <LabelBadge key={label} label={label} onRemove={() => toggleLabel(label)} />
               ))}
             </div>
           ) : (

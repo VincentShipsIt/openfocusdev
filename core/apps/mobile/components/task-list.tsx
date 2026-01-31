@@ -37,16 +37,9 @@ export default function TaskList({
       data={tasks}
       keyExtractor={(item) => item.id}
       renderItem={({ item }) => (
-        <TaskItem
-          task={item}
-          onComplete={onComplete}
-          onDelete={onDelete}
-          onPress={onPress}
-        />
+        <TaskItem task={item} onComplete={onComplete} onDelete={onDelete} onPress={onPress} />
       )}
-      refreshControl={
-        <RefreshControl refreshing={loading} onRefresh={onRefresh} />
-      }
+      refreshControl={<RefreshControl refreshing={loading} onRefresh={onRefresh} />}
       contentContainerStyle={styles.list}
     />
   );

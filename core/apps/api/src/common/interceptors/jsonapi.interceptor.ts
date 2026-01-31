@@ -1,13 +1,8 @@
-import {
-  Injectable,
-  NestInterceptor,
-  ExecutionContext,
-  CallHandler,
-} from '@nestjs/common';
+import { CallHandler, ExecutionContext, Injectable, NestInterceptor } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
+import type { Serializer } from 'jsonapi-serializer';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import type { Serializer } from 'jsonapi-serializer';
 
 export const SERIALIZER_KEY = 'jsonapi:serializer';
 
@@ -26,13 +21,9 @@ export class JsonApiInterceptor implements NestInterceptor {
   constructor(private reflector: Reflector) {}
 
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
-    const serializer = this.reflector.get<Serializer>(
-      SERIALIZER_KEY,
-      context.getHandler(),
-    ) || this.reflector.get<Serializer>(
-      SERIALIZER_KEY,
-      context.getClass(),
-    );
+    const serializer =
+      this.reflector.get<Serializer>(SERIALIZER_KEY, context.getHandler()) ||
+      this.reflector.get<Serializer>(SERIALIZER_KEY, context.getClass());
 
     return next.handle().pipe(
       map((data) => {
@@ -42,7 +33,7 @@ export class JsonApiInterceptor implements NestInterceptor {
 
         const toSerialize = this.prepareData(data);
         return (serializer as Serializer).serialize(toSerialize);
-      }),
+      })
     );
   }
 

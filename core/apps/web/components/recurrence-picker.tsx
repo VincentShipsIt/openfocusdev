@@ -1,12 +1,12 @@
 'use client';
 
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Recurrence, RecurrenceRule } from '@todoist/shared';
 import { Repeat, X } from 'lucide-react';
 import { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 
 interface RecurrencePickerProps {
   value?: Recurrence | null;
@@ -110,7 +110,9 @@ export default function RecurrencePicker({ value, onChange, disabled }: Recurren
 
           <div>
             <Label className="text-xs text-muted-foreground">
-              Every {interval === 1 ? '' : interval + ' '}{ruleLabels[rule].toLowerCase()}{interval === 1 ? '' : 's'}
+              Every {interval === 1 ? '' : `${interval} `}
+              {ruleLabels[rule].toLowerCase()}
+              {interval === 1 ? '' : 's'}
             </Label>
             <div className="flex items-center gap-2 mt-1">
               <Input
@@ -118,11 +120,12 @@ export default function RecurrencePicker({ value, onChange, disabled }: Recurren
                 min={1}
                 max={99}
                 value={interval}
-                onChange={(e) => setInterval(Math.max(1, parseInt(e.target.value) || 1))}
+                onChange={(e) => setInterval(Math.max(1, parseInt(e.target.value, 10) || 1))}
                 className="w-20"
               />
               <span className="text-sm text-muted-foreground">
-                {ruleLabels[rule].toLowerCase()}{interval === 1 ? '' : 's'}
+                {ruleLabels[rule].toLowerCase()}
+                {interval === 1 ? '' : 's'}
               </span>
             </div>
           </div>

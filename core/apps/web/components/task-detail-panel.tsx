@@ -1,22 +1,37 @@
 'use client';
 
 import { useUser } from '@clerk/nextjs';
-import { useApi } from '@/hooks/use-api';
+import {
+  formatTaskDueDate,
+  isOverdue,
+  Project,
+  Reminder,
+  ReminderType,
+  Task,
+  TaskPriority,
+  UpdateTaskDto,
+} from '@todoist/shared';
+import { Bot, Calendar, CheckCircle2, Circle, Plus, Trash2 } from 'lucide-react';
+import { useCallback, useEffect, useState } from 'react';
+import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
-import { formatTaskDueDate, isOverdue, Project, Task, TaskPriority, UpdateTaskDto, Reminder, ReminderType } from '@todoist/shared';
-import { toast } from 'sonner';
-import { Calendar, CheckCircle2, Circle, Plus, Trash2, Bot } from 'lucide-react';
-import { Checkbox } from '@/components/ui/checkbox';
-import { useCallback, useEffect, useState } from 'react';
-import LabelPicker from './label-picker';
-import LabelBadge from './label-badge';
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
+import { Textarea } from '@/components/ui/textarea';
+import { useApi } from '@/hooks/use-api';
 import CommentList from './comment-list';
+import LabelBadge from './label-badge';
+import LabelPicker from './label-picker';
 import ReminderPicker from './reminder-picker';
 
 interface TaskDetailPanelProps {
@@ -103,11 +118,12 @@ export default function TaskDetailPanel({
 
     try {
       setIsSaving(true);
-      const dueDateTime = dueDate && dueTime
-        ? new Date(`${dueDate}T${dueTime}`).toISOString()
-        : dueDate
-        ? new Date(`${dueDate}T00:00`).toISOString()
-        : undefined;
+      const dueDateTime =
+        dueDate && dueTime
+          ? new Date(`${dueDate}T${dueTime}`).toISOString()
+          : dueDate
+            ? new Date(`${dueDate}T00:00`).toISOString()
+            : undefined;
 
       const updateData: UpdateTaskDto = {
         title,
@@ -229,23 +245,28 @@ export default function TaskDetailPanel({
       <SheetContent className="w-full sm:max-w-lg overflow-y-auto">
         <SheetHeader className="mb-4">
           <div className="flex items-start gap-3">
-            <button
-              onClick={handleToggleComplete}
-              className="mt-1 flex-shrink-0"
-            >
+            <button onClick={handleToggleComplete} className="mt-1 flex-shrink-0">
               <div
                 className={`w-6 h-6 rounded-full border-2 transition-all duration-200 flex items-center justify-center ${
-                  task.completedAt
-                    ? 'bg-primary border-primary'
-                    : 'hover:bg-opacity-20'
+                  task.completedAt ? 'bg-primary border-primary' : 'hover:bg-opacity-20'
                 }`}
                 style={{
                   borderColor: task.completedAt ? undefined : priorityColor,
                 }}
               >
                 {task.completedAt && (
-                  <svg className="w-4 h-4 text-primary-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                  <svg
+                    className="w-4 h-4 text-primary-foreground"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={3}
+                      d="M5 13l4 4L19 7"
+                    />
                   </svg>
                 )}
               </div>
@@ -288,7 +309,9 @@ export default function TaskDetailPanel({
                 className="mt-1 text-sm cursor-pointer hover:bg-accent p-2 rounded-md -ml-2"
                 onClick={() => setIsEditing(true)}
               >
-                {task.description || <span className="text-muted-foreground">Add description...</span>}
+                {task.description || (
+                  <span className="text-muted-foreground">Add description...</span>
+                )}
               </p>
             )}
           </div>
@@ -324,21 +347,19 @@ export default function TaskDetailPanel({
             <Label className="text-xs text-muted-foreground uppercase">Due Date</Label>
             {isEditing ? (
               <div className="grid grid-cols-2 gap-2 mt-1">
-                <Input
-                  type="date"
-                  value={dueDate}
-                  onChange={(e) => setDueDate(e.target.value)}
-                />
-                <Input
-                  type="time"
-                  value={dueTime}
-                  onChange={(e) => setDueTime(e.target.value)}
-                />
+                <Input type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} />
+                <Input type="time" value={dueTime} onChange={(e) => setDueTime(e.target.value)} />
               </div>
             ) : (
-              <div className={`mt-1 flex items-center gap-2 text-sm ${taskOverdue ? 'text-destructive' : ''}`}>
+              <div
+                className={`mt-1 flex items-center gap-2 text-sm ${taskOverdue ? 'text-destructive' : ''}`}
+              >
                 <Calendar className="h-4 w-4" />
-                {task.dueDate ? formatTaskDueDate(task.dueDate) : <span className="text-muted-foreground">No due date</span>}
+                {task.dueDate ? (
+                  formatTaskDueDate(task.dueDate)
+                ) : (
+                  <span className="text-muted-foreground">No due date</span>
+                )}
               </div>
             )}
           </div>
@@ -347,7 +368,10 @@ export default function TaskDetailPanel({
           <div>
             <Label className="text-xs text-muted-foreground uppercase">Priority</Label>
             {isEditing ? (
-              <Select value={priority} onValueChange={(value) => setPriority(value as TaskPriority)}>
+              <Select
+                value={priority}
+                onValueChange={(value) => setPriority(value as TaskPriority)}
+              >
                 <SelectTrigger className="mt-1">
                   <SelectValue />
                 </SelectTrigger>
@@ -423,12 +447,17 @@ export default function TaskDetailPanel({
                       <p className="text-sm text-muted-foreground">{task.aiPrompt}</p>
                     )}
                     {task.aiExecutionStatus && (
-                      <p className={`text-xs ${
-                        task.aiExecutionStatus === 'completed' ? 'text-green-600' :
-                        task.aiExecutionStatus === 'failed' ? 'text-destructive' :
-                        task.aiExecutionStatus === 'running' ? 'text-blue-600' :
-                        'text-muted-foreground'
-                      }`}>
+                      <p
+                        className={`text-xs ${
+                          task.aiExecutionStatus === 'completed'
+                            ? 'text-green-600'
+                            : task.aiExecutionStatus === 'failed'
+                              ? 'text-destructive'
+                              : task.aiExecutionStatus === 'running'
+                                ? 'text-blue-600'
+                                : 'text-muted-foreground'
+                        }`}
+                      >
                         Status: {task.aiExecutionStatus}
                       </p>
                     )}
@@ -461,10 +490,7 @@ export default function TaskDetailPanel({
 
             <div className="space-y-2">
               {subtasks.map((subtask) => (
-                <div
-                  key={subtask.id}
-                  className="flex items-center gap-2 py-1"
-                >
+                <div key={subtask.id} className="flex items-center gap-2 py-1">
                   <button onClick={() => handleToggleSubtask(subtask)}>
                     {subtask.completedAt ? (
                       <CheckCircle2 className="h-4 w-4 text-primary" />
@@ -472,7 +498,9 @@ export default function TaskDetailPanel({
                       <Circle className="h-4 w-4 text-muted-foreground" />
                     )}
                   </button>
-                  <span className={`text-sm ${subtask.completedAt ? 'line-through text-muted-foreground' : ''}`}>
+                  <span
+                    className={`text-sm ${subtask.completedAt ? 'line-through text-muted-foreground' : ''}`}
+                  >
                     {subtask.title}
                   </span>
                 </div>

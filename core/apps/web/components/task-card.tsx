@@ -1,10 +1,10 @@
 'use client';
 
-import { useApi } from '@/hooks/use-api';
-import { Button } from '@/components/ui/button';
 import { formatTaskDueDate, Task } from '@todoist/shared';
 import { Edit, Trash2 } from 'lucide-react';
 import { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { useApi } from '@/hooks/use-api';
 import TaskForm from './task-form';
 
 interface TaskCardProps {
@@ -42,12 +42,17 @@ export default function TaskCard({ task, onUpdate, onDelete }: TaskCardProps) {
         )}
         <div className="flex items-center justify-between mt-2">
           {task.priority && (
-            <span className={`text-xs px-2 py-1 rounded ${
-              task.priority === 'urgent' ? 'bg-destructive text-destructive-foreground' :
-              task.priority === 'high' ? 'bg-orange-500 text-white' :
-              task.priority === 'medium' ? 'bg-yellow-500 text-white' :
-              'bg-muted text-muted-foreground'
-            }`}>
+            <span
+              className={`text-xs px-2 py-1 rounded ${
+                task.priority === 'urgent'
+                  ? 'bg-destructive text-destructive-foreground'
+                  : task.priority === 'high'
+                    ? 'bg-orange-500 text-white'
+                    : task.priority === 'medium'
+                      ? 'bg-yellow-500 text-white'
+                      : 'bg-muted text-muted-foreground'
+              }`}
+            >
               {task.priority}
             </span>
           )}
@@ -75,4 +80,3 @@ export default function TaskCard({ task, onUpdate, onDelete }: TaskCardProps) {
     </>
   );
 }
-

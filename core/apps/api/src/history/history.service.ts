@@ -5,9 +5,7 @@ import { Task, TaskDocument } from '../tasks/schemas/task.schema';
 
 @Injectable()
 export class HistoryService {
-  constructor(
-    @InjectModel(Task.name) private taskModel: Model<TaskDocument>,
-  ) {}
+  constructor(@InjectModel(Task.name) private taskModel: Model<TaskDocument>) {}
 
   async findAll(
     userId: string,
@@ -15,7 +13,7 @@ export class HistoryService {
     startDate?: string,
     endDate?: string,
     page: number = 1,
-    limit: number = 50,
+    limit: number = 50
   ) {
     const query: any = {
       userId,
@@ -39,12 +37,7 @@ export class HistoryService {
     const skip = (page - 1) * limit;
 
     const [tasks, total] = await Promise.all([
-      this.taskModel
-        .find(query)
-        .sort({ completedAt: -1 })
-        .skip(skip)
-        .limit(limit)
-        .exec(),
+      this.taskModel.find(query).sort({ completedAt: -1 }).skip(skip).limit(limit).exec(),
       this.taskModel.countDocuments(query).exec(),
     ]);
 
@@ -59,4 +52,3 @@ export class HistoryService {
     };
   }
 }
-

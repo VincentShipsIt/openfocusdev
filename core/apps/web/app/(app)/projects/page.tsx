@@ -1,23 +1,33 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
+import { Project } from '@todoist/shared';
+import {
+  Archive,
+  ClipboardList,
+  Lightbulb,
+  Pause,
+  Play,
+  Plus,
+  Rocket,
+  Send,
+  TestTube,
+} from 'lucide-react';
 import Link from 'next/link';
-import { useApi } from '@/hooks/use-api';
-import { Project, ProjectStatus } from '@todoist/shared';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Plus, Rocket, Pause, Archive, Lightbulb, ClipboardList, Play, TestTube, Send } from 'lucide-react';
+import { useCallback, useEffect, useState } from 'react';
 import ProjectForm from '@/components/project-form';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { useApi } from '@/hooks/use-api';
 
 const STATUS_CONFIG: Record<string, { label: string; color: string; icon: React.ElementType }> = {
-  'idea': { label: 'Idea', color: 'text-purple-400', icon: Lightbulb },
-  'planning': { label: 'Planning', color: 'text-blue-400', icon: ClipboardList },
+  idea: { label: 'Idea', color: 'text-purple-400', icon: Lightbulb },
+  planning: { label: 'Planning', color: 'text-blue-400', icon: ClipboardList },
   'in-progress': { label: 'In Progress', color: 'text-yellow-400', icon: Play },
-  'testing': { label: 'Testing', color: 'text-orange-400', icon: TestTube },
-  'launched': { label: 'Launched', color: 'text-green-400', icon: Rocket },
-  'distributed': { label: 'Distributed', color: 'text-emerald-400', icon: Send },
-  'paused': { label: 'Paused', color: 'text-gray-400', icon: Pause },
-  'abandoned': { label: 'Abandoned', color: 'text-red-400', icon: Archive },
+  testing: { label: 'Testing', color: 'text-orange-400', icon: TestTube },
+  launched: { label: 'Launched', color: 'text-green-400', icon: Rocket },
+  distributed: { label: 'Distributed', color: 'text-emerald-400', icon: Send },
+  paused: { label: 'Paused', color: 'text-gray-400', icon: Pause },
+  abandoned: { label: 'Abandoned', color: 'text-red-400', icon: Archive },
 };
 
 export default function ProjectsPage() {
@@ -57,9 +67,7 @@ export default function ProjectsPage() {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold">Projects</h1>
-            <p className="text-muted-foreground text-sm mt-1">
-              {projects.length} projects
-            </p>
+            <p className="text-muted-foreground text-sm mt-1">{projects.length} projects</p>
           </div>
           <Button onClick={() => setShowProjectForm(true)}>
             <Plus className="mr-2 h-4 w-4" />
@@ -70,8 +78,8 @@ export default function ProjectsPage() {
 
       <div className="flex-1 overflow-auto p-6">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {projects.map(project => {
-            const statusConfig = STATUS_CONFIG[project.status] || STATUS_CONFIG['idea'];
+          {projects.map((project) => {
+            const statusConfig = STATUS_CONFIG[project.status] || STATUS_CONFIG.idea;
             const StatusIcon = statusConfig.icon;
             return (
               <Link key={project.id} href={`/projects/${project.id}`}>
@@ -111,7 +119,11 @@ export default function ProjectsPage() {
                         </span>
                         {project.targetLaunchDate && (
                           <span className="text-xs text-muted-foreground">
-                            Target: {new Date(project.targetLaunchDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                            Target:{' '}
+                            {new Date(project.targetLaunchDate).toLocaleDateString('en-US', {
+                              month: 'short',
+                              day: 'numeric',
+                            })}
                           </span>
                         )}
                       </div>
@@ -131,12 +143,8 @@ export default function ProjectsPage() {
       </div>
 
       {showProjectForm && (
-        <ProjectForm
-          onClose={() => setShowProjectForm(false)}
-          onSuccess={handleProjectCreated}
-        />
+        <ProjectForm onClose={() => setShowProjectForm(false)} onSuccess={handleProjectCreated} />
       )}
     </div>
   );
 }
-

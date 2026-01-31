@@ -1,10 +1,5 @@
-import {
-  Injectable,
-  CanActivate,
-  ExecutionContext,
-  UnauthorizedException,
-} from '@nestjs/common';
 import { verifyToken } from '@clerk/backend';
+import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from '@nestjs/common';
 
 @Injectable()
 export class ClerkAuthGuard implements CanActivate {
@@ -27,9 +22,8 @@ export class ClerkAuthGuard implements CanActivate {
         sessionId: session.sid,
       };
       return true;
-    } catch (error) {
+    } catch (_error) {
       throw new UnauthorizedException('Invalid or expired token');
     }
   }
 }
-

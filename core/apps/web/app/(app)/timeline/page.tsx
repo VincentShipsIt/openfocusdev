@@ -1,32 +1,72 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
-import { useApi } from '@/hooks/use-api';
 import { Project, ProjectStatus, Task } from '@todoist/shared';
-import { Button } from '@/components/ui/button';
-import { Plus, ChevronLeft, ChevronRight, Rocket, Pause, Archive, Lightbulb, ClipboardList, Play, TestTube, Send } from 'lucide-react';
-import ProjectForm from '@/components/project-form';
+import {
+  Archive,
+  ChevronLeft,
+  ChevronRight,
+  ClipboardList,
+  Lightbulb,
+  Pause,
+  Play,
+  Plus,
+  Rocket,
+  Send,
+  TestTube,
+} from 'lucide-react';
 import Link from 'next/link';
+import { useCallback, useEffect, useState } from 'react';
+import ProjectForm from '@/components/project-form';
+import { Button } from '@/components/ui/button';
+import { useApi } from '@/hooks/use-api';
 
-const STATUS_CONFIG: Record<string, { label: string; color: string; bgColor: string; icon: React.ElementType }> = {
-  'idea': { label: 'Idea', color: 'text-purple-400', bgColor: 'bg-purple-500/20', icon: Lightbulb },
-  'planning': { label: 'Planning', color: 'text-blue-400', bgColor: 'bg-blue-500/20', icon: ClipboardList },
-  'in-progress': { label: 'In Progress', color: 'text-yellow-400', bgColor: 'bg-yellow-500/20', icon: Play },
-  'testing': { label: 'Testing', color: 'text-orange-400', bgColor: 'bg-orange-500/20', icon: TestTube },
-  'launched': { label: 'Launched', color: 'text-green-400', bgColor: 'bg-green-500/20', icon: Rocket },
-  'distributed': { label: 'Distributed', color: 'text-emerald-400', bgColor: 'bg-emerald-500/20', icon: Send },
-  'paused': { label: 'Paused', color: 'text-gray-400', bgColor: 'bg-gray-500/20', icon: Pause },
-  'abandoned': { label: 'Abandoned', color: 'text-red-400', bgColor: 'bg-red-500/20', icon: Archive },
+const STATUS_CONFIG: Record<
+  string,
+  { label: string; color: string; bgColor: string; icon: React.ElementType }
+> = {
+  idea: { label: 'Idea', color: 'text-purple-400', bgColor: 'bg-purple-500/20', icon: Lightbulb },
+  planning: {
+    label: 'Planning',
+    color: 'text-blue-400',
+    bgColor: 'bg-blue-500/20',
+    icon: ClipboardList,
+  },
+  'in-progress': {
+    label: 'In Progress',
+    color: 'text-yellow-400',
+    bgColor: 'bg-yellow-500/20',
+    icon: Play,
+  },
+  testing: {
+    label: 'Testing',
+    color: 'text-orange-400',
+    bgColor: 'bg-orange-500/20',
+    icon: TestTube,
+  },
+  launched: {
+    label: 'Launched',
+    color: 'text-green-400',
+    bgColor: 'bg-green-500/20',
+    icon: Rocket,
+  },
+  distributed: {
+    label: 'Distributed',
+    color: 'text-emerald-400',
+    bgColor: 'bg-emerald-500/20',
+    icon: Send,
+  },
+  paused: { label: 'Paused', color: 'text-gray-400', bgColor: 'bg-gray-500/20', icon: Pause },
+  abandoned: { label: 'Abandoned', color: 'text-red-400', bgColor: 'bg-red-500/20', icon: Archive },
 };
 
 const CATEGORY_COLORS: Record<string, string> = {
   'side-project': '#8b5cf6',
   'money-maker': '#22c55e',
-  'tool': '#3b82f6',
-  'oss': '#f97316',
-  'family': '#ec4899',
-  'experiment': '#eab308',
-  'other': '#6b7280',
+  tool: '#3b82f6',
+  oss: '#f97316',
+  family: '#ec4899',
+  experiment: '#eab308',
+  other: '#6b7280',
 };
 
 interface ProjectWithTasks extends Project {
@@ -52,7 +92,9 @@ export default function TimelinePage() {
       const projectsWithTasks = projectsData.map((project) => ({
         ...project,
         taskCount: tasksData.filter((task: Task) => task.projectId === project.id).length,
-        completedTaskCount: tasksData.filter((task: Task) => task.projectId === project.id && task.completedAt).length,
+        completedTaskCount: tasksData.filter(
+          (task: Task) => task.projectId === project.id && task.completedAt
+        ).length,
       }));
 
       setProjects(projectsWithTasks);
@@ -81,19 +123,27 @@ export default function TimelinePage() {
   }
 
   const getBarPosition = (project: ProjectWithTasks) => {
-    const projectStart = project.startDate ? new Date(project.startDate) : new Date(project.createdAt);
+    const projectStart = project.startDate
+      ? new Date(project.startDate)
+      : new Date(project.createdAt);
     const projectEnd = project.targetLaunchDate ? new Date(project.targetLaunchDate) : null;
 
     const timelineStart = months[0].getTime();
     const timelineEnd = new Date(months[5].getFullYear(), months[5].getMonth() + 1, 0).getTime();
     const totalDays = (timelineEnd - timelineStart) / (1000 * 60 * 60 * 24);
 
-    const startOffset = Math.max(0, (projectStart.getTime() - timelineStart) / (1000 * 60 * 60 * 24));
+    const startOffset = Math.max(
+      0,
+      (projectStart.getTime() - timelineStart) / (1000 * 60 * 60 * 24)
+    );
     const startPercent = (startOffset / totalDays) * 100;
 
     let widthPercent: number;
     if (projectEnd) {
-      const endOffset = Math.min(totalDays, (projectEnd.getTime() - timelineStart) / (1000 * 60 * 60 * 24));
+      const endOffset = Math.min(
+        totalDays,
+        (projectEnd.getTime() - timelineStart) / (1000 * 60 * 60 * 24)
+      );
       widthPercent = ((endOffset - startOffset) / totalDays) * 100;
     } else {
       widthPercent = ((totalDays - startOffset) / totalDays) * 100 * 0.3; // Default 30% of remaining
@@ -115,8 +165,8 @@ export default function TimelinePage() {
     ProjectStatus.DISTRIBUTED,
   ];
 
-  const activeProjects = projects.filter(p => !['paused', 'abandoned'].includes(p.status));
-  const pausedProjects = projects.filter(p => ['paused', 'abandoned'].includes(p.status));
+  const activeProjects = projects.filter((p) => !['paused', 'abandoned'].includes(p.status));
+  const pausedProjects = projects.filter((p) => ['paused', 'abandoned'].includes(p.status));
 
   if (loading) {
     return <div className="p-8">Loading...</div>;
@@ -133,13 +183,13 @@ export default function TimelinePage() {
             </p>
           </div>
           <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm" onClick={() => setTimelineOffset(o => o - 3)}>
+            <Button variant="outline" size="sm" onClick={() => setTimelineOffset((o) => o - 3)}>
               <ChevronLeft className="h-4 w-4" />
             </Button>
             <Button variant="outline" size="sm" onClick={() => setTimelineOffset(0)}>
               Today
             </Button>
-            <Button variant="outline" size="sm" onClick={() => setTimelineOffset(o => o + 3)}>
+            <Button variant="outline" size="sm" onClick={() => setTimelineOffset((o) => o + 3)}>
               <ChevronRight className="h-4 w-4" />
             </Button>
             <Button onClick={() => setShowProjectForm(true)}>
@@ -157,7 +207,7 @@ export default function TimelinePage() {
           <div className="flex gap-2">
             {statusOrder.map((status) => {
               const config = STATUS_CONFIG[status];
-              const count = projects.filter(p => p.status === status).length;
+              const count = projects.filter((p) => p.status === status).length;
               const Icon = config.icon;
               return (
                 <div
@@ -184,7 +234,10 @@ export default function TimelinePage() {
             <div className="w-64 flex-shrink-0 font-medium text-sm">Project</div>
             <div className="flex-1 flex">
               {months.map((month) => (
-                <div key={month.toISOString()} className="flex-1 text-center text-sm text-muted-foreground">
+                <div
+                  key={month.toISOString()}
+                  className="flex-1 text-center text-sm text-muted-foreground"
+                >
                   {month.toLocaleDateString('en-US', { month: 'short', year: '2-digit' })}
                 </div>
               ))}
@@ -203,7 +256,8 @@ export default function TimelinePage() {
                   const barPos = getBarPosition(project);
                   const statusConfig = STATUS_CONFIG[project.status];
                   const StatusIcon = statusConfig.icon;
-                  const projectColor = project.color || CATEGORY_COLORS[project.category] || '#6b7280';
+                  const projectColor =
+                    project.color || CATEGORY_COLORS[project.category] || '#6b7280';
 
                   return (
                     <div key={project.id} className="flex items-center group">
@@ -228,7 +282,10 @@ export default function TimelinePage() {
                         {/* Grid lines */}
                         <div className="absolute inset-0 flex">
                           {months.map((_, i) => (
-                            <div key={i} className="flex-1 border-r border-border/30 last:border-r-0" />
+                            <div
+                              key={i}
+                              className="flex-1 border-r border-border/30 last:border-r-0"
+                            />
                           ))}
                         </div>
                         {/* Project bar */}
@@ -240,9 +297,7 @@ export default function TimelinePage() {
                             backgroundColor: projectColor,
                           }}
                         >
-                          <span className="truncate">
-                            {project.progress}%
-                          </span>
+                          <span className="truncate">{project.progress}%</span>
                         </div>
                       </div>
                     </div>
@@ -270,9 +325,7 @@ export default function TimelinePage() {
                         <StatusIcon className={`h-4 w-4 ${statusConfig.color}`} />
                         <span className="font-medium truncate">{project.name}</span>
                       </div>
-                      <span className={`text-xs ${statusConfig.color}`}>
-                        {statusConfig.label}
-                      </span>
+                      <span className={`text-xs ${statusConfig.color}`}>{statusConfig.label}</span>
                     </Link>
                   );
                 })}
@@ -283,10 +336,7 @@ export default function TimelinePage() {
       </div>
 
       {showProjectForm && (
-        <ProjectForm
-          onClose={() => setShowProjectForm(false)}
-          onSuccess={handleProjectCreated}
-        />
+        <ProjectForm onClose={() => setShowProjectForm(false)} onSuccess={handleProjectCreated} />
       )}
     </div>
   );

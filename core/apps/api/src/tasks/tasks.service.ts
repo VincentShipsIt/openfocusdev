@@ -1,6 +1,6 @@
+import { randomUUID } from 'node:crypto';
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { randomUUID } from 'crypto';
 import type { Model } from 'mongoose';
 import type { PaginatedResponse, PaginationDto } from '../common/dto/pagination.dto';
 import type { AddReminderDto } from './dto/add-reminder.dto';
@@ -12,9 +12,7 @@ import { type Recurrence, type Reminder, Task, type TaskDocument } from './schem
 
 @Injectable()
 export class TasksService {
-  constructor(
-    @InjectModel(Task.name) private taskModel: Model<TaskDocument>,
-  ) {}
+  constructor(@InjectModel(Task.name) private taskModel: Model<TaskDocument>) {}
 
   async create(createTaskDto: CreateTaskDto, userId: string): Promise<Task> {
     let projectId = createTaskDto.projectId;
@@ -30,7 +28,11 @@ export class TasksService {
     }
 
     const maxOrder = await this.taskModel
-      .findOne({ userId, projectId: projectId || null, parentTaskId: createTaskDto.parentTaskId || null })
+      .findOne({
+        userId,
+        projectId: projectId || null,
+        parentTaskId: createTaskDto.parentTaskId || null,
+      })
       .sort({ order: -1 })
       .exec();
 
@@ -51,7 +53,7 @@ export class TasksService {
     completed?: boolean,
     dueDate?: string,
     includeSubtasks?: boolean,
-    pagination?: PaginationDto,
+    pagination?: PaginationDto
   ): Promise<PaginatedResponse<Task>> {
     const query: any = { userId };
 
@@ -128,7 +130,7 @@ export class TasksService {
         date.setDate(date.getDate() + interval);
         break;
       case 'weekly':
-        date.setDate(date.getDate() + (interval * 7));
+        date.setDate(date.getDate() + interval * 7);
         break;
       case 'monthly':
         date.setMonth(date.getMonth() + interval);
@@ -143,11 +145,7 @@ export class TasksService {
     return date;
   }
 
-  async update(
-    id: string,
-    updateTaskDto: UpdateTaskDto,
-    userId: string,
-  ): Promise<Task> {
+  async update(id: string, updateTaskDto: UpdateTaskDto, userId: string): Promise<Task> {
     // Get the current task first to check for recurrence
     const existingTask = await this.taskModel.findOne({ _id: id, userId }).exec();
     if (!existingTask) {
@@ -177,19 +175,23 @@ export class TasksService {
       );
 
       // Check if we're past the end date
-      const shouldCreateNext = !existingTask.recurrence.endDate ||
+      const shouldCreateNext =
+        !existingTask.recurrence.endDate ||
         nextDueDate <= new Date(existingTask.recurrence.endDate);
 
       if (shouldCreateNext) {
-        await this.create({
-          title: existingTask.title,
-          description: existingTask.description,
-          projectId: existingTask.projectId,
-          dueDate: nextDueDate.toISOString(),
-          priority: existingTask.priority as any,
-          labels: existingTask.labels,
-          recurrence: existingTask.recurrence as any,
-        }, userId);
+        await this.create(
+          {
+            title: existingTask.title,
+            description: existingTask.description,
+            projectId: existingTask.projectId,
+            dueDate: nextDueDate.toISOString(),
+            priority: existingTask.priority as any,
+            labels: existingTask.labels,
+            recurrence: existingTask.recurrence as any,
+          },
+          userId
+        );
       }
     }
 
@@ -197,9 +199,7 @@ export class TasksService {
   }
 
   async remove(id: string, userId: string): Promise<void> {
-    const result = await this.taskModel
-      .deleteOne({ _id: id, userId })
-      .exec();
+    const result = await this.taskModel.deleteOne({ _id: id, userId }).exec();
 
     if (result.deletedCount === 0) {
       throw new NotFoundException(`Task with ID ${id} not found`);
@@ -207,10 +207,7 @@ export class TasksService {
   }
 
   async bulkComplete(ids: string[], userId: string): Promise<void> {
-    await this.taskModel.updateMany(
-      { _id: { $in: ids }, userId },
-      { completedAt: new Date() },
-    );
+    await this.taskModel.updateMany({ _id: { $in: ids }, userId }, { completedAt: new Date() });
   }
 
   async bulkDelete(ids: string[], userId: string): Promise<void> {
@@ -233,11 +230,7 @@ export class TasksService {
       .exec();
   }
 
-  async addReminder(
-    taskId: string,
-    addReminderDto: AddReminderDto,
-    userId: string,
-  ): Promise<Task> {
+  async addReminder(taskId: string, addReminderDto: AddReminderDto, userId: string): Promise<Task> {
     const task = await this.taskModel.findOne({ _id: taskId, userId }).exec();
     if (!task) {
       throw new NotFoundException(`Task with ID ${taskId} not found`);
@@ -255,19 +248,11 @@ export class TasksService {
     reminders.push(reminder);
 
     return this.taskModel
-      .findOneAndUpdate(
-        { _id: taskId, userId },
-        { reminders },
-        { new: true },
-      )
+      .findOneAndUpdate({ _id: taskId, userId }, { reminders }, { new: true })
       .exec();
   }
 
-  async removeReminder(
-    taskId: string,
-    reminderId: string,
-    userId: string,
-  ): Promise<Task> {
+  async removeReminder(taskId: string, reminderId: string, userId: string): Promise<Task> {
     const task = await this.taskModel.findOne({ _id: taskId, userId }).exec();
     if (!task) {
       throw new NotFoundException(`Task with ID ${taskId} not found`);
@@ -276,24 +261,16 @@ export class TasksService {
     const reminders = (task.reminders || []).filter((r) => r.id !== reminderId);
 
     return this.taskModel
-      .findOneAndUpdate(
-        { _id: taskId, userId },
-        { reminders },
-        { new: true },
-      )
+      .findOneAndUpdate({ _id: taskId, userId }, { reminders }, { new: true })
       .exec();
   }
 
-  async updateNodePosition(
-    id: string,
-    dto: UpdateNodePositionDto,
-    userId: string,
-  ): Promise<Task> {
+  async updateNodePosition(id: string, dto: UpdateNodePositionDto, userId: string): Promise<Task> {
     const task = await this.taskModel
       .findOneAndUpdate(
         { _id: id, userId },
         { nodePosition: { x: dto.x, y: dto.y } },
-        { new: true },
+        { new: true }
       )
       .exec();
 
@@ -304,11 +281,7 @@ export class TasksService {
     return task;
   }
 
-  async triggerAIExecution(
-    id: string,
-    dto: TriggerAIExecutionDto,
-    userId: string,
-  ): Promise<Task> {
+  async triggerAIExecution(id: string, dto: TriggerAIExecutionDto, userId: string): Promise<Task> {
     const task = await this.taskModel.findOne({ _id: id, userId }).exec();
 
     if (!task) {
@@ -320,10 +293,7 @@ export class TasksService {
     }
 
     // Update status to running
-    await this.taskModel.updateOne(
-      { _id: id, userId },
-      { aiExecutionStatus: 'running' },
-    );
+    await this.taskModel.updateOne({ _id: id, userId }, { aiExecutionStatus: 'running' });
 
     try {
       const prompt = dto.prompt || task.aiPrompt || `Complete this task: ${task.title}`;
@@ -339,7 +309,7 @@ export class TasksService {
             aiExecutionResult: result,
             completedAt: new Date(),
           },
-          { new: true },
+          { new: true }
         )
         .exec();
     } catch (error) {
@@ -351,7 +321,7 @@ export class TasksService {
             aiExecutionStatus: 'failed',
             aiExecutionResult: errorMessage,
           },
-          { new: true },
+          { new: true }
         )
         .exec();
     }
@@ -363,4 +333,3 @@ export class TasksService {
     return `Task "${task.title}" analyzed and completed by AI. Prompt: ${prompt}`;
   }
 }
-

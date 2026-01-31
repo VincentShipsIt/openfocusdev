@@ -1,17 +1,17 @@
 'use client';
 
-import KanbanBoard from '@/components/kanban-board';
-import QuickAddTask from '@/components/quick-add-task';
-import TaskForm from '@/components/task-form';
-import TaskList from '@/components/task-list';
-import WorkflowView from '@/components/workflow-view';
-import { useApi } from '@/hooks/use-api';
-import { Button } from '@/components/ui/button';
 import { Task, ViewMode } from '@todoist/shared';
 import { ChevronDown, Circle, LayoutGrid, List, Workflow } from 'lucide-react';
 import Link from 'next/link';
 import { notFound, useParams } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
+import KanbanBoard from '@/components/kanban-board';
+import QuickAddTask from '@/components/quick-add-task';
+import TaskForm from '@/components/task-form';
+import TaskList from '@/components/task-list';
+import { Button } from '@/components/ui/button';
+import WorkflowView from '@/components/workflow-view';
+import { useApi } from '@/hooks/use-api';
 
 const validViews = ['list', 'board', 'workflow'] as const;
 type ViewType = (typeof validViews)[number];
@@ -175,7 +175,9 @@ export default function InboxViewPage() {
         )}
       </div>
 
-      {showTaskForm && <TaskForm onClose={() => setShowTaskForm(false)} onSuccess={handleTaskCreated} />}
+      {showTaskForm && (
+        <TaskForm onClose={() => setShowTaskForm(false)} onSuccess={handleTaskCreated} />
+      )}
     </div>
   );
 }

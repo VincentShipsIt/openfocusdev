@@ -1,5 +1,14 @@
-import { IsString, IsOptional, IsNumber, IsIn, IsArray, IsDateString, Min, Max } from 'class-validator';
-import { PROJECT_STATUSES, PROJECT_CATEGORIES } from '../schemas/project.schema';
+import {
+  IsArray,
+  IsDateString,
+  IsIn,
+  IsNumber,
+  IsOptional,
+  IsString,
+  Max,
+  Min,
+} from 'class-validator';
+import { PROJECT_CATEGORIES, PROJECT_STATUSES } from '../schemas/project.schema';
 
 export class UpdateProjectDto {
   @IsString()
@@ -60,4 +69,3 @@ export class UpdateProjectDto {
   @IsOptional()
   order?: number;
 }
-
