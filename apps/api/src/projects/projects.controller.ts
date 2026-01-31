@@ -1,23 +1,23 @@
 import {
-  Controller,
-  Get,
-  Post,
   Body,
-  Patch,
-  Param,
+  Controller,
   Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
-import { ProjectsService } from './projects.service';
-import { CreateProjectDto } from './dto/create-project.dto';
-import { UpdateProjectDto } from './dto/update-project.dto';
-import { ClerkAuthGuard } from '../auth/guards/clerk-auth.guard';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
+import { ClerkAuthGuard } from '../auth/guards/clerk-auth.guard';
+import type { PaginationDto } from '../common/dto/pagination.dto';
 import { UseSerializer } from '../common/interceptors/jsonapi.interceptor';
 import { ProjectSerializer } from '../common/serializers/project.serializer';
-import { PaginationDto } from '../common/dto/pagination.dto';
+import type { CreateProjectDto } from './dto/create-project.dto';
+import type { UpdateProjectDto } from './dto/update-project.dto';
+import type { ProjectsService } from './projects.service';
 
 @ApiTags('projects')
 @ApiBearerAuth()

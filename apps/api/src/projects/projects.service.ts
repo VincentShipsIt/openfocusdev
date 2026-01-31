@@ -1,10 +1,10 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-import { Project, ProjectDocument } from './schemas/project.schema';
-import { CreateProjectDto } from './dto/create-project.dto';
-import { UpdateProjectDto } from './dto/update-project.dto';
-import { PaginationDto, PaginatedResponse } from '../common/dto/pagination.dto';
+import type { Model } from 'mongoose';
+import type { PaginatedResponse, PaginationDto } from '../common/dto/pagination.dto';
+import type { CreateProjectDto } from './dto/create-project.dto';
+import type { UpdateProjectDto } from './dto/update-project.dto';
+import { Project, type ProjectDocument } from './schemas/project.schema';
 
 @Injectable()
 export class ProjectsService {

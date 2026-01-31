@@ -1,17 +1,17 @@
 import { Module } from '@nestjs/common';
-import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { ConfigModule } from '@nestjs/config';
+import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { MongooseModule } from '@nestjs/mongoose';
-import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { AuthModule } from './auth/auth.module';
-import { TasksModule } from './tasks/tasks.module';
-import { ProjectsModule } from './projects/projects.module';
-import { HistoryModule } from './history/history.module';
-import { GoalsModule } from './goals/goals.module';
 import { CommentsModule } from './comments/comments.module';
-import { ConnectionsModule } from './connections/connections.module';
-import { HealthModule } from './health/health.module';
 import { JsonApiInterceptor } from './common/interceptors/jsonapi.interceptor';
+import { ConnectionsModule } from './connections/connections.module';
+import { GoalsModule } from './goals/goals.module';
+import { HealthModule } from './health/health.module';
+import { HistoryModule } from './history/history.module';
+import { ProjectsModule } from './projects/projects.module';
+import { TasksModule } from './tasks/tasks.module';
 
 @Module({
   imports: [
@@ -25,9 +25,7 @@ import { JsonApiInterceptor } from './common/interceptors/jsonapi.interceptor';
         limit: 100,
       },
     ]),
-    MongooseModule.forRoot(
-      process.env.MONGODB_URI || 'mongodb://localhost:27017/taskflow',
-    ),
+    MongooseModule.forRoot(process.env.MONGODB_URI || 'mongodb://localhost:27017/taskflow'),
     AuthModule,
     TasksModule,
     ProjectsModule,
@@ -49,4 +47,3 @@ import { JsonApiInterceptor } from './common/interceptors/jsonapi.interceptor';
   ],
 })
 export class AppModule {}
-

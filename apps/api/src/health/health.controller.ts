@@ -1,9 +1,9 @@
 import { Controller, Get } from '@nestjs/common';
-import { ApiTags, ApiOperation } from '@nestjs/swagger';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import {
   HealthCheck,
-  HealthCheckService,
-  MongooseHealthIndicator,
+  type HealthCheckService,
+  type MongooseHealthIndicator,
 } from '@nestjs/terminus';
 import { SkipThrottle } from '@nestjs/throttler';
 
@@ -13,24 +13,20 @@ import { SkipThrottle } from '@nestjs/throttler';
 export class HealthController {
   constructor(
     private health: HealthCheckService,
-    private mongoose: MongooseHealthIndicator,
+    private mongoose: MongooseHealthIndicator
   ) {}
 
   @Get('health')
   @HealthCheck()
   @ApiOperation({ summary: 'Liveness check' })
   check() {
-    return this.health.check([
-      () => this.mongoose.pingCheck('mongodb'),
-    ]);
+    return this.health.check([() => this.mongoose.pingCheck('mongodb')]);
   }
 
   @Get('readiness')
   @HealthCheck()
   @ApiOperation({ summary: 'Readiness check' })
   readiness() {
-    return this.health.check([
-      () => this.mongoose.pingCheck('mongodb'),
-    ]);
+    return this.health.check([() => this.mongoose.pingCheck('mongodb')]);
   }
 }

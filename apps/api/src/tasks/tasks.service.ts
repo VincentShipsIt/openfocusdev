@@ -1,14 +1,14 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-import { Task, TaskDocument, Recurrence, Reminder } from './schemas/task.schema';
-import { CreateTaskDto } from './dto/create-task.dto';
-import { UpdateTaskDto } from './dto/update-task.dto';
-import { AddReminderDto } from './dto/add-reminder.dto';
-import { UpdateNodePositionDto } from './dto/update-node-position.dto';
-import { TriggerAIExecutionDto } from './dto/trigger-ai-execution.dto';
 import { randomUUID } from 'crypto';
-import { PaginationDto, PaginatedResponse } from '../common/dto/pagination.dto';
+import type { Model } from 'mongoose';
+import type { PaginatedResponse, PaginationDto } from '../common/dto/pagination.dto';
+import type { AddReminderDto } from './dto/add-reminder.dto';
+import type { CreateTaskDto } from './dto/create-task.dto';
+import type { TriggerAIExecutionDto } from './dto/trigger-ai-execution.dto';
+import type { UpdateNodePositionDto } from './dto/update-node-position.dto';
+import type { UpdateTaskDto } from './dto/update-task.dto';
+import { type Recurrence, type Reminder, Task, type TaskDocument } from './schemas/task.schema';
 
 @Injectable()
 export class TasksService {

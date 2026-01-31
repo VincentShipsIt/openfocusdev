@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongoose';
+import type { Document } from 'mongoose';
 
 export type TaskDocument = Task & Document;
 
@@ -105,4 +105,3 @@ TaskSchema.index({ userId: 1, dueDate: 1 });
 TaskSchema.index({ priority: 1 });
 TaskSchema.index({ parentTaskId: 1, userId: 1 });
 TaskSchema.index({ userId: 1, order: 1 });
-

@@ -27,6 +27,9 @@
       "quoteStyle": "single",
       "semicolons": "always",
       "trailingCommas": "es5"
+    },
+    "parser": {
+      "unsafeParameterDecoratorsEnabled": true
     }
   },
   "linter": {
