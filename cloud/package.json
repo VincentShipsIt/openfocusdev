@@ -1,0 +1,17 @@
+{
+  "name": "taskflow-cloud",
+  "description": "TaskFlow SaaS — premium features and cloud services",
+  "version": "0.1.0",
+  "private": true,
+  "packageManager": "bun@latest",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "bun run --cwd apps/api build && bun run --cwd apps/web build",
+    "dev": "bun run --cwd apps/api dev & bun run --cwd apps/web dev",
+    "dev:api": "bun run --cwd apps/api dev",
+    "dev:web": "bun run --cwd apps/web dev"
+  }
+}

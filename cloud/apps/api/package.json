@@ -1,0 +1,12 @@
+{
+  "name": "cloud-api",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "build": "echo 'cloud-api: no build yet'",
+    "dev": "echo 'cloud-api: extend core api with premium features'"
+  },
+  "dependencies": {
+    "@todoist/shared": "workspace:*"
+  }
+}
