@@ -20,6 +20,7 @@ import { ClerkAuthGuard } from '../auth/guards/clerk-auth.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { UseSerializer } from '../common/interceptors/jsonapi.interceptor';
 import { TaskSerializer } from '../common/serializers/task.serializer';
+import { PaginationDto } from '../common/dto/pagination.dto';
 
 @ApiTags('tasks')
 @ApiBearerAuth()
@@ -44,13 +45,14 @@ export class TasksController {
   @ApiQuery({ name: 'completed', required: false, type: Boolean })
   @ApiQuery({ name: 'dueDate', required: false })
   findAll(
+    @Query() pagination: PaginationDto,
     @Query('projectId') projectId?: string,
     @Query('completed') completed?: string,
     @Query('dueDate') dueDate?: string,
     @CurrentUser() user: { userId: string } = { userId: '' },
   ) {
     const completedBool = completed === 'true' ? true : completed === 'false' ? false : undefined;
-    return this.tasksService.findAll(user.userId, projectId, completedBool, dueDate);
+    return this.tasksService.findAll(user.userId, projectId, completedBool, dueDate, false, pagination);
   }
 
   @Get(':id')

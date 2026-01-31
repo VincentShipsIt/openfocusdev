@@ -6,6 +6,7 @@ import {
   Patch,
   Param,
   Delete,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
@@ -16,6 +17,7 @@ import { ClerkAuthGuard } from '../auth/guards/clerk-auth.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { UseSerializer } from '../common/interceptors/jsonapi.interceptor';
 import { ProjectSerializer } from '../common/serializers/project.serializer';
+import { PaginationDto } from '../common/dto/pagination.dto';
 
 @ApiTags('projects')
 @ApiBearerAuth()
@@ -36,8 +38,11 @@ export class ProjectsController {
 
   @Get()
   @ApiOperation({ summary: 'Get all projects' })
-  findAll(@CurrentUser() user: { userId: string }) {
-    return this.projectsService.findAll(user.userId);
+  findAll(
+    @Query() pagination: PaginationDto,
+    @CurrentUser() user: { userId: string },
+  ) {
+    return this.projectsService.findAll(user.userId, pagination);
   }
 
   @Get(':id')

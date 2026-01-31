@@ -8,6 +8,7 @@ import { AddReminderDto } from './dto/add-reminder.dto';
 import { UpdateNodePositionDto } from './dto/update-node-position.dto';
 import { TriggerAIExecutionDto } from './dto/trigger-ai-execution.dto';
 import { randomUUID } from 'crypto';
+import { PaginationDto, PaginatedResponse } from '../common/dto/pagination.dto';
 
 @Injectable()
 export class TasksService {
@@ -50,7 +51,8 @@ export class TasksService {
     completed?: boolean,
     dueDate?: string,
     includeSubtasks?: boolean,
-  ): Promise<Task[]> {
+    pagination?: PaginationDto,
+  ): Promise<PaginatedResponse<Task>> {
     const query: any = { userId };
 
     // By default, exclude subtasks from main queries
@@ -77,7 +79,29 @@ export class TasksService {
       query.dueDate = { $gte: startOfDay, $lte: endOfDay };
     }
 
-    return this.taskModel.find(query).sort({ order: 1, createdAt: -1 }).exec();
+    const page = pagination?.page || 1;
+    const limit = pagination?.limit || 20;
+    const sortBy = pagination?.sortBy || 'order';
+    const sortOrder = pagination?.sortOrder === 'asc' ? 1 : -1;
+    const skip = (page - 1) * limit;
+
+    const [data, total] = await Promise.all([
+      this.taskModel
+        .find(query)
+        .sort({ [sortBy]: sortOrder, createdAt: -1 })
+        .skip(skip)
+        .limit(limit)
+        .exec(),
+      this.taskModel.countDocuments(query).exec(),
+    ]);
+
+    return {
+      data,
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    };
   }
 
   async getSubtasks(taskId: string, userId: string): Promise<Task[]> {

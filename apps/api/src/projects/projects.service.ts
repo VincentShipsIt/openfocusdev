@@ -4,6 +4,7 @@ import { Model } from 'mongoose';
 import { Project, ProjectDocument } from './schemas/project.schema';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
+import { PaginationDto, PaginatedResponse } from '../common/dto/pagination.dto';
 
 @Injectable()
 export class ProjectsService {
@@ -26,8 +27,31 @@ export class ProjectsService {
     return project.save();
   }
 
-  async findAll(userId: string): Promise<Project[]> {
-    return this.projectModel.find({ userId }).sort({ order: 1, createdAt: -1 }).exec();
+  async findAll(userId: string, pagination?: PaginationDto): Promise<PaginatedResponse<Project>> {
+    const page = pagination?.page || 1;
+    const limit = pagination?.limit || 20;
+    const sortBy = pagination?.sortBy || 'order';
+    const sortOrder = pagination?.sortOrder === 'asc' ? 1 : -1;
+    const skip = (page - 1) * limit;
+
+    const query = { userId };
+    const [data, total] = await Promise.all([
+      this.projectModel
+        .find(query)
+        .sort({ [sortBy]: sortOrder, createdAt: -1 })
+        .skip(skip)
+        .limit(limit)
+        .exec(),
+      this.projectModel.countDocuments(query).exec(),
+    ]);
+
+    return {
+      data,
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    };
   }
 
   async findOne(id: string, userId: string): Promise<Project> {
