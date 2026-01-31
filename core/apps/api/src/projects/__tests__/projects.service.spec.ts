@@ -19,6 +19,16 @@ const mockProject = {
   save: vi.fn().mockResolvedValue(this),
 };
 
+const createFindChain = (result: unknown) => ({
+  sort: vi.fn().mockReturnValue({
+    skip: vi.fn().mockReturnValue({
+      limit: vi.fn().mockReturnValue({
+        exec: vi.fn().mockResolvedValue(result),
+      }),
+    }),
+  }),
+});
+
 describe('ProjectsService', () => {
   let service: ProjectsService;
   let _model: Model<Project>;
@@ -30,6 +40,7 @@ describe('ProjectsService', () => {
     findOne: vi.fn(),
     findOneAndUpdate: vi.fn(),
     deleteOne: vi.fn(),
+    countDocuments: vi.fn(),
     exec: vi.fn(),
   };
 
@@ -82,29 +93,27 @@ describe('ProjectsService', () => {
   describe('findAll', () => {
     it('should return all projects for a user', async () => {
       const projects = [mockProject];
-      mockProjectModel.find = vi.fn().mockReturnValue({
-        sort: vi.fn().mockReturnValue({
-          exec: vi.fn().mockResolvedValue(projects),
-        }),
+      mockProjectModel.find = vi.fn().mockReturnValue(createFindChain(projects));
+      mockProjectModel.countDocuments = vi.fn().mockReturnValue({
+        exec: vi.fn().mockResolvedValue(1),
       });
 
       const result = await service.findAll('user-id-1');
 
       expect(mockProjectModel.find).toHaveBeenCalledWith({ userId: 'user-id-1' });
-      expect(result).toEqual(projects);
+      expect(result.data).toEqual(projects);
     });
 
     it('should sort by order ascending', async () => {
-      mockProjectModel.find = vi.fn().mockReturnValue({
-        sort: vi.fn().mockReturnValue({
-          exec: vi.fn().mockResolvedValue([]),
-        }),
+      const chain = createFindChain([]);
+      mockProjectModel.find = vi.fn().mockReturnValue(chain);
+      mockProjectModel.countDocuments = vi.fn().mockReturnValue({
+        exec: vi.fn().mockResolvedValue(0),
       });
 
       await service.findAll('user-id-1');
 
-      const sortMock = mockProjectModel.find().sort;
-      expect(sortMock).toHaveBeenCalledWith({ order: 1, createdAt: -1 });
+      expect(chain.sort).toHaveBeenCalledWith({ order: -1, createdAt: -1 });
     });
   });
 

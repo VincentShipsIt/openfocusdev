@@ -1,14 +1,55 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
+import { useApi } from '@/hooks/use-api';
 import QuickAddTask from '../quick-add-task';
+
+vi.mock('@/hooks/use-api');
+
+const mockCreate = vi.fn().mockResolvedValue({});
+vi.mocked(useApi).mockReturnValue({
+  tasks: {
+    getAll: vi.fn(),
+    getOne: vi.fn(),
+    create: mockCreate,
+    update: vi.fn(),
+    remove: vi.fn(),
+    bulkComplete: vi.fn(),
+    bulkDelete: vi.fn(),
+    getSubtasks: vi.fn(),
+    addReminder: vi.fn(),
+    removeReminder: vi.fn(),
+  },
+  projects: { getAll: vi.fn(), getOne: vi.fn(), create: vi.fn(), update: vi.fn(), remove: vi.fn() },
+  history: { getAll: vi.fn() },
+  goals: { getAll: vi.fn(), getOne: vi.fn(), create: vi.fn(), update: vi.fn(), remove: vi.fn() },
+  comments: {
+    getAll: vi.fn(),
+    getOne: vi.fn(),
+    create: vi.fn(),
+    update: vi.fn(),
+    remove: vi.fn(),
+  },
+  connections: {
+    getAll: vi.fn(),
+    getOne: vi.fn(),
+    create: vi.fn(),
+    update: vi.fn(),
+    remove: vi.fn(),
+  },
+} as ReturnType<typeof useApi>);
 
 describe('QuickAddTask', () => {
   const defaultProps = {
-    onAdd: vi.fn(),
-    projectId: undefined,
-    defaultDueDate: undefined,
+    onTaskCreated: vi.fn(),
+    projectId: undefined as string | undefined,
+    defaultDueDate: undefined as string | undefined,
   };
+
+  beforeEach(() => {
+    mockCreate.mockClear();
+    defaultProps.onTaskCreated = vi.fn();
+  });
 
   it('renders input field', () => {
     render(<QuickAddTask {...defaultProps} />);
@@ -16,13 +57,12 @@ describe('QuickAddTask', () => {
   });
 
   it('submits task on Enter key', async () => {
-    const onAdd = vi.fn();
-    render(<QuickAddTask {...defaultProps} onAdd={onAdd} />);
+    render(<QuickAddTask {...defaultProps} />);
 
     const input = screen.getByPlaceholderText('Add a task...');
     await userEvent.type(input, 'New task{enter}');
 
-    expect(onAdd).toHaveBeenCalledWith(
+    expect(mockCreate).toHaveBeenCalledWith(
       expect.objectContaining({
         title: 'New task',
       })
@@ -30,43 +70,41 @@ describe('QuickAddTask', () => {
   });
 
   it('clears input after successful submission', async () => {
-    const onAdd = vi.fn();
-    render(<QuickAddTask {...defaultProps} onAdd={onAdd} />);
+    render(<QuickAddTask {...defaultProps} />);
 
     const input = screen.getByPlaceholderText('Add a task...');
     await userEvent.type(input, 'New task{enter}');
 
-    expect(input).toHaveValue('');
+    await waitFor(() => {
+      expect(input).toHaveValue('');
+    });
   });
 
   it('does not submit empty task', async () => {
-    const onAdd = vi.fn();
-    render(<QuickAddTask {...defaultProps} onAdd={onAdd} />);
+    render(<QuickAddTask {...defaultProps} />);
 
     const input = screen.getByPlaceholderText('Add a task...');
     await userEvent.type(input, '{enter}');
 
-    expect(onAdd).not.toHaveBeenCalled();
+    expect(mockCreate).not.toHaveBeenCalled();
   });
 
   it('does not submit whitespace-only task', async () => {
-    const onAdd = vi.fn();
-    render(<QuickAddTask {...defaultProps} onAdd={onAdd} />);
+    render(<QuickAddTask {...defaultProps} />);
 
     const input = screen.getByPlaceholderText('Add a task...');
     await userEvent.type(input, '   {enter}');
 
-    expect(onAdd).not.toHaveBeenCalled();
+    expect(mockCreate).not.toHaveBeenCalled();
   });
 
   it('includes projectId when provided', async () => {
-    const onAdd = vi.fn();
-    render(<QuickAddTask {...defaultProps} onAdd={onAdd} projectId="project-1" />);
+    render(<QuickAddTask {...defaultProps} projectId="project-1" />);
 
     const input = screen.getByPlaceholderText('Add a task...');
     await userEvent.type(input, 'New task{enter}');
 
-    expect(onAdd).toHaveBeenCalledWith(
+    expect(mockCreate).toHaveBeenCalledWith(
       expect.objectContaining({
         title: 'New task',
         projectId: 'project-1',
@@ -75,29 +113,27 @@ describe('QuickAddTask', () => {
   });
 
   it('includes dueDate when provided', async () => {
-    const onAdd = vi.fn();
-    const dueDate = new Date('2025-01-15');
-    render(<QuickAddTask {...defaultProps} onAdd={onAdd} defaultDueDate={dueDate} />);
+    const dueDate = '2025-01-15T00:00:00.000Z';
+    render(<QuickAddTask {...defaultProps} defaultDueDate={dueDate} />);
 
     const input = screen.getByPlaceholderText('Add a task...');
     await userEvent.type(input, 'New task{enter}');
 
-    expect(onAdd).toHaveBeenCalledWith(
+    expect(mockCreate).toHaveBeenCalledWith(
       expect.objectContaining({
         title: 'New task',
-        dueDate: dueDate.toISOString(),
+        dueDate,
       })
     );
   });
 
   it('trims whitespace from task title', async () => {
-    const onAdd = vi.fn();
-    render(<QuickAddTask {...defaultProps} onAdd={onAdd} />);
+    render(<QuickAddTask {...defaultProps} />);
 
     const input = screen.getByPlaceholderText('Add a task...');
     await userEvent.type(input, '  New task  {enter}');
 
-    expect(onAdd).toHaveBeenCalledWith(
+    expect(mockCreate).toHaveBeenCalledWith(
       expect.objectContaining({
         title: 'New task',
       })
@@ -105,15 +141,12 @@ describe('QuickAddTask', () => {
   });
 
   it('shows loading state while submitting', async () => {
-    const onAdd = vi
-      .fn()
-      .mockImplementation(() => new Promise((resolve) => setTimeout(resolve, 100)));
-    render(<QuickAddTask {...defaultProps} onAdd={onAdd} />);
+    mockCreate.mockImplementation(() => new Promise((resolve) => setTimeout(resolve, 100)));
+    render(<QuickAddTask {...defaultProps} />);
 
     const input = screen.getByPlaceholderText('Add a task...');
     await userEvent.type(input, 'New task{enter}');
 
-    // Input should be disabled while loading
     expect(input).toBeDisabled();
 
     await waitFor(() => {

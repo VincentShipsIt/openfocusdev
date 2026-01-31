@@ -5,19 +5,19 @@ export type GoalDocument = Goal & Document;
 
 @Schema({ _id: false })
 export class Milestone {
-  @Prop({ required: true })
+  @Prop({ required: true, type: String })
   id: string;
 
-  @Prop({ required: true })
+  @Prop({ required: true, type: String })
   title: string;
 
-  @Prop()
+  @Prop({ type: Date })
   targetDate?: Date;
 
-  @Prop({ required: true, default: false })
+  @Prop({ required: true, default: false, type: Boolean })
   completed: boolean;
 
-  @Prop()
+  @Prop({ type: Date })
   completedAt?: Date;
 }
 
@@ -25,22 +25,22 @@ const MilestoneSchema = SchemaFactory.createForClass(Milestone);
 
 @Schema({ timestamps: true })
 export class Goal {
-  @Prop({ required: true })
+  @Prop({ required: true, type: String })
   title: string;
 
-  @Prop()
+  @Prop({ type: String })
   description?: string;
 
-  @Prop({ required: true, enum: ['business', 'personal'] })
+  @Prop({ required: true, enum: ['business', 'personal'], type: String })
   category: string;
 
-  @Prop({ required: true })
+  @Prop({ required: true, type: Number })
   targetYear: number;
 
   @Prop({ type: [MilestoneSchema], default: [] })
   milestones: Milestone[];
 
-  @Prop({ required: true })
+  @Prop({ required: true, type: String })
   userId: string;
 }
 

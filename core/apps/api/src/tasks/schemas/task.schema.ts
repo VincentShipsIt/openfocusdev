@@ -4,66 +4,71 @@ import type { Document } from 'mongoose';
 export type TaskDocument = Task & Document;
 
 export class Recurrence {
-  @Prop({ required: true, enum: ['daily', 'weekly', 'monthly', 'yearly'] })
+  @Prop({ required: true, enum: ['daily', 'weekly', 'monthly', 'yearly'], type: String })
   rule: string;
 
-  @Prop({ required: true, default: 1 })
+  @Prop({ required: true, default: 1, type: Number })
   interval: number;
 
   @Prop({ type: [Number], default: [] })
   daysOfWeek?: number[]; // 0-6 for weekly
 
-  @Prop()
+  @Prop({ type: Date })
   endDate?: Date;
 }
 
 export class Reminder {
-  @Prop({ required: true })
+  @Prop({ required: true, type: String })
   id: string;
 
-  @Prop({ required: true, enum: ['relative', 'absolute'] })
+  @Prop({ required: true, enum: ['relative', 'absolute'], type: String })
   type: string;
 
-  @Prop()
+  @Prop({ type: Date })
   time?: Date; // For absolute reminders
 
-  @Prop()
+  @Prop({ type: Number })
   offset?: number; // Minutes before due date for relative reminders
 
-  @Prop({ default: false })
+  @Prop({ default: false, type: Boolean })
   notified: boolean;
 }
 
 @Schema({ timestamps: true })
 export class Task {
-  @Prop({ required: true })
+  @Prop({ required: true, type: String })
   title: string;
 
-  @Prop()
+  @Prop({ type: String })
   description?: string;
 
-  @Prop()
+  @Prop({ type: String })
   projectId?: string;
 
-  @Prop()
+  @Prop({ type: Date })
   dueDate?: Date;
 
-  @Prop()
+  @Prop({ type: Date })
   completedAt?: Date;
 
-  @Prop({ required: true, default: 'medium', enum: ['low', 'medium', 'high', 'urgent'] })
+  @Prop({
+    required: true,
+    default: 'medium',
+    enum: ['low', 'medium', 'high', 'urgent'],
+    type: String,
+  })
   priority: string;
 
   @Prop({ type: [String], default: [] })
   labels?: string[];
 
-  @Prop()
+  @Prop({ type: String })
   goalId?: string;
 
-  @Prop()
+  @Prop({ type: String })
   milestoneId?: string;
 
-  @Prop()
+  @Prop({ type: String })
   parentTaskId?: string;
 
   @Prop({ type: Object })
@@ -72,23 +77,23 @@ export class Task {
   @Prop({ type: [Object], default: [] })
   reminders?: Reminder[];
 
-  @Prop({ required: true, default: 0 })
+  @Prop({ required: true, default: 0, type: Number })
   order: number;
 
-  @Prop({ required: true })
+  @Prop({ required: true, type: String })
   userId: string;
 
   // Workflow fields
-  @Prop({ default: false })
+  @Prop({ default: false, type: Boolean })
   aiEnabled?: boolean;
 
-  @Prop()
+  @Prop({ type: String })
   aiPrompt?: string;
 
-  @Prop({ enum: ['pending', 'running', 'completed', 'failed'] })
+  @Prop({ enum: ['pending', 'running', 'completed', 'failed'], type: String })
   aiExecutionStatus?: string;
 
-  @Prop()
+  @Prop({ type: String })
   aiExecutionResult?: string;
 
   @Prop({ type: Object })

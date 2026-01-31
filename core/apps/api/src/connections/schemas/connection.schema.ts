@@ -5,19 +5,19 @@ export type ConnectionDocument = Connection & Document;
 
 @Schema({ timestamps: true })
 export class Connection {
-  @Prop({ required: true })
+  @Prop({ required: true, type: String })
   sourceTaskId: string;
 
-  @Prop({ required: true })
+  @Prop({ required: true, type: String })
   targetTaskId: string;
 
-  @Prop({ required: true, enum: ['dependency', 'sequence'] })
+  @Prop({ required: true, enum: ['dependency', 'sequence'], type: String })
   type: string;
 
-  @Prop({ required: true })
+  @Prop({ required: true, type: String })
   userId: string;
 
-  @Prop()
+  @Prop({ type: String })
   projectId?: string;
 }
 

@@ -1,7 +1,6 @@
 import { NotFoundException } from '@nestjs/common';
 import { getModelToken } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
-import { Model } from 'mongoose';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { UpdateTaskDto } from '../dto/update-task.dto';
 import { Task } from '../schemas/task.schema';
@@ -21,9 +20,18 @@ const mockTask = {
   save: vi.fn().mockResolvedValue(this),
 };
 
+const createFindChain = (result: unknown) => ({
+  sort: vi.fn().mockReturnValue({
+    skip: vi.fn().mockReturnValue({
+      limit: vi.fn().mockReturnValue({
+        exec: vi.fn().mockResolvedValue(result),
+      }),
+    }),
+  }),
+});
+
 describe('TasksService', () => {
   let service: TasksService;
-  let _model: Model<Task>;
 
   const mockTaskModel = {
     new: vi.fn().mockResolvedValue(mockTask),
@@ -34,6 +42,7 @@ describe('TasksService', () => {
     deleteOne: vi.fn(),
     deleteMany: vi.fn(),
     updateMany: vi.fn(),
+    countDocuments: vi.fn(),
     exec: vi.fn(),
   };
 
@@ -49,13 +58,10 @@ describe('TasksService', () => {
     }).compile();
 
     service = module.get<TasksService>(TasksService);
-    _model = module.get<Model<Task>>(getModelToken(Task.name));
   });
 
   describe('create', () => {
     it('should have a create method defined', () => {
-      // The actual implementation uses `new this.taskModel()` which requires
-      // integration testing with a real MongoDB instance
       expect(service.create).toBeDefined();
       expect(typeof service.create).toBe('function');
     });
@@ -64,59 +70,61 @@ describe('TasksService', () => {
   describe('findAll', () => {
     it('should return all tasks for a user', async () => {
       const tasks = [mockTask];
-      mockTaskModel.find = vi.fn().mockReturnValue({
-        sort: vi.fn().mockReturnValue({
-          exec: vi.fn().mockResolvedValue(tasks),
-        }),
+      mockTaskModel.find = vi.fn().mockReturnValue(createFindChain(tasks));
+      mockTaskModel.countDocuments = vi.fn().mockReturnValue({
+        exec: vi.fn().mockResolvedValue(1),
       });
 
       const result = await service.findAll('user-id-1');
 
-      expect(mockTaskModel.find).toHaveBeenCalledWith({ userId: 'user-id-1' });
-      expect(result).toEqual(tasks);
+      expect(mockTaskModel.find).toHaveBeenCalledWith({
+        userId: 'user-id-1',
+        parentTaskId: { $exists: false },
+      });
+      expect(result.data).toEqual(tasks);
     });
 
     it('should filter by projectId', async () => {
-      mockTaskModel.find = vi.fn().mockReturnValue({
-        sort: vi.fn().mockReturnValue({
-          exec: vi.fn().mockResolvedValue([]),
-        }),
+      mockTaskModel.find = vi.fn().mockReturnValue(createFindChain([]));
+      mockTaskModel.countDocuments = vi.fn().mockReturnValue({
+        exec: vi.fn().mockResolvedValue(0),
       });
 
       await service.findAll('user-id-1', 'project-1');
 
       expect(mockTaskModel.find).toHaveBeenCalledWith({
         userId: 'user-id-1',
+        parentTaskId: { $exists: false },
         projectId: 'project-1',
       });
     });
 
     it('should filter completed tasks', async () => {
-      mockTaskModel.find = vi.fn().mockReturnValue({
-        sort: vi.fn().mockReturnValue({
-          exec: vi.fn().mockResolvedValue([]),
-        }),
+      mockTaskModel.find = vi.fn().mockReturnValue(createFindChain([]));
+      mockTaskModel.countDocuments = vi.fn().mockReturnValue({
+        exec: vi.fn().mockResolvedValue(0),
       });
 
       await service.findAll('user-id-1', undefined, true);
 
       expect(mockTaskModel.find).toHaveBeenCalledWith({
         userId: 'user-id-1',
+        parentTaskId: { $exists: false },
         completedAt: { $ne: null },
       });
     });
 
     it('should filter incomplete tasks', async () => {
-      mockTaskModel.find = vi.fn().mockReturnValue({
-        sort: vi.fn().mockReturnValue({
-          exec: vi.fn().mockResolvedValue([]),
-        }),
+      mockTaskModel.find = vi.fn().mockReturnValue(createFindChain([]));
+      mockTaskModel.countDocuments = vi.fn().mockReturnValue({
+        exec: vi.fn().mockResolvedValue(0),
       });
 
       await service.findAll('user-id-1', undefined, false);
 
       expect(mockTaskModel.find).toHaveBeenCalledWith({
         userId: 'user-id-1',
+        parentTaskId: { $exists: false },
         completedAt: null,
       });
     });
@@ -152,6 +160,10 @@ describe('TasksService', () => {
         title: 'Updated Title',
       };
 
+      // update() first calls findOne, then findOneAndUpdate
+      mockTaskModel.findOne = vi.fn().mockReturnValue({
+        exec: vi.fn().mockResolvedValue(mockTask),
+      });
       mockTaskModel.findOneAndUpdate = vi.fn().mockReturnValue({
         exec: vi.fn().mockResolvedValue({ ...mockTask, ...updateDto }),
       });
@@ -167,7 +179,7 @@ describe('TasksService', () => {
     });
 
     it('should throw NotFoundException if task not found', async () => {
-      mockTaskModel.findOneAndUpdate = vi.fn().mockReturnValue({
+      mockTaskModel.findOne = vi.fn().mockReturnValue({
         exec: vi.fn().mockResolvedValue(null),
       });
 

@@ -26,34 +26,34 @@ export const PROJECT_CATEGORIES = [
 
 @Schema({ timestamps: true })
 export class Project {
-  @Prop({ required: true })
+  @Prop({ required: true, type: String })
   name: string;
 
-  @Prop()
+  @Prop({ type: String })
   description?: string;
 
-  @Prop()
+  @Prop({ type: String })
   color?: string;
 
-  @Prop()
+  @Prop({ type: String })
   icon?: string;
 
-  @Prop({ required: true, default: 'idea', enum: PROJECT_STATUSES })
+  @Prop({ required: true, default: 'idea', enum: PROJECT_STATUSES, type: String })
   status: string;
 
-  @Prop({ required: true, default: 'side-project', enum: PROJECT_CATEGORIES })
+  @Prop({ required: true, default: 'side-project', enum: PROJECT_CATEGORIES, type: String })
   category: string;
 
-  @Prop({ required: true, default: 0, min: 0, max: 100 })
+  @Prop({ required: true, default: 0, min: 0, max: 100, type: Number })
   progress: number;
 
-  @Prop()
+  @Prop({ type: Date })
   startDate?: Date;
 
-  @Prop()
+  @Prop({ type: Date })
   targetLaunchDate?: Date;
 
-  @Prop()
+  @Prop({ type: Date })
   launchedAt?: Date;
 
   @Prop({ type: [String], default: [] })
@@ -62,13 +62,13 @@ export class Project {
   @Prop({ type: [String], default: [] })
   tags?: string[];
 
-  @Prop({ required: true, default: 0 })
+  @Prop({ required: true, default: 0, type: Number })
   order: number;
 
-  @Prop({ required: true, default: false })
+  @Prop({ required: true, default: false, type: Boolean })
   isFavorite: boolean;
 
-  @Prop({ required: true })
+  @Prop({ required: true, type: String })
   userId: string;
 }
 
