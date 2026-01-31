@@ -1,0 +1,136 @@
+# Tasks API
+
+All endpoints require authentication via a Clerk Bearer token.
+
+**Base URL:** `http://localhost:4000`
+
+## Create Task
+
+```http
+POST /tasks
+```
+
+### Request Body
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `title` | `string` | Yes | Task title |
+| `description` | `string` | No | Task description |
+| `projectId` | `string` | No | Project to assign to |
+| `parentTaskId` | `string` | No | Parent task for subtasks |
+| `dueDate` | `string` (ISO 8601) | No | Due date |
+| `priority` | `string` | No | `low`, `medium`, `high`, `urgent` |
+| `labels` | `string[]` | No | Label tags |
+| `recurrence` | `object` | No | Recurrence rule |
+| `aiEnabled` | `boolean` | No | Enable AI agent (Cloud only) |
+| `aiPrompt` | `string` | No | AI instructions (Cloud only) |
+| `nodePosition` | `object` | No | `{ x: number, y: number }` |
+
+### Recurrence Object
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `rule` | `string` | `daily`, `weekly`, `monthly`, `yearly` |
+| `interval` | `number` | Repeat every N periods |
+| `daysOfWeek` | `number[]` | Days for weekly (0=Sun, 6=Sat) |
+| `endDate` | `string` | When recurrence stops |
+
+### Example
+
+```bash
+curl -X POST http://localhost:4000/tasks \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "title": "Ship v1.0",
+    "description": "Release the first version",
+    "priority": "high",
+    "dueDate": "2025-08-01T00:00:00.000Z",
+    "labels": ["release", "milestone"],
+    "projectId": "proj_abc123"
+  }'
+```
+
+## List Tasks
+
+```http
+GET /tasks
+```
+
+### Query Parameters
+
+| Param | Type | Description |
+|-------|------|-------------|
+| `projectId` | `string` | Filter by project |
+| `completed` | `boolean` | Filter by completion status |
+| `dueDate` | `string` | Filter by due date |
+| `page` | `number` | Pagination page |
+| `limit` | `number` | Items per page |
+
+### Example
+
+```bash
+curl http://localhost:4000/tasks?projectId=proj_abc123&completed=false \
+  -H "Authorization: Bearer $TOKEN"
+```
+
+## Get Task
+
+```http
+GET /tasks/:id
+```
+
+## Get Subtasks
+
+```http
+GET /tasks/:id/subtasks
+```
+
+Returns all child tasks of the specified task.
+
+## Update Task
+
+```http
+PATCH /tasks/:id
+```
+
+Accepts the same fields as Create (all optional).
+
+```bash
+curl -X PATCH http://localhost:4000/tasks/task_123 \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"priority": "urgent", "dueDate": "2025-07-15T00:00:00.000Z"}'
+```
+
+## Delete Task
+
+```http
+DELETE /tasks/:id
+```
+
+## Add Reminder
+
+```http
+POST /tasks/:id/reminders
+```
+
+### Request Body
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `type` | `string` | `relative` or `absolute` |
+| `time` | `string` | ISO 8601 datetime (for absolute) |
+| `offset` | `number` | Minutes before due date (for relative) |
+
+## Trigger AI Execution (Cloud Only)
+
+```http
+POST /tasks/:id/ai-execute
+```
+
+### Request Body
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `prompt` | `string` | Additional instructions for the AI agent |

@@ -1,0 +1,62 @@
+# Authentication
+
+TaskFlow uses [Clerk](https://clerk.com) for authentication. All API endpoints (except `/health`) require a valid Bearer token.
+
+## How It Works
+
+1. User signs in via Clerk on the client (web, mobile, or desktop)
+2. Client receives a JWT from Clerk
+3. Client includes the JWT in every API request as a Bearer token
+4. The API's `ClerkAuthGuard` validates the JWT and extracts the user ID
+
+## Making Authenticated Requests
+
+Include the Clerk session token in the `Authorization` header:
+
+```bash
+curl http://localhost:4000/tasks \
+  -H "Authorization: Bearer eyJhbGciOiJSUzI1NiIs..."
+```
+
+## Getting a Token
+
+### From the Web App
+
+If you're using Clerk's React SDK:
+
+```typescript
+import { useAuth } from '@clerk/nextjs'
+
+const { getToken } = useAuth()
+const token = await getToken()
+
+const response = await fetch('/tasks', {
+  headers: {
+    Authorization: `Bearer ${token}`,
+  },
+})
+```
+
+### For Testing
+
+Use Clerk's [Backend API](https://clerk.com/docs/reference/backend-api) to generate tokens, or grab one from your browser's network inspector while signed in.
+
+## Error Responses
+
+| Status | Description |
+|--------|-------------|
+| `401` | Missing or invalid token |
+| `403` | Token valid but insufficient permissions |
+
+### Example Error
+
+```json
+{
+  "statusCode": 401,
+  "message": "Unauthorized"
+}
+```
+
+## User Context
+
+The API extracts the Clerk user ID from the JWT. Every resource (tasks, projects, etc.) is scoped to the authenticated user — you can only access your own data.
