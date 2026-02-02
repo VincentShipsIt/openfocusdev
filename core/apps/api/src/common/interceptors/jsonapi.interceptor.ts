@@ -31,6 +31,20 @@ export class JsonApiInterceptor implements NestInterceptor {
           return data;
         }
 
+        // Handle paginated responses: serialize only the data array
+        if (this.isPaginatedResponse(data)) {
+          const toSerialize = this.prepareData(data.data);
+          return {
+            ...(serializer as Serializer).serialize(toSerialize),
+            meta: {
+              total: data.total,
+              page: data.page,
+              limit: data.limit,
+              totalPages: data.totalPages,
+            },
+          };
+        }
+
         const toSerialize = this.prepareData(data);
         return (serializer as Serializer).serialize(toSerialize);
       })
@@ -42,6 +56,16 @@ export class JsonApiInterceptor implements NestInterceptor {
       return data.map((item) => this.documentToObject(item));
     }
     return this.documentToObject(data);
+  }
+
+  private isPaginatedResponse(data: any): boolean {
+    return (
+      data &&
+      typeof data === 'object' &&
+      Array.isArray(data.data) &&
+      'total' in data &&
+      'page' in data
+    );
   }
 
   private documentToObject(doc: any): any {
