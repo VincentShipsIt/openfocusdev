@@ -1,22 +1,26 @@
 {
-  "name": "taskflow",
   "description": "Full-stack task management application — OSS core + SaaS cloud",
-  "version": "0.1.0",
-  "private": true,
+  "name": "taskflow",
   "packageManager": "bun@latest",
+  "private": true,
   "scripts": {
     "build": "cd core && bun run build",
+    "check": "cd core && bun run check",
+    "cloud:build": "cd cloud && bun run build",
+    "cloud:dev": "cd cloud && bun run dev",
+    "deps:update": "bunx npm-check-updates -u && bun install",
     "dev": "cd core && bun run dev",
     "dev:api": "cd core && bun run dev:api",
-    "dev:web": "cd core && bun run dev:web",
-    "dev:mobile": "cd core && bun run dev:mobile",
     "dev:desktop": "cd core && bun run dev:desktop",
-    "check": "cd core && bun run check",
-    "lint": "cd core && bun run lint",
+    "dev:mobile": "cd core && bun run dev:mobile",
+    "dev:web": "cd core && bun run dev:web",
     "format": "cd core && bun run format",
+    "lint": "cd core && bun run lint",
     "test": "cd core && bun run test",
-    "test:coverage": "cd core && bun run test:coverage",
-    "cloud:dev": "cd cloud && bun run dev",
-    "cloud:build": "cd cloud && bun run build"
-  }
+    "test:coverage": "cd core && bun run test:coverage"
+  },
+  "version": "0.1.0",
+  "workspaces": [
+    "packages/*"
+  ]
 }

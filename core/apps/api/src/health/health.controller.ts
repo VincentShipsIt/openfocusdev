@@ -2,8 +2,8 @@ import { Controller, Get } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import {
   HealthCheck,
-  type HealthCheckService,
-  type MongooseHealthIndicator,
+  HealthCheckService,
+  MongooseHealthIndicator,
 } from '@nestjs/terminus';
 import { SkipThrottle } from '@nestjs/throttler';
 

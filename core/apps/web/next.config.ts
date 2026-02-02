@@ -7,11 +7,15 @@ const nextConfig: NextConfig = {
   experimental: {
     externalDir: true,
   },
-  turbopack: {},
+  turbopack: {
+    resolveAlias: {
+      '@todoist/shared': path.resolve(__dirname, '../../../packages/shared/src'),
+    },
+  },
   webpack: (config) => {
     config.resolve.alias = {
       ...config.resolve.alias,
-      '@todoist/shared': path.resolve(__dirname, '../../packages/shared/src'),
+      '@todoist/shared': path.resolve(__dirname, '../../../packages/shared/src'),
     };
     return config;
   },
