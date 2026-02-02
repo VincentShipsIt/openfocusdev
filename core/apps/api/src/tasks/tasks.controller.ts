@@ -12,15 +12,15 @@ import {
 import { ApiBearerAuth, ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { ClerkAuthGuard } from '../auth/guards/clerk-auth.guard';
-import type { PaginationDto } from '../common/dto/pagination.dto';
+import { PaginationDto } from '../common/dto/pagination.dto';
 import { UseSerializer } from '../common/interceptors/jsonapi.interceptor';
 import { TaskSerializer } from '../common/serializers/task.serializer';
-import type { AddReminderDto } from './dto/add-reminder.dto';
-import type { CreateTaskDto } from './dto/create-task.dto';
-import type { TriggerAIExecutionDto } from './dto/trigger-ai-execution.dto';
-import type { UpdateNodePositionDto } from './dto/update-node-position.dto';
-import type { UpdateTaskDto } from './dto/update-task.dto';
-import type { TasksService } from './tasks.service';
+import { AddReminderDto } from './dto/add-reminder.dto';
+import { CreateTaskDto } from './dto/create-task.dto';
+import { TriggerAIExecutionDto } from './dto/trigger-ai-execution.dto';
+import { UpdateNodePositionDto } from './dto/update-node-position.dto';
+import { UpdateTaskDto } from './dto/update-task.dto';
+import { TasksService } from './tasks.service';
 
 @ApiTags('tasks')
 @ApiBearerAuth()
