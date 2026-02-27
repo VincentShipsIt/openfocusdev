@@ -1,21 +1,24 @@
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import type { NextConfig } from 'next';
 
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const sharedPath = path.resolve(__dirname, '../../../packages/shared/src');
+
 const nextConfig: NextConfig = {
-  output: 'standalone',
   transpilePackages: ['@todoist/shared'],
   experimental: {
     externalDir: true,
   },
   turbopack: {
     resolveAlias: {
-      '@todoist/shared': path.resolve(__dirname, '../../../packages/shared/src'),
+      '@todoist/shared': sharedPath,
     },
   },
   webpack: (config) => {
     config.resolve.alias = {
       ...config.resolve.alias,
-      '@todoist/shared': path.resolve(__dirname, '../../../packages/shared/src'),
+      '@todoist/shared': sharedPath,
     };
     return config;
   },

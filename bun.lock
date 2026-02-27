@@ -1,0 +1,26 @@
+{
+  "lockfileVersion": 1,
+  "configVersion": 1,
+  "workspaces": {
+    "": {
+      "name": "taskflow",
+    },
+    "packages/shared": {
+      "name": "@todoist/shared",
+      "version": "0.1.0",
+      "dependencies": {
+        "date-fns": "4.1.0",
+      },
+      "devDependencies": {
+        "typescript": "5.9.3",
+      },
+    },
+  },
+  "packages": {
+    "@todoist/shared": ["@todoist/shared@workspace:packages/shared"],
+
+    "date-fns": ["date-fns@4.1.0", "", {}, "sha512-Ukq0owbQXxa/U3EGtsdVBkR1w7KOQ5gIBqdH2hkvknzZPYvBxb/aa6E8L7tmjFtkwZBu3UXBbjIgPo/Ez4xaNg=="],
+
+    "typescript": ["typescript@5.9.3", "", { "bin": { "tsc": "bin/tsc", "tsserver": "bin/tsserver" } }, "sha512-jl1vZzPDinLr9eUt3J/t7V6FgNEw9QjvBPdysz9KfQDD41fQrC2Y4vKQdiaUpFT4bXlb1RHhLpp8wtm6M5TgSw=="],
+  }
+}
