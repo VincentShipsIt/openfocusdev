@@ -2,6 +2,9 @@ import '@testing-library/jest-dom/vitest';
 import { cleanup } from '@testing-library/react';
 import { afterEach, vi } from 'vitest';
 
+// React 19 requires this flag for act() to work in test environments
+globalThis.IS_REACT_ACT_ENVIRONMENT = true;
+
 afterEach(() => {
   cleanup();
 });

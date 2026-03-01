@@ -26,6 +26,15 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './'),
+      'react-dom/test-utils': path.resolve(__dirname, './src/test/react-dom-test-utils-compat.ts'),
+    },
+    dedupe: ['react', 'react-dom'],
+  },
+  server: {
+    deps: {
+      // Force vitest to inline all testing-library packages so bun doesn't
+      // duplicate react instances, which causes React.act to be undefined
+      inline: [/^@testing-library\//, 'react', 'react-dom'],
     },
   },
 });

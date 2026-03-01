@@ -16,8 +16,8 @@
     "dev:web": "cd core && bun run dev:web",
     "format": "cd core && bun run format",
     "lint": "cd core && bun run lint",
-    "test": "cd core && bun run test",
-    "test:coverage": "cd core && bun run test:coverage"
+    "test": "cd core && NODE_ENV=test bun run test",
+    "test:coverage": "cd core && NODE_ENV=test bun run test:coverage"
   },
   "version": "0.1.0",
   "workspaces": [
