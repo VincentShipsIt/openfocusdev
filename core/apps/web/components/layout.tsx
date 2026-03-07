@@ -19,6 +19,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { useApi } from '@/hooks/use-api';
 import SearchModal from './search-modal';
 import SidebarProjects from './sidebar-projects';
+import { GlobalQuickAdd } from './global-quick-add';
 
 interface NavCounts {
   inbox: number;
@@ -57,17 +58,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     }
   }, [isSignedIn, loadCounts]);
 
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
-        e.preventDefault();
-        setSearchOpen(true);
-      }
-    };
-
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
-  }, []);
+  // ⌘K is now handled by GlobalQuickAdd component
 
   if (!isSignedIn) {
     return <>{children}</>;
@@ -222,6 +213,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       <main className="flex-1 overflow-auto">{children}</main>
 
       <SearchModal open={searchOpen} onOpenChange={setSearchOpen} />
+      <GlobalQuickAdd />
     </div>
   );
 }
