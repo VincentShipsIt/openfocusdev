@@ -28,11 +28,12 @@ import RecurrencePicker from './recurrence-picker';
 interface TaskFormProps {
   task?: Task;
   projectId?: string;
+  parentId?: string;
   onClose: () => void;
   onSuccess: () => void;
 }
 
-export default function TaskForm({ task, projectId, onClose, onSuccess }: TaskFormProps) {
+export default function TaskForm({ task, projectId, parentId, onClose, onSuccess }: TaskFormProps) {
   const { tasks: tasksApi, projects: projectsApi } = useApi();
   const [title, setTitle] = useState(task?.title || '');
   const [description, setDescription] = useState(task?.description || '');
@@ -97,6 +98,7 @@ export default function TaskForm({ task, projectId, onClose, onSuccess }: TaskFo
           priority,
           labels,
           recurrence: recurrence || undefined,
+          parentTaskId: parentId || undefined,
         };
         await tasksApi.create(createData);
       }
@@ -113,7 +115,7 @@ export default function TaskForm({ task, projectId, onClose, onSuccess }: TaskFo
     <Dialog open={true} onOpenChange={(open) => !open && onClose()}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>{task ? 'Edit Task' : 'New Task'}</DialogTitle>
+          <DialogTitle>{task ? 'Edit Task' : parentId ? 'New Subtask' : 'New Task'}</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>

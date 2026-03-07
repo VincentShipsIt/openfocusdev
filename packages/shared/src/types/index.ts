@@ -90,6 +90,8 @@ export interface Task {
   updatedAt: Date | string;
   userId: string;
   subtasks?: Task[];
+  subtaskCount?: number;
+  completedSubtaskCount?: number;
   // Workflow fields
   aiEnabled?: boolean;
   aiPrompt?: string;

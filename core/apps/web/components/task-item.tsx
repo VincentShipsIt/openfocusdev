@@ -34,6 +34,7 @@ export default function TaskItem({ task, onUpdate, onDelete, level = 0, onClick 
   const [showSubtasks, setShowSubtasks] = useState(false);
   const [subtasks, setSubtasks] = useState<Task[]>([]);
   const [subtaskCount, setSubtaskCount] = useState(0);
+  const [completedSubtaskCount, setCompletedSubtaskCount] = useState(0);
   const [isAddingSubtask, setIsAddingSubtask] = useState(false);
   const [newSubtaskTitle, setNewSubtaskTitle] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
@@ -44,6 +45,7 @@ export default function TaskItem({ task, onUpdate, onDelete, level = 0, onClick 
       const data = await tasksApi.getSubtasks(task.id);
       setSubtasks(data);
       setSubtaskCount(data.length);
+      setCompletedSubtaskCount(data.filter((t) => t.completedAt).length);
     } catch (error) {
       console.error('Failed to load subtasks:', error);
     }
@@ -342,7 +344,7 @@ export default function TaskItem({ task, onUpdate, onDelete, level = 0, onClick 
         {/* Subtask count badge */}
         {subtaskCount > 0 && !showSubtasks && !isHovered && (
           <span className="text-xs text-muted-foreground bg-muted px-1.5 py-0.5 rounded">
-            {subtaskCount}
+            {completedSubtaskCount}/{subtaskCount}
           </span>
         )}
       </div>

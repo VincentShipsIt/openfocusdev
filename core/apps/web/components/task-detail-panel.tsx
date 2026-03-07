@@ -488,6 +488,21 @@ export default function TaskDetailPanel({
               </Label>
             </div>
 
+            {subtasks.length > 0 && (
+              <div className="mb-3">
+                <div className="flex justify-between text-xs text-muted-foreground mb-1">
+                  <span>{completedSubtasks} of {subtasks.length} completed</span>
+                  <span>{Math.round((completedSubtasks / subtasks.length) * 100)}%</span>
+                </div>
+                <div className="w-full bg-muted rounded-full h-1.5">
+                  <div
+                    className="bg-primary h-1.5 rounded-full transition-all duration-300"
+                    style={{ width: `${(completedSubtasks / subtasks.length) * 100}%` }}
+                  />
+                </div>
+              </div>
+            )}
+
             <div className="space-y-2">
               {subtasks.map((subtask) => (
                 <div key={subtask.id} className="flex items-center gap-2 py-1">
