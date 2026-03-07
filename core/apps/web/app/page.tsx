@@ -10,43 +10,43 @@ export default async function LandingPage() {
   return (
     <div className="min-h-screen bg-gray-950 text-gray-100">
       {/* Nav */}
-      <nav className="border-b border-gray-800 px-6 py-4 flex items-center justify-between max-w-6xl mx-auto">
+      <nav className="border-b border-gray-800 px-4 sm:px-6 py-4 flex flex-wrap items-center justify-between gap-3 max-w-6xl mx-auto">
         <div className="flex items-center gap-2">
           <CheckCircle2 className="text-blue-500" size={22} />
           <span className="font-semibold text-lg">TaskFlow</span>
         </div>
-        <div className="flex items-center gap-4">
+        <div className="flex w-full sm:w-auto items-center justify-end gap-4">
           <Link href="/sign-in" className="text-gray-400 hover:text-gray-100 text-sm">Sign in</Link>
           <Link href="/sign-up" className="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">Get started free</Link>
         </div>
       </nav>
 
       {/* Hero */}
-      <section className="max-w-4xl mx-auto px-6 py-24 text-center">
-        <div className="inline-flex items-center gap-2 bg-blue-500/10 border border-blue-500/20 rounded-full px-4 py-1.5 text-blue-400 text-sm mb-6">
+      <section className="max-w-4xl mx-auto px-4 sm:px-6 py-16 sm:py-24 text-center">
+        <div className="inline-flex items-center gap-2 bg-blue-500/10 border border-blue-500/20 rounded-full px-4 py-1.5 text-blue-400 text-xs sm:text-sm mb-6">
           <Zap size={14} />
           Open source · Free forever
         </div>
-        <h1 className="text-5xl font-bold mb-6 leading-tight">
+        <h1 className="text-3xl sm:text-5xl font-bold mb-6 leading-tight">
           The task manager<br />
           <span className="text-blue-500">that gets out of your way</span>
         </h1>
-        <p className="text-xl text-gray-400 mb-10 max-w-2xl mx-auto">
+        <p className="text-base sm:text-xl text-gray-400 mb-10 max-w-2xl mx-auto">
           TaskFlow is a Todoist-style task manager built for developers.
           Projects, subtasks, ⌘K quick-add, drag-to-reorder — all in one place.
         </p>
-        <div className="flex items-center justify-center gap-4">
-          <Link href="/sign-up" className="bg-blue-600 hover:bg-blue-500 text-white px-8 py-3.5 rounded-xl text-base font-medium transition-colors">
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+          <Link href="/sign-up" className="w-full sm:w-auto bg-blue-600 hover:bg-blue-500 text-white px-8 py-3.5 rounded-xl text-base font-medium transition-colors">
             Get started free
           </Link>
-          <Link href="https://github.com/VincentShipsIt/todo" target="_blank" className="border border-gray-700 hover:border-gray-600 text-gray-300 px-8 py-3.5 rounded-xl text-base transition-colors">
+          <Link href="https://github.com/VincentShipsIt/todo" target="_blank" className="w-full sm:w-auto border border-gray-700 hover:border-gray-600 text-gray-300 px-8 py-3.5 rounded-xl text-base transition-colors">
             View on GitHub
           </Link>
         </div>
       </section>
 
       {/* Features grid */}
-      <section className="max-w-5xl mx-auto px-6 pb-24">
+      <section className="max-w-5xl mx-auto px-4 sm:px-6 pb-24">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {[
             { icon: Layers, title: 'Projects & Subtasks', desc: 'Organize work into projects. Break tasks into subtasks with progress tracking.' },
@@ -66,8 +66,8 @@ export default async function LandingPage() {
       </section>
 
       {/* Pricing */}
-      <section className="max-w-3xl mx-auto px-6 pb-24">
-        <h2 className="text-3xl font-bold text-center mb-12">Simple pricing</h2>
+      <section className="max-w-3xl mx-auto px-4 sm:px-6 pb-24">
+        <h2 className="text-2xl sm:text-3xl font-bold text-center mb-12">Simple pricing</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="bg-gray-900 border border-gray-800 rounded-xl p-8">
             <div className="text-2xl font-bold mb-1">Free</div>
@@ -94,7 +94,7 @@ export default async function LandingPage() {
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-gray-800 px-6 py-8 text-center text-gray-600 text-sm">
+      <footer className="border-t border-gray-800 px-4 sm:px-6 py-8 text-center text-gray-600 text-sm">
         <p>TaskFlow by <a href="https://shipshit.dev" className="hover:text-gray-400">shipshit.dev</a> · Open source on <a href="https://github.com/VincentShipsIt/todo" className="hover:text-gray-400">GitHub</a></p>
       </footer>
     </div>
