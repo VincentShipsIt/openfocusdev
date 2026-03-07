@@ -2,7 +2,7 @@
 
 import { useUser } from '@clerk/nextjs';
 import { Monitor, Moon, Sun } from 'lucide-react';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState, type ElementType } from 'react';
 import { useApi } from '@/hooks/use-api';
 
 type Tab = 'profile' | 'appearance' | 'notifications' | 'danger';
@@ -56,8 +56,11 @@ export default function SettingsPage() {
   }, [user]);
 
   useEffect(() => {
-    const stored = (localStorage.getItem('theme') as Theme) || 'system';
+    const rawTheme = localStorage.getItem('theme');
+    const stored: Theme =
+      rawTheme === 'dark' || rawTheme === 'light' || rawTheme === 'system' ? rawTheme : 'system';
     setTheme(stored);
+    applyTheme(stored);
   }, []);
 
   const handleSaveName = async () => {
@@ -214,7 +217,7 @@ export default function SettingsPage() {
                 { value: 'light', label: 'Light', Icon: Sun },
                 { value: 'dark', label: 'Dark', Icon: Moon },
                 { value: 'system', label: 'System', Icon: Monitor },
-              ] as { value: Theme; label: string; Icon: React.ElementType }[]
+              ] as { value: Theme; label: string; Icon: ElementType }[]
             ).map(({ value, label, Icon }) => (
               <button
                 key={value}

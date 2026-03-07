@@ -1,6 +1,6 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { useApi } from '@/hooks/use-api';
 import SidebarProjects from '../sidebar-projects';
 
@@ -40,7 +40,7 @@ const mockProjectsApi = {
   getOne: vi.fn(),
   create: vi.fn().mockResolvedValue({}),
   update: vi.fn(),
-  remove: vi.fn(),
+  delete: vi.fn(),
   toggleFavorite: vi.fn(),
 };
 
@@ -49,12 +49,19 @@ const mockTasksApi = {
   getOne: vi.fn(),
   create: vi.fn(),
   update: vi.fn(),
-  remove: vi.fn(),
+  delete: vi.fn(),
   bulkComplete: vi.fn(),
   bulkDelete: vi.fn(),
+  search: vi.fn(),
   getSubtasks: vi.fn(),
+  createSubtask: vi.fn(),
   addReminder: vi.fn(),
   removeReminder: vi.fn(),
+  updatePosition: vi.fn(),
+  triggerAI: vi.fn(),
+  getStats: vi.fn(),
+  deleteCompleted: vi.fn(),
+  exportAll: vi.fn(),
 };
 
 vi.mocked(useApi).mockReturnValue({
@@ -76,7 +83,7 @@ vi.mocked(useApi).mockReturnValue({
     update: vi.fn(),
     remove: vi.fn(),
   },
-} as ReturnType<typeof useApi>);
+} as unknown as ReturnType<typeof useApi>);
 
 describe('SidebarProjects', () => {
   beforeEach(() => {

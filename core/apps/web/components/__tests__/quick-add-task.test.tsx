@@ -1,6 +1,6 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { useApi } from '@/hooks/use-api';
 import QuickAddTask from '../quick-add-task';
 
@@ -13,14 +13,28 @@ vi.mocked(useApi).mockReturnValue({
     getOne: vi.fn(),
     create: mockCreate,
     update: vi.fn(),
-    remove: vi.fn(),
+    delete: vi.fn(),
     bulkComplete: vi.fn(),
     bulkDelete: vi.fn(),
+    search: vi.fn(),
     getSubtasks: vi.fn(),
+    createSubtask: vi.fn(),
     addReminder: vi.fn(),
     removeReminder: vi.fn(),
+    updatePosition: vi.fn(),
+    triggerAI: vi.fn(),
+    getStats: vi.fn(),
+    deleteCompleted: vi.fn(),
+    exportAll: vi.fn(),
   },
-  projects: { getAll: vi.fn(), getOne: vi.fn(), create: vi.fn(), update: vi.fn(), remove: vi.fn() },
+  projects: {
+    getAll: vi.fn(),
+    getOne: vi.fn(),
+    create: vi.fn(),
+    update: vi.fn(),
+    delete: vi.fn(),
+    toggleFavorite: vi.fn(),
+  },
   history: { getAll: vi.fn() },
   goals: { getAll: vi.fn(), getOne: vi.fn(), create: vi.fn(), update: vi.fn(), remove: vi.fn() },
   comments: {
@@ -37,7 +51,7 @@ vi.mocked(useApi).mockReturnValue({
     update: vi.fn(),
     remove: vi.fn(),
   },
-} as ReturnType<typeof useApi>);
+} as unknown as ReturnType<typeof useApi>);
 
 describe('QuickAddTask', () => {
   const defaultProps = {

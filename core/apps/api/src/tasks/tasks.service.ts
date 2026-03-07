@@ -337,7 +337,9 @@ export class TasksService {
     const now = new Date();
     const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
     const startOfWeek = new Date(startOfToday);
-    startOfWeek.setDate(startOfToday.getDate() - startOfToday.getDay() + 1); // Monday
+    const dayOfWeek = startOfToday.getDay(); // 0 (Sun) - 6 (Sat)
+    const daysSinceMonday = (dayOfWeek + 6) % 7;
+    startOfWeek.setDate(startOfToday.getDate() - daysSinceMonday);
 
     const [totalCompleted, todayCompleted, weekCompleted, last28Days] = await Promise.all([
       this.taskModel.countDocuments({ userId, completed: true }),
