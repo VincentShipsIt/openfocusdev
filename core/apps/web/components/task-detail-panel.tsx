@@ -42,6 +42,8 @@ interface TaskDetailPanelProps {
   onDelete: () => void;
 }
 
+const INBOX_PROJECT_VALUE = 'none';
+
 const priorityColors: Record<TaskPriority, string> = {
   [TaskPriority.URGENT]: '#ef4444',
   [TaskPriority.HIGH]: '#f97316',
@@ -239,6 +241,10 @@ export default function TaskDetailPanel({
   const priorityColor = priorityColors[task.priority] || priorityColors[TaskPriority.MEDIUM];
   const taskOverdue = task.dueDate && !task.completedAt && isOverdue(task.dueDate);
   const completedSubtasks = subtasks.filter((s) => s.completedAt).length;
+  const subtaskCompletionPercent =
+    subtasks.length > 0
+      ? Math.min(100, Math.max(0, Math.round((completedSubtasks / subtasks.length) * 100)))
+      : 0;
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -322,12 +328,17 @@ export default function TaskDetailPanel({
           <div>
             <Label className="text-xs text-muted-foreground uppercase">Project</Label>
             {isEditing ? (
-              <Select value={selectedProjectId} onValueChange={setSelectedProjectId}>
+              <Select
+                value={selectedProjectId || INBOX_PROJECT_VALUE}
+                onValueChange={(value) =>
+                  setSelectedProjectId(value === INBOX_PROJECT_VALUE ? '' : value)
+                }
+              >
                 <SelectTrigger className="mt-1">
                   <SelectValue placeholder="Select project" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="none">Inbox</SelectItem>
+                  <SelectItem value={INBOX_PROJECT_VALUE}>Inbox</SelectItem>
                   {projects.map((project) => (
                     <SelectItem key={project.id} value={project.id}>
                       {project.name}
@@ -492,12 +503,12 @@ export default function TaskDetailPanel({
               <div className="mb-3">
                 <div className="flex justify-between text-xs text-muted-foreground mb-1">
                   <span>{completedSubtasks} of {subtasks.length} completed</span>
-                  <span>{Math.round((completedSubtasks / subtasks.length) * 100)}%</span>
+                  <span>{subtaskCompletionPercent}%</span>
                 </div>
                 <div className="w-full bg-muted rounded-full h-1.5">
                   <div
                     className="bg-primary h-1.5 rounded-full transition-all duration-300"
-                    style={{ width: `${(completedSubtasks / subtasks.length) * 100}%` }}
+                    style={{ width: `${subtaskCompletionPercent}%` }}
                   />
                 </div>
               </div>

@@ -33,6 +33,8 @@ interface TaskFormProps {
   onSuccess: () => void;
 }
 
+const INBOX_PROJECT_VALUE = 'none';
+
 export default function TaskForm({ task, projectId, parentId, onClose, onSuccess }: TaskFormProps) {
   const { tasks: tasksApi, projects: projectsApi } = useApi();
   const [title, setTitle] = useState(task?.title || '');
@@ -134,12 +136,17 @@ export default function TaskForm({ task, projectId, parentId, onClose, onSuccess
 
           <div>
             <Label htmlFor="project">Project</Label>
-            <Select value={selectedProjectId} onValueChange={setSelectedProjectId}>
+            <Select
+              value={selectedProjectId || INBOX_PROJECT_VALUE}
+              onValueChange={(value) =>
+                setSelectedProjectId(value === INBOX_PROJECT_VALUE ? '' : value)
+              }
+            >
               <SelectTrigger>
                 <SelectValue placeholder="Select project" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="none">None (Inbox)</SelectItem>
+                <SelectItem value={INBOX_PROJECT_VALUE}>None (Inbox)</SelectItem>
                 {projects.map((project) => (
                   <SelectItem key={project.id} value={project.id}>
                     {project.name}
