@@ -1,13 +1,15 @@
 'use client';
 
 import { Project, Task } from '@todoist/shared';
-import { ChevronDown, ChevronRight, Hash, Plus, Star } from 'lucide-react';
+import { ChevronDown, ChevronRight, Filter, Hash, Plus, Star, Tag } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 import { Input } from '@/components/ui/input';
 import { useApi } from '@/hooks/use-api';
+import { useLabels } from '@/hooks/use-labels';
+import { useFilters } from '@/hooks/use-filters';
 
 interface ProjectWithCount extends Project {
   taskCount: number;
@@ -15,6 +17,10 @@ interface ProjectWithCount extends Project {
 
 export default function SidebarProjects() {
   const { projects: projectsApi, tasks: tasksApi } = useApi();
+  const { labels } = useLabels();
+  const { filters } = useFilters();
+  const [isLabelsCollapsed, setIsLabelsCollapsed] = useState(false);
+  const [isFiltersCollapsed, setIsFiltersCollapsed] = useState(false);
   const pathname = usePathname();
   const [projects, setProjects] = useState<ProjectWithCount[]>([]);
   const [loading, setLoading] = useState(true);
@@ -221,6 +227,105 @@ export default function SidebarProjects() {
                   </div>
                 )}
               </>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* Labels Section */}
+      <div className="space-y-1">
+        <div className="flex items-center justify-between px-3 py-1.5 group">
+          <button
+            onClick={() => setIsLabelsCollapsed(!isLabelsCollapsed)}
+            className="flex items-center gap-1 text-xs font-semibold text-muted-foreground uppercase tracking-wide hover:text-foreground transition-colors"
+          >
+            {isLabelsCollapsed ? (
+              <ChevronRight className="h-3 w-3" />
+            ) : (
+              <ChevronDown className="h-3 w-3" />
+            )}
+            <Tag className="h-3 w-3" />
+            <span>Labels</span>
+          </button>
+          <Link
+            href="/labels"
+            className="p-1 text-muted-foreground hover:text-foreground hover:bg-accent rounded opacity-0 group-hover:opacity-100 transition-all"
+          >
+            <Plus className="h-4 w-4" />
+          </Link>
+        </div>
+        {!isLabelsCollapsed && (
+          <div className="space-y-0.5">
+            {labels.length === 0 ? (
+              <Link href="/labels" className="px-6 py-2 text-sm text-muted-foreground hover:text-foreground block transition-colors">
+                Add a label
+              </Link>
+            ) : (
+              labels.map((label) => (
+                <Link key={label.id} href={`/labels/${encodeURIComponent(label.name)}`}>
+                  <div
+                    className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-sm transition-colors ${
+                      pathname === `/labels/${encodeURIComponent(label.name)}`
+                        ? 'bg-accent text-foreground'
+                        : 'text-foreground/80 hover:bg-accent'
+                    }`}
+                  >
+                    <span
+                      className="w-3 h-3 rounded-full flex-shrink-0"
+                      style={{ backgroundColor: label.color }}
+                    />
+                    <span className="truncate">{label.name}</span>
+                  </div>
+                </Link>
+              ))
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* Filters Section */}
+      <div className="space-y-1">
+        <div className="flex items-center justify-between px-3 py-1.5 group">
+          <button
+            onClick={() => setIsFiltersCollapsed(!isFiltersCollapsed)}
+            className="flex items-center gap-1 text-xs font-semibold text-muted-foreground uppercase tracking-wide hover:text-foreground transition-colors"
+          >
+            {isFiltersCollapsed ? (
+              <ChevronRight className="h-3 w-3" />
+            ) : (
+              <ChevronDown className="h-3 w-3" />
+            )}
+            <Filter className="h-3 w-3" />
+            <span>Filters</span>
+          </button>
+          <Link
+            href="/filters"
+            className="p-1 text-muted-foreground hover:text-foreground hover:bg-accent rounded opacity-0 group-hover:opacity-100 transition-all"
+          >
+            <Plus className="h-4 w-4" />
+          </Link>
+        </div>
+        {!isFiltersCollapsed && (
+          <div className="space-y-0.5">
+            {filters.length === 0 ? (
+              <Link href="/filters" className="px-6 py-2 text-sm text-muted-foreground hover:text-foreground block transition-colors">
+                Add a filter
+              </Link>
+            ) : (
+              filters.map((filter) => (
+                <Link key={filter.id} href="/filters">
+                  <div
+                    className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-sm transition-colors ${
+                      pathname === '/filters'
+                        ? 'bg-accent text-foreground'
+                        : 'text-foreground/80 hover:bg-accent'
+                    }`}
+                  >
+                    <Filter className="h-3.5 w-3.5 flex-shrink-0 text-muted-foreground" />
+                    <span className="truncate">{filter.name}</span>
+                  </div>
+                </Link>
+              ))
             )}
           </div>
         )}

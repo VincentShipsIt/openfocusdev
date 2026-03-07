@@ -287,3 +287,23 @@ export interface UpdateNodePositionDto {
 export interface TriggerAIExecutionDto {
   prompt?: string;
 }
+
+export interface Label {
+  id: string;
+  name: string;
+  color: string;
+  userId: string;
+}
+
+export interface FilterCondition {
+  field: 'project' | 'priority' | 'dueDate' | 'label';
+  op: string;
+  value: string;
+}
+
+export interface SavedFilter {
+  id: string;
+  name: string;
+  conditions: FilterCondition[];
+  userId: string;
+}
