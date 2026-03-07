@@ -145,4 +145,10 @@ export class TasksController {
   bulkDelete(@Body() body: { ids: string[] }, @CurrentUser() user: { userId: string }) {
     return this.tasksService.bulkDelete(body.ids, user.userId);
   }
+
+  @Get('stats/summary')
+  @ApiOperation({ summary: 'Get productivity stats' })
+  getStats(@CurrentUser() user: { userId: string }) {
+    return this.tasksService.getStats(user.userId);
+  }
 }

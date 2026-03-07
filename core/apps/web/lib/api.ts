@@ -232,6 +232,25 @@ export function createTasksApi(getToken: () => Promise<string | null>) {
         getToken
       );
     },
+
+    getStats: (): Promise<{
+      totalCompleted: number;
+      todayCompleted: number;
+      weekCompleted: number;
+      weeklyData: { date: string; count: number }[];
+      streak: number;
+      bestStreak: number;
+    }> => {
+      return apiRequest(`/tasks/stats/summary`, {}, getToken);
+    },
+
+    deleteCompleted: (): Promise<void> => {
+      return apiRequest<void>('/tasks/bulk/delete-completed', { method: 'DELETE' }, getToken);
+    },
+
+    exportAll: (): Promise<Task[]> => {
+      return apiRequest<Task[]>('/tasks', {}, getToken);
+    },
   };
 }
 

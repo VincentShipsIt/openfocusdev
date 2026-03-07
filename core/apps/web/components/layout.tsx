@@ -3,6 +3,7 @@
 import { UserButton, useUser } from '@clerk/nextjs';
 import { format } from 'date-fns';
 import {
+  BarChart2,
   Calendar,
   CheckCircle2,
   ChevronDown,
@@ -11,6 +12,7 @@ import {
   MoreHorizontal,
   Plus,
   Search,
+  Settings,
   Target,
 } from 'lucide-react';
 import Link from 'next/link';
@@ -86,7 +88,11 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     { name: 'Completed', href: '/history', icon: CheckCircle2 },
   ];
 
-  const moreNavigation = [{ name: 'Goals', href: '/goals', icon: Target }];
+  const moreNavigation = [
+    { name: 'Goals', href: '/goals', icon: Target },
+    { name: 'Stats', href: '/stats', icon: BarChart2 },
+    { name: 'Settings', href: '/settings', icon: Settings },
+  ];
 
   const isActive = (href: string) => pathname === href || pathname.startsWith(`${href}/`);
 

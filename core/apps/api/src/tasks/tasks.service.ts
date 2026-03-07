@@ -332,4 +332,63 @@ export class TasksService {
     // For now, return a placeholder result
     return `Task "${task.title}" analyzed and completed by AI. Prompt: ${prompt}`;
   }
+
+  async getStats(userId: string) {
+    const now = new Date();
+    const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const startOfWeek = new Date(startOfToday);
+    startOfWeek.setDate(startOfToday.getDate() - startOfToday.getDay() + 1); // Monday
+
+    const [totalCompleted, todayCompleted, weekCompleted, last28Days] = await Promise.all([
+      this.taskModel.countDocuments({ userId, completed: true }),
+      this.taskModel.countDocuments({ userId, completed: true, completedAt: { $gte: startOfToday } }),
+      this.taskModel.countDocuments({ userId, completed: true, completedAt: { $gte: startOfWeek } }),
+      this.taskModel.find({
+        userId,
+        completed: true,
+        completedAt: { $gte: new Date(startOfToday.getTime() - 27 * 24 * 60 * 60 * 1000) },
+      }).select('completedAt').lean(),
+    ]);
+
+    // Group by date
+    const dateMap: Record<string, number> = {};
+    for (const task of last28Days) {
+      const d = task.completedAt as Date;
+      if (!d) continue;
+      const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+      dateMap[key] = (dateMap[key] || 0) + 1;
+    }
+
+    const weeklyData = [];
+    for (let i = 27; i >= 0; i--) {
+      const d = new Date(startOfToday.getTime() - i * 24 * 60 * 60 * 1000);
+      const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+      weeklyData.push({ date: key, count: dateMap[key] || 0 });
+    }
+
+    // Compute streak: consecutive days ending today
+    let streak = 0;
+    for (let i = 0; i < 28; i++) {
+      const d = new Date(startOfToday.getTime() - i * 24 * 60 * 60 * 1000);
+      const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+      if (dateMap[key]) {
+        streak++;
+      } else {
+        break;
+      }
+    }
+
+    // Best streak from 28 days
+    let bestStreak = 0, cur = 0;
+    for (const item of weeklyData) {
+      if (item.count > 0) {
+        cur++;
+        bestStreak = Math.max(bestStreak, cur);
+      } else {
+        cur = 0;
+      }
+    }
+
+    return { totalCompleted, todayCompleted, weekCompleted, weeklyData, streak, bestStreak };
+  }
 }
