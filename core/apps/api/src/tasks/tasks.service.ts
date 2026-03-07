@@ -327,6 +327,16 @@ export class TasksService {
     }
   }
 
+  async reorder(taskIds: string[], userId: string): Promise<void> {
+    const bulkOps = taskIds.map((id, index) => ({
+      updateOne: {
+        filter: { _id: id, userId },
+        update: { $set: { order: index } },
+      },
+    }));
+    await this.taskModel.bulkWrite(bulkOps);
+  }
+
   private async executeAITask(task: Task, prompt: string): Promise<string> {
     // TODO: Integrate with Anthropic/OpenAI API
     // For now, return a placeholder result

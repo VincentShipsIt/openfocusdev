@@ -222,6 +222,17 @@ export function createTasksApi(getToken: () => Promise<string | null>) {
       );
     },
 
+    reorder: (taskIds: string[]): Promise<void> => {
+      return apiRequest<void>(
+        '/tasks/reorder',
+        {
+          method: 'PATCH',
+          body: JSON.stringify({ taskIds }),
+        },
+        getToken
+      );
+    },
+
     triggerAI: (id: string, data?: TriggerAIExecutionDto): Promise<Task> => {
       return apiRequest<Task>(
         `/tasks/${id}/ai/execute`,

@@ -71,6 +71,12 @@ export class TasksController {
     return this.tasksService.getSubtasks(id, user.userId);
   }
 
+  @Patch('reorder')
+  @ApiOperation({ summary: 'Reorder tasks' })
+  reorder(@Body() body: { taskIds: string[] }, @CurrentUser() user: { userId: string }) {
+    return this.tasksService.reorder(body.taskIds, user.userId);
+  }
+
   @Patch(':id')
   @ApiOperation({ summary: 'Update a task' })
   update(
