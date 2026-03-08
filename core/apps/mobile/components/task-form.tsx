@@ -1,7 +1,8 @@
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { CreateTaskDto, Project, Task, TaskPriority, UpdateTaskDto } from '@todoist/shared';
 import { useState } from 'react';
-import { Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Modal, Pressable, ScrollView, StyleSheet, Switch, Text, TextInput, View } from 'react-native';
+import { cancelTaskReminder, scheduleTaskReminder } from '@/lib/notifications';
 
 interface TaskFormProps {
   visible: boolean;
@@ -41,6 +42,8 @@ export default function TaskForm({
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showProjectPicker, setShowProjectPicker] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [reminderEnabled, setReminderEnabled] = useState(false);
+  const [reminderNotificationId, setReminderNotificationId] = useState<string | null>(null);
 
   const handleSave = async () => {
     if (!title.trim()) return;
@@ -60,6 +63,28 @@ export default function TaskForm({
       console.error('Failed to save task:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleReminderToggle = async (value: boolean) => {
+    if (value && dueDate && title.trim()) {
+      try {
+        const id = await scheduleTaskReminder({
+          id: task?.id || `temp-${Date.now()}`,
+          title: title.trim(),
+          dueDate,
+        });
+        setReminderNotificationId(id);
+        setReminderEnabled(true);
+      } catch (e) {
+        console.error('Failed to schedule reminder:', e);
+      }
+    } else if (!value && reminderNotificationId) {
+      await cancelTaskReminder(reminderNotificationId);
+      setReminderNotificationId(null);
+      setReminderEnabled(false);
+    } else {
+      setReminderEnabled(value);
     }
   };
 
@@ -147,6 +172,25 @@ export default function TaskForm({
               </Pressable>
             )}
           </View>
+
+          {dueDate && (
+            <View style={styles.field}>
+              <View style={styles.reminderRow}>
+                <View>
+                  <Text style={styles.label}>Remind me 1 hour before</Text>
+                  <Text style={styles.reminderSubtext}>
+                    {reminderEnabled ? '🔔 Reminder set' : 'Get notified before due date'}
+                  </Text>
+                </View>
+                <Switch
+                  value={reminderEnabled}
+                  onValueChange={handleReminderToggle}
+                  trackColor={{ false: '#d1d5db', true: '#3b82f6' }}
+                  thumbColor="#fff"
+                />
+              </View>
+            </View>
+          )}
 
           <View style={styles.field}>
             <Text style={styles.label}>Priority</Text>
@@ -379,5 +423,19 @@ const styles = StyleSheet.create({
   checkmark: {
     fontSize: 18,
     color: '#3b82f6',
+  },
+  reminderRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    borderWidth: 1,
+    borderColor: '#d1d5db',
+    borderRadius: 8,
+    padding: 12,
+  },
+  reminderSubtext: {
+    fontSize: 12,
+    color: '#6b7280',
+    marginTop: 2,
   },
 });
