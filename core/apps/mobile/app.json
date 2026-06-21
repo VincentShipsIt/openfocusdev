@@ -1,19 +1,20 @@
 {
   "expo": {
-    "name": "Todoist Clone",
-    "slug": "todoist-clone",
+    "name": "TaskFlow",
+    "slug": "taskflow",
     "version": "1.0.0",
-    "scheme": "todoist-clone",
+    "scheme": "taskflow",
     "platforms": ["ios", "android"],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.todoistclone.app"
+      "bundleIdentifier": "dev.shipshit.taskflow"
     },
     "android": {
-      "package": "com.todoistclone.app"
+      "package": "dev.shipshit.taskflow"
     },
     "experiments": {
       "typedRoutes": true
-    }
+    },
+    "plugins": ["expo-router"]
   }
 }
