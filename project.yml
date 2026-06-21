@@ -1,0 +1,174 @@
+name: OpenTodo
+options:
+  bundleIdPrefix: com.opentodo
+  deploymentTarget:
+    iOS: "26.0"
+    macOS: "26.0"
+  xcodeVersion: "26.0"
+  developmentLanguage: en
+  createIntermediateGroups: true
+
+settings:
+  base:
+    SWIFT_VERSION: "5.0"
+    SWIFT_STRICT_CONCURRENCY: complete
+    MARKETING_VERSION: "0.1.0"
+    CURRENT_PROJECT_VERSION: "1"
+
+packages:
+  KeychainAccess:
+    url: https://github.com/kishikawakatsumi/KeychainAccess
+    from: 4.2.2
+
+# Layered targets. The Xcode project compiles the engine sources directly into
+# framework targets (it does NOT consume the root Package.swift products) so the
+# GUI apps and the `todo` tool link the same layers. SwiftData is a system
+# framework, auto-linked wherever `import SwiftData` appears.
+targets:
+
+  # Pure engine — value types, AI client seam, natural-language date parsing,
+  # Keychain. No SwiftData. Shared by every other target. macOS + iOS.
+  TodoCore:
+    type: framework
+    supportedDestinations: [macOS, iOS]
+    sources:
+      - path: Sources/Core
+    dependencies:
+      - package: KeychainAccess
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.opentodo.core
+        GENERATE_INFOPLIST_FILE: YES
+
+  # Persistence + stateful services — SwiftData @Model types and ModelContext-bound
+  # services (Task/Project/AI) + the CloudKit-ready ModelContainer. macOS + iOS.
+  TodoData:
+    type: framework
+    supportedDestinations: [macOS, iOS]
+    sources:
+      - path: Sources/Data
+    dependencies:
+      - target: TodoCore
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.opentodo.data
+        GENERATE_INFOPLIST_FILE: YES
+
+  # CLI command parser + help/usage. Pure, no persistence. macOS only.
+  TodoCLIKit:
+    type: framework
+    platform: macOS
+    sources:
+      - path: Sources/CLIKit
+    dependencies:
+      - target: TodoCore
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.opentodo.clikit
+        GENERATE_INFOPLIST_FILE: YES
+
+  OpenTodo-macOS:
+    type: application
+    platform: macOS
+    deploymentTarget: "26.0"
+    sources:
+      - path: Sources/App
+      - path: Sources/Features
+      - path: Sources/SharedUI
+      - path: Sources/Platform/macOS
+      - path: Resources
+    dependencies:
+      - target: TodoCore
+      - target: TodoData
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.opentodo.app.macos
+        PRODUCT_NAME: OpenTodo
+        GENERATE_INFOPLIST_FILE: YES
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
+        INFOPLIST_KEY_LSApplicationCategoryType: public.app-category.productivity
+        INFOPLIST_KEY_NSHumanReadableCopyright: "© 2026 OpenTodo"
+        ENABLE_HARDENED_RUNTIME: YES
+        CODE_SIGN_IDENTITY: "-"
+        CODE_SIGN_STYLE: Automatic
+    preBuildScripts:
+      - name: SwiftLint
+        basedOnDependencyAnalysis: false
+        script: |
+          if which swiftlint > /dev/null; then
+            swiftlint
+          else
+            echo "warning: SwiftLint not installed"
+          fi
+
+  OpenTodo-iOS:
+    type: application
+    platform: iOS
+    deploymentTarget: "26.0"
+    sources:
+      - path: Sources/App
+      - path: Sources/Features
+      - path: Sources/SharedUI
+      - path: Sources/Platform/iOS
+      - path: Resources
+    dependencies:
+      - target: TodoCore
+      - target: TodoData
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.opentodo.app.ios
+        PRODUCT_NAME: OpenTodo
+        GENERATE_INFOPLIST_FILE: YES
+        TARGETED_DEVICE_FAMILY: "1,2"
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
+        INFOPLIST_KEY_UILaunchScreen_Generation: YES
+        INFOPLIST_KEY_UIApplicationSceneManifest_Generation: YES
+
+  # `todo` CLI. Compiles Sources/CLI only (the @main entry + SwiftData-backed
+  # executor) and links the layers it imports. macOS only.
+  todo:
+    type: tool
+    platform: macOS
+    sources:
+      - path: Sources/CLI
+    dependencies:
+      - target: TodoCore
+      - target: TodoData
+      - target: TodoCLIKit
+    settings:
+      base:
+        PRODUCT_NAME: todo
+        PRODUCT_BUNDLE_IDENTIFIER: com.opentodo.cli
+
+  TodoCoreTests:
+    type: bundle.unit-test
+    platform: macOS
+    sources:
+      - path: Tests/UnitTests
+    dependencies:
+      - target: TodoCore
+      - target: TodoCLIKit
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.opentodo.core.tests
+        GENERATE_INFOPLIST_FILE: YES
+
+schemes:
+  OpenTodo-macOS:
+    build:
+      targets:
+        OpenTodo-macOS: all
+        TodoCoreTests: [test]
+    run:
+      config: Debug
+    test:
+      targets:
+        - TodoCoreTests
+  OpenTodo-iOS:
+    build:
+      targets:
+        OpenTodo-iOS: all
+    run:
+      config: Debug
