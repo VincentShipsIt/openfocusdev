@@ -15,6 +15,7 @@ final class DependencyContainer: ObservableObject {
     var projectService: ProjectService { services.projectService }
     var aiService: AIService { services.aiService }
     var keychain: KeychainService { services.keychain }
+    var aiPreferences: AIPreferences { services.aiPreferences }
 
     init() {
         self.services = TodoServices.live()

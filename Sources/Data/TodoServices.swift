@@ -9,23 +9,31 @@ import TodoCore
 public final class TodoServices {
     public let modelContainer: ModelContainer
     public let keychain: KeychainService
+    public let aiPreferences: AIPreferences
     public let taskService: TaskService
     public let projectService: ProjectService
     public let aiService: AIService
 
     public init(
         modelContainer: ModelContainer,
-        keychain: KeychainService = KeychainService()
+        keychain: KeychainService = KeychainService(),
+        aiPreferences: AIPreferences = AIPreferences()
     ) {
         self.modelContainer = modelContainer
         self.keychain = keychain
+        self.aiPreferences = aiPreferences
 
         let context = modelContainer.mainContext
         let taskService = TaskService(context: context)
         self.taskService = taskService
         self.projectService = ProjectService(context: context)
 
-        let client = OpenRouterAIClient(apiKey: { keychain.aiAPIKey })
+        // Route to whichever backend Settings selects (a local CLI by default —
+        // no API key — or OpenRouter as a fallback), resolved fresh per call.
+        let client = RoutingAIClient(
+            keychain: keychain,
+            backend: { aiPreferences.backend }
+        )
         self.aiService = AIService(client: client, taskService: taskService)
     }
 
