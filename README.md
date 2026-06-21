@@ -1,39 +1,76 @@
-# TaskFlow
+<h1 align="center">OpenTodo</h1>
 
-A full-stack, cross-platform task management application.
+<p align="center">
+  <strong>A fast, native, AI-native task manager for Mac & iPhone.</strong><br>
+  Liquid Glass design. iCloud sync. A planning agent for your day.
+</p>
 
-## Architecture
+<p align="center">
+  <img src="https://img.shields.io/badge/Platform-macOS%2026%20%7C%20iOS%2026-black?logo=apple" alt="macOS 26 | iOS 26">
+  <img src="https://img.shields.io/badge/Swift-6.3-orange?logo=swift" alt="Swift 6.3">
+  <img src="https://img.shields.io/badge/UI-SwiftUI%20%2B%20Liquid%20Glass-blue?logo=swift" alt="SwiftUI + Liquid Glass">
+  <img src="https://img.shields.io/badge/License-MIT-green" alt="MIT License">
+</p>
 
-This repository follows an **OSS + SaaS** split:
+---
 
-| Directory | License | Description |
-|-----------|---------|-------------|
-| [`core/`](./core/) | MIT | Open-source core — API, Web, Mobile, Desktop |
-| [`cloud/`](./cloud/) | Proprietary | Premium SaaS features extending the core |
+> **Pre-alpha.** Built in public. A native replacement for Todoist — no Electron,
+> no React Native, no server to run. Pure Swift, on-device, synced over your own iCloud.
 
-## Quick Start
+## Why
+
+A to-do app should feel instant, live natively on every Apple device, and quietly
+do the boring parts for you. OpenTodo is a **single SwiftUI codebase** for macOS 26
+and iOS 26, persisting locally with **SwiftData**, syncing **Mac ↔ iPhone** over
+your private iCloud, and acting on your day through an **AI planning agent**.
+
+## What's here
+
+A single Swift package with surfaces over one engine:
+
+| Surface        | What it is                                                              |
+| -------------- | ---------------------------------------------------------------------- |
+| `TodoCore`     | The engine: models, AI client seam, natural-language date parsing. No UI, no DB. |
+| `TodoData`     | SwiftData `@Model` types + services + the CloudKit-ready store.        |
+| `OpenTodo`     | The SwiftUI app for **macOS + iOS**, built with Xcode (Liquid Glass).  |
+| `todo`         | A scriptable CLI sharing the exact same engine.                        |
+
+## Features
+
+- **Today / Upcoming / Inbox / Projects** — the views you expect, fully native.
+- **Liquid Glass** chrome — sidebar, toolbars, and the quick-add bar adopt
+  macOS 26 / iOS 26 glass; content stays crisp and legible.
+- **Quick add with natural language** — "submit report fri 5pm !!" → a dated,
+  prioritized task (on-device heuristics, with an LLM for the hard cases).
+- **Plan my day** — an AI agent reads today's tasks and proposes an ordered,
+  time-blocked plan.
+- **Offline-first** — every write is instant and local; sync reconciles in the
+  background.
+
+## Build
 
 ```bash
-# Run the open-source core
-cd core
-bun install
-bun run dev
+brew install xcodegen swiftlint   # one-time
+xcodegen generate                 # project.yml -> OpenTodo.xcodeproj
+open OpenTodo.xcodeproj            # run OpenTodo-macOS or OpenTodo-iOS
 
-# Or from root (proxies to core)
-bun run dev
+# or, from the terminal:
+xcodebuild -scheme OpenTodo-macOS -destination 'platform=macOS' build
+swift build && swift test         # pure engine (TodoCore) + CLI
 ```
 
-## Tech Stack
+## Status
 
-- **API** — NestJS + MongoDB + Clerk Auth
-- **Web** — Next.js 16 + Tailwind CSS + Radix UI
-- **Mobile** — Expo (React Native)
-- **Desktop** — Electron
+| Area              | State                                             |
+| ----------------- | ------------------------------------------------- |
+| Native SwiftUI    | ✅ macOS + iOS, one codebase                       |
+| Liquid Glass      | ✅ chrome layer (sidebar / toolbar / quick-add)    |
+| Local persistence | ✅ SwiftData                                        |
+| iCloud sync       | 🔧 store is CloudKit-ready — flip on with your team |
+| AI planning agent | 🔧 engine wired; bring an API key                  |
 
-## Contributing
-
-Contributions go to the `core/` directory. See [core/README.md](./core/README.md).
+See [ARCHITECTURE.md](ARCHITECTURE.md) for the design and how to enable iCloud sync.
 
 ## License
 
-Core is MIT licensed. Cloud features are proprietary.
+MIT — see [LICENSE](LICENSE).

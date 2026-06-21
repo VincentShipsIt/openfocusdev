@@ -2,44 +2,41 @@ name: CI
 
 on:
   push:
-    branches: [main, master]
+    branches: [master, native-rewrite]
   pull_request:
-    branches: [main, master]
+    branches: [master]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  lint:
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
+  engine:
+    name: Engine + CLI (swift test)
+    runs-on: macos-26
     steps:
       - uses: actions/checkout@v4
-      - uses: oven-sh/setup-bun@v2
-      - run: cd core && bun install
-      - run: cd core && bun run check
+      - name: Select Xcode 26
+        run: sudo xcode-select -s /Applications/Xcode_26.app || true
+      - name: Build & test pure engine
+        run: |
+          swift build
+          swift test
 
-  test-api:
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
+  app:
+    name: App build (macOS)
+    runs-on: macos-26
     steps:
       - uses: actions/checkout@v4
-      - uses: oven-sh/setup-bun@v2
-      - run: cd core && bun install
-      - run: cd core/apps/api && bun run test
-
-  test-web:
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
-    steps:
-      - uses: actions/checkout@v4
-      - uses: oven-sh/setup-bun@v2
-      - run: cd core && bun install
-      - run: cd core/apps/web && bun run test
-
-  build:
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
-    needs: [lint, test-api, test-web]
-    steps:
-      - uses: actions/checkout@v4
-      - uses: oven-sh/setup-bun@v2
-      - run: cd core && bun install
-      - run: cd core && bun run build
+      - name: Select Xcode 26
+        run: sudo xcode-select -s /Applications/Xcode_26.app || true
+      - name: Install tooling
+        run: brew install xcodegen swiftlint
+      - name: Generate project
+        run: xcodegen generate
+      - name: Build OpenTodo-macOS
+        run: |
+          xcodebuild -scheme OpenTodo-macOS \
+            -destination 'platform=macOS' \
+            CODE_SIGNING_ALLOWED=NO \
+            build

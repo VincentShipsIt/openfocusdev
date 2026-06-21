@@ -1,39 +1,21 @@
-# Dependencies
-node_modules/
-.pnp
-.pnp.js
-
-# Build
-dist/
-build/
-.next/
-out/
-
-# Environment
-.env
-.env.local
-.env.*.local
-
-# Logs
-logs/
-*.log
-npm-debug.log*
-
-# OS
+# macOS
 .DS_Store
-Thumbs.db
 
-# IDE
-.idea/
-.vscode/
-*.swp
-*.swo
+# Xcode / XcodeGen — project.yml is the source of truth
+*.xcodeproj/
+*.xcworkspace/
+!*.xcworkspace/contents.xcworkspacedata
+DerivedData/
+*.xcuserstate
+xcuserdata/
+*.xcscmblueprint
+*.xccheckout
 
-# Test
-coverage/
+# Swift Package Manager
+.build/
+.swiftpm/
+Package.resolved
 
-# Misc
-.vercel
-.turbo
-.expo
-
+# Secrets / local
+.env
+*.log
