@@ -1,8 +1,8 @@
 import Foundation
 import Testing
 import SwiftData
-@testable import TodoCore
-@testable import TodoData
+@testable import OpenCheckCore
+@testable import OpenCheckData
 
 // Disabled: SwiftData @Model create/fetch traps (signal 5) under BOTH test hosts
 // on this toolchain — the bare `swiftpm-testing-helper` and `xcodebuild test`
@@ -15,9 +15,9 @@ import SwiftData
 struct TaskServiceTests {
     private func makeService() throws -> TaskService {
         let url = URL(fileURLWithPath: NSTemporaryDirectory(), isDirectory: true)
-            .appendingPathComponent("opentodo-test-\(UUID().uuidString).store")
-        let config = ModelConfiguration(schema: TodoModelContainer.schema, url: url, cloudKitDatabase: .none)
-        let container = try ModelContainer(for: TodoModelContainer.schema, configurations: config)
+            .appendingPathComponent("opencheck-test-\(UUID().uuidString).store")
+        let config = ModelConfiguration(schema: OpenCheckModelContainer.schema, url: url, cloudKitDatabase: .none)
+        let container = try ModelContainer(for: OpenCheckModelContainer.schema, configurations: config)
         return TaskService(context: container.mainContext)
     }
 

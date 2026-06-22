@@ -1,6 +1,6 @@
 import SwiftUI
-import TodoCore
-import TodoData
+import OpenCheckCore
+import OpenCheckData
 
 /// A single task row. This is **content**, so it stays on standard materials — no
 /// glass (per the liquid-glass restraint rules).

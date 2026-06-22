@@ -6,7 +6,7 @@ import SwiftData
 /// entitlement + container to the app targets and switch `cloudKitDatabase` from
 /// `.none` to `.automatic` (see ARCHITECTURE.md). The model graph is already
 /// CloudKit-compatible, so that single flip is enough.
-public enum TodoModelContainer {
+public enum OpenCheckModelContainer {
     public static let schema = Schema([TodoTask.self, Project.self])
 
     public static func live(inMemory: Bool = false) -> ModelContainer {

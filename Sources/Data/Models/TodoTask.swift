@@ -1,6 +1,6 @@
 import Foundation
 import SwiftData
-import TodoCore
+import OpenCheckCore
 
 /// A task. CloudKit-mirrorable by construction: every stored property has a
 /// default or is optional, relationships are optional with inverses, and there
