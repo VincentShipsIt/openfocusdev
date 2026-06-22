@@ -1,11 +1,11 @@
-# OpenTodo
+# OpenCheck
 
 Entry point for Claude Code working in this repo. See [AGENTS.md](AGENTS.md) for the full orientation.
 
 ## Quick facts
 
 - Native Swift / SwiftUI app for **macOS 26 + iOS 26** (Liquid Glass). No monorepo, no server.
-- Layers: `TodoCore` (pure engine) → `TodoData` (SwiftData + services) → app/CLI shells.
+- Layers: `OpenCheckCore` (pure engine) → `OpenCheckData` (SwiftData + services) → app/CLI shells.
 - Xcode project is generated from `project.yml` via `xcodegen`. Don't edit `.xcodeproj`.
 
 ## Before substantial changes

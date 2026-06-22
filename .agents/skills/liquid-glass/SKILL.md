@@ -80,7 +80,7 @@ container, with `spacing` matching the layout.
 - Don't darken/gradient behind a toolbar — it conflicts with the scroll-edge effect.
 - Don't tint heavily; tint is an accent, not a fill.
 
-## OpenTodo helpers (this repo)
+## OpenCheck helpers (this repo)
 
 `Sources/SharedUI/Theme/GlassStyle.swift` centralizes the vocabulary — the app's
 minimum is macOS 26 / iOS 26, so the helpers call the glass APIs unconditionally
@@ -93,6 +93,6 @@ minimum is macOS 26 / iOS 26, so the helpers call the glass APIs unconditionally
 - `GlassGroup { ns in ... }` — wraps a cluster in one `GlassEffectContainer` and
   hands you a `Namespace.ID` for `glassEffectID(_:in:)`.
 
-In OpenTodo, glass lives on: the quick-add bar, the "Plan my day" CTA, the
+In OpenCheck, glass lives on: the quick-add bar, the "Plan my day" CTA, the
 sidebar/tab bar (automatic), and toolbar buttons. Task rows are **content** — they
 stay on standard materials.

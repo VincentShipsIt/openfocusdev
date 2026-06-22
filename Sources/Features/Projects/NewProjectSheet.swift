@@ -1,5 +1,5 @@
 import SwiftUI
-import TodoData
+import OpenCheckData
 
 struct NewProjectSheet: View {
     @Environment(ProjectService.self) private var projectService

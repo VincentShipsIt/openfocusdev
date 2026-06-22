@@ -1,7 +1,7 @@
 import SwiftUI
 
 /// macOS menu commands. ⌘N focuses the quick-add field via a notification.
-struct TodoCommands: Commands {
+struct OpenCheckCommands: Commands {
     var body: some Commands {
         CommandGroup(replacing: .newItem) {
             Button("New Task") {

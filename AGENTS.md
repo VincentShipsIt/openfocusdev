@@ -1,4 +1,4 @@
-# OpenTodo
+# OpenCheck
 
 Entry point for AI agents working in this repo.
 
@@ -12,7 +12,7 @@ Entry point for AI agents working in this repo.
 ## Hard rules
 
 - **Native only.** Pure Swift / SwiftUI. No Electron, React Native, server, or monorepo.
-- **One engine, many surfaces.** Logic lives in `TodoCore` / `TodoData`; the app and CLI are thin shells.
+- **One engine, many surfaces.** Logic lives in `OpenCheckCore` / `OpenCheckData`; the app and CLI are thin shells.
 - **`project.yml` is the source of truth** for the Xcode project — never hand-edit `*.xcodeproj`. Run `xcodegen generate`.
 - **Glass is restraint.** Apply glass to navigation/controls only; content rows stay on standard materials.
 

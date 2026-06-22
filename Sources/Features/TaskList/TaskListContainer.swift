@@ -1,7 +1,7 @@
 import SwiftUI
 import SwiftData
-import TodoCore
-import TodoData
+import OpenCheckCore
+import OpenCheckData
 
 /// The detail pane: a filtered task list with a glass quick-add bar and the
 /// "Plan my day" AI action. Shared by macOS (split-view detail) and iOS (tabs).
