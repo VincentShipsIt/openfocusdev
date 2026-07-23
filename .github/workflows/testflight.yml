@@ -44,6 +44,17 @@ jobs:
       - name: Show toolchain
         run: xcodebuild -version
 
+      - name: Require release commit on the default branch
+        env:
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+        run: |
+          set -euo pipefail
+          git fetch --no-tags origin "$DEFAULT_BRANCH"
+          if ! git merge-base --is-ancestor "$GITHUB_SHA" "origin/$DEFAULT_BRANCH"; then
+            echo "::error::TestFlight uploads must come from the repository default branch."
+            exit 1
+          fi
+
       - name: Configure build paths
         run: |
           {

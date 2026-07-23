@@ -90,10 +90,11 @@ out of the repository.
 
 - Pull requests run an unsigned iPhone Simulator build through `ci.yml`.
 - Pushing a semantic version tag such as `v0.1.0` archives and uploads that
-  commit through `testflight.yml`.
+  commit through `testflight.yml`. The tagged commit must already be on the
+  repository default branch.
 - The TestFlight workflow can also be dispatched manually with an `X.Y.Z`
-  marketing version. Its build number is the monotonic GitHub Actions run
-  number.
+  marketing version from a default-branch commit. Its build number is the
+  monotonic GitHub Actions run number.
 - Signing material is decoded only on the ephemeral runner and deleted in the
   workflow cleanup step.
 
