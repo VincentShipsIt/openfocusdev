@@ -1,6 +1,6 @@
 import SwiftUI
-import OpenCheckCore
-import OpenCheckData
+import OpenFocusCore
+import OpenFocusData
 
 /// A single task row. This is **content**, so it stays on standard materials — no
 /// glass (per the liquid-glass restraint rules).

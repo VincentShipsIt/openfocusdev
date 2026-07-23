@@ -1,5 +1,5 @@
 import SwiftUI
-import OpenCheckCore
+import OpenFocusCore
 
 /// Layout tokens. Colors stay semantic and accent-driven so they read correctly
 /// against Liquid Glass rather than being pinned to fixed hues.

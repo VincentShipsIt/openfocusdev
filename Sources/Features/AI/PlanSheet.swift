@@ -1,5 +1,5 @@
 import SwiftUI
-import OpenCheckData
+import OpenFocusData
 
 /// Shows the AI planning agent's output for today's tasks.
 struct PlanSheet: View {

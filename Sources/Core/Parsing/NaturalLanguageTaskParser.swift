@@ -2,7 +2,7 @@ import Foundation
 
 /// Entry point for natural-language quick-add. Runs the on-device
 /// `DateExpressionParser` (synchronous, network-free). The optional LLM
-/// refinement path lives in `AIService` (OpenCheckData) so Core stays offline.
+/// refinement path lives in `AIService` (OpenFocusData) so Core stays offline.
 public struct NaturalLanguageTaskParser: Sendable {
     private let dateParser: DateExpressionParser
 

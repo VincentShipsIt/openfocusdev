@@ -1,12 +1,12 @@
 import Foundation
 import SwiftData
-import OpenCheckCore
+import OpenFocusCore
 
-/// Composition root shared by the app's `DependencyContainer` and the `opencheck` CLI.
+/// Composition root shared by the app's `DependencyContainer` and the `openfocus` CLI.
 /// Owns the model container and the services bound to its main context, so the
 /// GUI and the terminal drive the exact same engine.
 @MainActor
-public final class OpenCheckServices {
+public final class OpenFocusServices {
     public let modelContainer: ModelContainer
     public let keychain: KeychainService
     public let taskService: TaskService
@@ -29,7 +29,7 @@ public final class OpenCheckServices {
         self.aiService = AIService(client: client, taskService: taskService)
     }
 
-    public static func live(inMemory: Bool = false) -> OpenCheckServices {
-        OpenCheckServices(modelContainer: OpenCheckModelContainer.live(inMemory: inMemory))
+    public static func live(inMemory: Bool = false) -> OpenFocusServices {
+        OpenFocusServices(modelContainer: OpenFocusModelContainer.live(inMemory: inMemory))
     }
 }

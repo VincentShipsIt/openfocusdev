@@ -1,6 +1,6 @@
 import SwiftUI
 import SwiftData
-import OpenCheckData
+import OpenFocusData
 
 /// macOS shell: a `NavigationSplitView` whose sidebar and toolbar adopt Liquid
 /// Glass automatically (built against the macOS 26 SDK — no custom chrome).
