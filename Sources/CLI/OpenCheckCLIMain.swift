@@ -1,28 +1,28 @@
 import Foundation
-import TodoCore
-import TodoCLIKit
-import TodoData
+import OpenCheckCore
+import OpenCheckCLIKit
+import OpenCheckData
 
-/// `todo` — a scriptable shell over the same engine the app uses. The file is
+/// `opencheck` — a scriptable shell over the same engine the app uses. The file is
 /// deliberately not named `main.swift` so `@main` can drive an async entry point.
 @main
-struct TodoCLIMain {
+struct OpenCheckCLIMain {
     static func main() async {
-        let command = TodoCommand.parse(CommandLine.arguments)
+        let command = OpenCheckCommand.parse(CommandLine.arguments)
 
         await MainActor.run {
             switch command {
             case .help:
-                print(TodoCommand.usage)
+                print(OpenCheckCommand.usage)
 
             case .add(let text):
-                let services = TodoServices.live()
+                let services = OpenCheckServices.live()
                 let task = services.aiService.quickAdd(text)
                 let due = task.dueDate.map { " (due \($0.formatted(date: .abbreviated, time: .shortened)))" } ?? ""
                 print("Added: \(task.title)\(due)")
 
             case .list:
-                let services = TodoServices.live()
+                let services = OpenCheckServices.live()
                 let tasks = services.taskService.today()
                 if tasks.isEmpty {
                     print("Nothing due today.")

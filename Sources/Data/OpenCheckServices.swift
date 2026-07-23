@@ -1,12 +1,12 @@
 import Foundation
 import SwiftData
-import TodoCore
+import OpenCheckCore
 
-/// Composition root shared by the app's `DependencyContainer` and the `todo` CLI.
+/// Composition root shared by the app's `DependencyContainer` and the `opencheck` CLI.
 /// Owns the model container and the services bound to its main context, so the
 /// GUI and the terminal drive the exact same engine.
 @MainActor
-public final class TodoServices {
+public final class OpenCheckServices {
     public let modelContainer: ModelContainer
     public let keychain: KeychainService
     public let aiPreferences: AIPreferences
@@ -37,7 +37,7 @@ public final class TodoServices {
         self.aiService = AIService(client: client, taskService: taskService)
     }
 
-    public static func live(inMemory: Bool = false) -> TodoServices {
-        TodoServices(modelContainer: TodoModelContainer.live(inMemory: inMemory))
+    public static func live(inMemory: Bool = false) -> OpenCheckServices {
+        OpenCheckServices(modelContainer: OpenCheckModelContainer.live(inMemory: inMemory))
     }
 }

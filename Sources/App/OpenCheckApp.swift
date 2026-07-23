@@ -2,7 +2,7 @@ import SwiftUI
 import SwiftData
 
 @main
-struct OpenTodoApp: App {
+struct OpenCheckApp: App {
     @StateObject private var container: DependencyContainer
 
     init() {
@@ -11,7 +11,7 @@ struct OpenTodoApp: App {
 
     var body: some Scene {
         #if os(macOS)
-        Window("OpenTodo", id: "main") {
+        Window("OpenCheck", id: "main") {
             MainWindowView()
                 .environmentObject(container)
                 .environment(container.taskService)
@@ -19,7 +19,7 @@ struct OpenTodoApp: App {
                 .environment(container.aiService)
         }
         .modelContainer(container.modelContainer)
-        .commands { TodoCommands() }
+        .commands { OpenCheckCommands() }
         .defaultSize(width: 1100, height: 720)
 
         Settings {

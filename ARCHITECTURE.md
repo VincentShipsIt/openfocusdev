@@ -1,6 +1,6 @@
 # Architecture
 
-OpenTodo is a native Swift app for macOS 26 / iOS 26. One engine, several thin
+OpenCheck is a native Swift app for macOS 26 / iOS 26. One engine, several thin
 surfaces. No server, no monorepo — the GitHub repo doubles as the marketing page.
 
 ## Layers
@@ -10,11 +10,11 @@ surfaces. No server, no monorepo — the GitHub repo doubles as the marketing pa
 │  App surfaces (thin shells)                                  │
 │  Sources/App · Sources/Features · Sources/SharedUI ·         │
 │  Sources/Platform/{macOS,iOS}            +   Sources/CLI     │
-│        SwiftUI views + view state              `todo` tool   │
+│        SwiftUI views + view state              `opencheck` tool   │
 └───────────────┬─────────────────────────────────┬───────────┘
                 │ links                            │ links
         ┌───────▼────────┐                 ┌───────▼────────┐
-        │  TodoData      │  SwiftData      │  TodoCLIKit    │
+        │  OpenCheckData      │  SwiftData      │  OpenCheckCLIKit    │
         │  @Model types  │  @Observable    │  arg parsing   │
         │  services      │  services       │                │
         │  ModelContainer│  (CloudKit-ready)│               │
@@ -22,23 +22,23 @@ surfaces. No server, no monorepo — the GitHub repo doubles as the marketing pa
                 │ depends on                       │ depends on
                 └────────────────┬─────────────────┘
                          ┌───────▼────────┐
-                         │  TodoCore      │  pure, value types,
+                         │  OpenCheckCore      │  pure, value types,
                          │  models · AI   │  no SwiftData, no UI
                          │  NL parsing    │  (CLT-buildable)
                          └────────────────┘
 ```
 
-- **TodoCore** — value-type models (`Priority`, `TaskDraft`, `RecurrenceRule`),
+- **OpenCheckCore** — value-type models (`Priority`, `TaskDraft`, `RecurrenceRule`),
   the AI client seam (`AIClient` + `OpenRouterAIClient`), prompts, and the
   natural-language date parser. No SwiftData, no UI, so it unit-tests on a
   Command Line Tools–only host.
-- **TodoData** — SwiftData `@Model` types (`TodoTask`, `Project`), the
+- **OpenCheckData** — SwiftData `@Model` types (`TodoTask`, `Project`), the
   `@Observable @MainActor` services (`TaskService`, `ProjectService`,
-  `AIService`), and `TodoModelContainer` (the CloudKit-ready store). Requires the
+  `AIService`), and `OpenCheckModelContainer` (the CloudKit-ready store). Requires the
   Xcode toolchain (SwiftData macros).
-- **App / CLI** — SwiftUI views and the `todo` command line tool are shells over
+- **App / CLI** — SwiftUI views and the `opencheck` command line tool are shells over
   the services. The Xcode app targets (in `project.yml`) compile the SwiftUI
-  sources directly and link `TodoCore` + `TodoData`.
+  sources directly and link `OpenCheckCore` + `OpenCheckData`.
 
 ## Why two build systems
 
@@ -46,7 +46,7 @@ surfaces. No server, no monorepo — the GitHub repo doubles as the marketing pa
 (`swift test`, set `TODO_SKIP_SWIFTDATA=1` on a CLT-only host). The **app** is
 built from `project.yml` via `xcodegen` because SwiftUI app bundles, entitlements,
 and asset catalogs are an Xcode concern, not SwiftPM's. `project.yml` is the
-single source of truth — `OpenTodo.xcodeproj` is generated and gitignored.
+single source of truth — `OpenCheck.xcodeproj` is generated and gitignored.
 
 ## Data model
 
@@ -59,13 +59,13 @@ are **no unique constraints** — both requirements for CloudKit mirroring.
 
 ## Sync (Mac ↔ iPhone)
 
-`TodoModelContainer` builds a `ModelConfiguration`. It ships **local-only** so the
+`OpenCheckModelContainer` builds a `ModelConfiguration`. It ships **local-only** so the
 app builds and runs with no Apple Developer team. To turn on iCloud sync:
 
 1. In `project.yml`, add a `CODE_SIGN_ENTITLEMENTS` file to both app targets with
    `com.apple.developer.icloud-services = [CloudKit]` and an
-   `iCloud.com.opentodo` container; set your `DEVELOPMENT_TEAM`.
-2. In `TodoModelContainer`, switch `cloudKitDatabase:` from `.none` to
+   `iCloud.dev.opencheck` container; set your `DEVELOPMENT_TEAM`.
+2. In `OpenCheckModelContainer`, switch `cloudKitDatabase:` from `.none` to
    `.automatic`. SwiftData then mirrors the private database with an offline
    queue and automatic conflict merge — no backend to run.
 

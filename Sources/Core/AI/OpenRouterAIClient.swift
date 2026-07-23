@@ -24,8 +24,8 @@ public struct OpenRouterAIClient: AIClient {
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.setValue("Bearer \(key)", forHTTPHeaderField: "Authorization")
-        request.setValue("https://opentodo.app", forHTTPHeaderField: "HTTP-Referer")
-        request.setValue("OpenTodo", forHTTPHeaderField: "X-Title")
+        request.setValue("https://opencheck.dev", forHTTPHeaderField: "HTTP-Referer")
+        request.setValue("OpenCheck", forHTTPHeaderField: "X-Title")
 
         let payload = ChatRequest(
             model: config.model,

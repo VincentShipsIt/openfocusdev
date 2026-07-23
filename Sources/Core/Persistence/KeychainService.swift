@@ -1,14 +1,14 @@
 import Foundation
 import KeychainAccess
 
-/// Thin wrapper over the system Keychain for the few secrets OpenTodo holds
+/// Thin wrapper over the system Keychain for the few secrets OpenCheck holds
 /// (today: the AI API key). The underlying Keychain is thread-safe, so this is
 /// safe to read from the AI client's request closure off the main actor.
 public struct KeychainService: @unchecked Sendable {
     private let keychain: Keychain
     private static let aiKeyName = "ai_api_key"
 
-    public init(service: String = "com.opentodo.app") {
+    public init(service: String = "dev.opencheck.app") {
         self.keychain = Keychain(service: service)
     }
 

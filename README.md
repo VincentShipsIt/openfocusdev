@@ -1,4 +1,4 @@
-<h1 align="center">OpenTodo</h1>
+<h1 align="center">OpenCheck</h1>
 
 <p align="center">
   <strong>A fast, native, AI-native task manager for Mac & iPhone.</strong><br>
@@ -20,7 +20,7 @@
 ## Why
 
 A to-do app should feel instant, live natively on every Apple device, and quietly
-do the boring parts for you. OpenTodo is a **single SwiftUI codebase** for macOS 26
+do the boring parts for you. OpenCheck is a **single SwiftUI codebase** for macOS 26
 and iOS 26, persisting locally with **SwiftData**, syncing **Mac ↔ iPhone** over
 your private iCloud, and acting on your day through an **AI planning agent**.
 
@@ -30,10 +30,10 @@ A single Swift package with surfaces over one engine:
 
 | Surface        | What it is                                                              |
 | -------------- | ---------------------------------------------------------------------- |
-| `TodoCore`     | The engine: models, AI client seam, natural-language date parsing. No UI, no DB. |
-| `TodoData`     | SwiftData `@Model` types + services + the CloudKit-ready store.        |
-| `OpenTodo`     | The SwiftUI app for **macOS + iOS**, built with Xcode (Liquid Glass).  |
-| `todo`         | A scriptable CLI sharing the exact same engine.                        |
+| `OpenCheckCore`     | The engine: models, AI client seam, natural-language date parsing. No UI, no DB. |
+| `OpenCheckData`     | SwiftData `@Model` types + services + the CloudKit-ready store.        |
+| `OpenCheck`     | The SwiftUI app for **macOS + iOS**, built with Xcode (Liquid Glass).  |
+| `opencheck`         | A scriptable CLI sharing the exact same engine.                        |
 
 ## Features
 
@@ -51,12 +51,12 @@ A single Swift package with surfaces over one engine:
 
 ```bash
 brew install xcodegen swiftlint   # one-time
-xcodegen generate                 # project.yml -> OpenTodo.xcodeproj
-open OpenTodo.xcodeproj            # run OpenTodo-macOS or OpenTodo-iOS
+xcodegen generate                 # project.yml -> OpenCheck.xcodeproj
+open OpenCheck.xcodeproj            # run OpenCheck-macOS or OpenCheck-iOS
 
 # or, from the terminal:
-xcodebuild -scheme OpenTodo-macOS -destination 'platform=macOS' build
-swift build && swift test         # pure engine (TodoCore) + CLI
+xcodebuild -scheme OpenCheck-macOS -destination 'platform=macOS' build
+swift build && swift test         # pure engine (OpenCheckCore) + CLI
 ```
 
 ## Status

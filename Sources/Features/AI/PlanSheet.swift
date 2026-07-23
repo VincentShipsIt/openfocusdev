@@ -1,5 +1,5 @@
 import SwiftUI
-import TodoData
+import OpenCheckData
 
 /// Shows the AI planning agent's output for today's tasks.
 struct PlanSheet: View {

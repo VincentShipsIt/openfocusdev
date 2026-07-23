@@ -1,6 +1,6 @@
-name: OpenTodo
+name: OpenCheck
 options:
-  bundleIdPrefix: com.opentodo
+  bundleIdPrefix: dev.opencheck
   deploymentTarget:
     iOS: "26.0"
     macOS: "26.0"
@@ -22,13 +22,13 @@ packages:
 
 # Layered targets. The Xcode project compiles the engine sources directly into
 # framework targets (it does NOT consume the root Package.swift products) so the
-# GUI apps and the `todo` tool link the same layers. SwiftData is a system
+# GUI apps and the `opencheck` tool link the same layers. SwiftData is a system
 # framework, auto-linked wherever `import SwiftData` appears.
 targets:
 
   # Pure engine — value types, AI client seam, natural-language date parsing,
   # Keychain. No SwiftData. Shared by every other target. macOS + iOS.
-  TodoCore:
+  OpenCheckCore:
     type: framework
     supportedDestinations: [macOS, iOS]
     sources:
@@ -37,37 +37,37 @@ targets:
       - package: KeychainAccess
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.opentodo.core
+        PRODUCT_BUNDLE_IDENTIFIER: dev.opencheck.core
         GENERATE_INFOPLIST_FILE: YES
 
   # Persistence + stateful services — SwiftData @Model types and ModelContext-bound
   # services (Task/Project/AI) + the CloudKit-ready ModelContainer. macOS + iOS.
-  TodoData:
+  OpenCheckData:
     type: framework
     supportedDestinations: [macOS, iOS]
     sources:
       - path: Sources/Data
     dependencies:
-      - target: TodoCore
+      - target: OpenCheckCore
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.opentodo.data
+        PRODUCT_BUNDLE_IDENTIFIER: dev.opencheck.data
         GENERATE_INFOPLIST_FILE: YES
 
   # CLI command parser + help/usage. Pure, no persistence. macOS only.
-  TodoCLIKit:
+  OpenCheckCLIKit:
     type: framework
     platform: macOS
     sources:
       - path: Sources/CLIKit
     dependencies:
-      - target: TodoCore
+      - target: OpenCheckCore
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.opentodo.clikit
+        PRODUCT_BUNDLE_IDENTIFIER: dev.opencheck.clikit
         GENERATE_INFOPLIST_FILE: YES
 
-  OpenTodo-macOS:
+  OpenCheck-macOS:
     type: application
     platform: macOS
     deploymentTarget: "26.0"
@@ -78,17 +78,17 @@ targets:
       - path: Sources/Platform/macOS
       - path: Resources
     dependencies:
-      - target: TodoCore
-      - target: TodoData
+      - target: OpenCheckCore
+      - target: OpenCheckData
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.opentodo.app.macos
-        PRODUCT_NAME: OpenTodo
+        PRODUCT_BUNDLE_IDENTIFIER: dev.opencheck.app.macos
+        PRODUCT_NAME: OpenCheck
         GENERATE_INFOPLIST_FILE: YES
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
         INFOPLIST_KEY_LSApplicationCategoryType: public.app-category.productivity
-        INFOPLIST_KEY_NSHumanReadableCopyright: "© 2026 OpenTodo"
+        INFOPLIST_KEY_NSHumanReadableCopyright: "© 2026 OpenCheck"
         # Hardened runtime enforces same-Team-ID library validation, which ad-hoc
         # (no-team) signing can't satisfy for the embedded frameworks. Re-enable it
         # for notarized distribution once a real DEVELOPMENT_TEAM is set.
@@ -104,7 +104,7 @@ targets:
             echo "warning: SwiftLint not installed"
           fi
 
-  OpenTodo-iOS:
+  OpenCheck-iOS:
     type: application
     platform: iOS
     deploymentTarget: "26.0"
@@ -115,12 +115,12 @@ targets:
       - path: Sources/Platform/iOS
       - path: Resources
     dependencies:
-      - target: TodoCore
-      - target: TodoData
+      - target: OpenCheckCore
+      - target: OpenCheckData
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.opentodo.app.ios
-        PRODUCT_NAME: OpenTodo
+        PRODUCT_BUNDLE_IDENTIFIER: dev.opencheck.app.ios
+        PRODUCT_NAME: OpenCheck
         GENERATE_INFOPLIST_FILE: YES
         TARGETED_DEVICE_FAMILY: "1,2"
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
@@ -128,49 +128,49 @@ targets:
         INFOPLIST_KEY_UILaunchScreen_Generation: YES
         INFOPLIST_KEY_UIApplicationSceneManifest_Generation: YES
 
-  # `todo` CLI. Compiles Sources/CLI only (the @main entry + SwiftData-backed
+  # `opencheck` CLI. Compiles Sources/CLI only (the @main entry + SwiftData-backed
   # executor) and links the layers it imports. macOS only.
-  todo:
+  opencheck:
     type: tool
     platform: macOS
     sources:
       - path: Sources/CLI
     dependencies:
-      - target: TodoCore
-      - target: TodoData
-      - target: TodoCLIKit
+      - target: OpenCheckCore
+      - target: OpenCheckData
+      - target: OpenCheckCLIKit
     settings:
       base:
-        PRODUCT_NAME: todo
-        PRODUCT_BUNDLE_IDENTIFIER: com.opentodo.cli
+        PRODUCT_NAME: opencheck
+        PRODUCT_BUNDLE_IDENTIFIER: dev.opencheck.cli
 
-  TodoCoreTests:
+  OpenCheckCoreTests:
     type: bundle.unit-test
     platform: macOS
     sources:
       - path: Tests/UnitTests
     dependencies:
-      - target: TodoCore
-      - target: TodoCLIKit
+      - target: OpenCheckCore
+      - target: OpenCheckCLIKit
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.opentodo.core.tests
+        PRODUCT_BUNDLE_IDENTIFIER: dev.opencheck.core.tests
         GENERATE_INFOPLIST_FILE: YES
 
 schemes:
-  OpenTodo-macOS:
+  OpenCheck-macOS:
     build:
       targets:
-        OpenTodo-macOS: all
-        TodoCoreTests: [test]
+        OpenCheck-macOS: all
+        OpenCheckCoreTests: [test]
     run:
       config: Debug
     test:
       targets:
-        - TodoCoreTests
-  OpenTodo-iOS:
+        - OpenCheckCoreTests
+  OpenCheck-iOS:
     build:
       targets:
-        OpenTodo-iOS: all
+        OpenCheck-iOS: all
     run:
       config: Debug
