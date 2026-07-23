@@ -1,5 +1,5 @@
 import SwiftUI
-import TodoCore
+import OpenCheckCore
 
 /// macOS Settings: pick the AI backend for "Plan my day" — a local agent CLI
 /// (no API key) or the OpenRouter fallback (API key stored in the Keychain).

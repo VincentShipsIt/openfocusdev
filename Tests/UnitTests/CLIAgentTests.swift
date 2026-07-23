@@ -1,6 +1,6 @@
 import Foundation
 import Testing
-@testable import TodoCore
+@testable import OpenCheckCore
 
 @Suite struct CLIToolLocatorTests {
     @Test func resolvesAKnownSystemTool() {
@@ -10,7 +10,7 @@ import Testing
     }
 
     @Test func returnsNilForAMissingTool() {
-        #expect(CLIToolLocator.resolve("opentodo-definitely-not-installed-xyz") == nil)
+        #expect(CLIToolLocator.resolve("opencheck-definitely-not-installed-xyz") == nil)
     }
 }
 
@@ -32,7 +32,7 @@ import Testing
     }
 
     @Test func preferencesRoundTripBackend() {
-        let suiteName = "opentodo.tests.\(UUID().uuidString)"
+        let suiteName = "opencheck.tests.\(UUID().uuidString)"
         let defaults = UserDefaults(suiteName: suiteName)!
         defer { defaults.removePersistentDomain(forName: suiteName) }
 
@@ -110,9 +110,14 @@ import Testing
         defer { script.remove() }
 
         let client = CLIAgentAIClient(agent: .claude, executableURL: script.url, timeout: 0.5)
+        let start = Date()
         await #expect(throws: AIError.self) {
             _ = try await client.complete(system: "s", user: "u")
         }
+        // The watchdog must terminate the 5s sleep near the 0.5s deadline. If it
+        // were scheduled on the queue blocked in `waitUntilExit()`, this would
+        // take the full 5s — so a sub-3s bound guards that regression.
+        #expect(Date().timeIntervalSince(start) < 3)
     }
 }
 
@@ -123,7 +128,7 @@ private struct TestScript {
 
     static func make(_ body: String) throws -> TestScript {
         let url = FileManager.default.temporaryDirectory
-            .appendingPathComponent("opentodo-clitest-\(UUID().uuidString).sh")
+            .appendingPathComponent("opencheck-clitest-\(UUID().uuidString).sh")
         try body.write(to: url, atomically: true, encoding: .utf8)
         try FileManager.default.setAttributes(
             [.posixPermissions: 0o755], ofItemAtPath: url.path
