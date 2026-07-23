@@ -14,10 +14,13 @@ jobs:
   engine:
     name: Engine + CLI (swift test)
     runs-on: macos-26
+    timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v4
-      - name: Select Xcode 26
-        run: sudo xcode-select -s /Applications/Xcode_26.app || true
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+      - name: Select Xcode
+        run: sudo xcode-select -s /Applications/Xcode_26.4.1.app
+      - name: Show toolchain
+        run: xcodebuild -version
       - name: Build & test pure engine
         run: |
           swift build
@@ -26,17 +29,45 @@ jobs:
   app:
     name: App build (macOS)
     runs-on: macos-26
+    timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v4
-      - name: Select Xcode 26
-        run: sudo xcode-select -s /Applications/Xcode_26.app || true
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+      - name: Select Xcode
+        run: sudo xcode-select -s /Applications/Xcode_26.4.1.app
+      - name: Show toolchain
+        run: xcodebuild -version
       - name: Install tooling
         run: brew install xcodegen swiftlint
       - name: Generate project
         run: xcodegen generate
       - name: Build OpenFocus-macOS
         run: |
-          xcodebuild -scheme OpenFocus-macOS \
+          xcodebuild -project OpenFocus.xcodeproj \
+            -scheme OpenFocus-macOS \
             -destination 'platform=macOS' \
+            -derivedDataPath "$RUNNER_TEMP/OpenFocusDerivedData" \
+            CODE_SIGNING_ALLOWED=NO \
+            build
+
+  ios:
+    name: App build (iOS)
+    runs-on: macos-26
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+      - name: Select Xcode
+        run: sudo xcode-select -s /Applications/Xcode_26.4.1.app
+      - name: Show toolchain
+        run: xcodebuild -version
+      - name: Install XcodeGen
+        run: brew install xcodegen
+      - name: Generate project
+        run: xcodegen generate
+      - name: Build OpenFocus-iOS
+        run: |
+          xcodebuild -project OpenFocus.xcodeproj \
+            -scheme OpenFocus-iOS \
+            -destination 'generic/platform=iOS Simulator' \
+            -derivedDataPath "$RUNNER_TEMP/OpenFocusDerivedData" \
             CODE_SIGNING_ALLOWED=NO \
             build
