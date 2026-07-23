@@ -1,6 +1,6 @@
 import Foundation
 import Testing
-@testable import OpenCheckCore
+@testable import OpenFocusCore
 
 @Suite struct DateExpressionParserTests {
     private func parser() -> DateExpressionParser {

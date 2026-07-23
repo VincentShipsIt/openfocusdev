@@ -1,6 +1,6 @@
 import SwiftUI
 import SwiftData
-import OpenCheckData
+import OpenFocusData
 
 /// The macOS sidebar. Native `List(.sidebar)` selection renders the glass
 /// selection material itself — there is intentionally NO custom selection pill.
@@ -28,7 +28,7 @@ struct SidebarView: View {
                 }
             }
         }
-        .navigationTitle("OpenCheck")
+        .navigationTitle("OpenFocus")
         .toolbar {
             ToolbarItem {
                 Button { showingNewProject = true } label: {

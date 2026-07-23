@@ -1,6 +1,6 @@
 import Foundation
 import SwiftData
-import OpenCheckCore
+import OpenFocusCore
 
 /// CRUD + queries for tasks, bound to the main `ModelContext`. `@Observable` so
 /// SwiftUI views re-render on mutation; `@MainActor` because it touches the UI

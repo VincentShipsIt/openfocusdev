@@ -34,9 +34,9 @@ jobs:
         run: brew install xcodegen swiftlint
       - name: Generate project
         run: xcodegen generate
-      - name: Build OpenCheck-macOS
+      - name: Build OpenFocus-macOS
         run: |
-          xcodebuild -scheme OpenCheck-macOS \
+          xcodebuild -scheme OpenFocus-macOS \
             -destination 'platform=macOS' \
             CODE_SIGNING_ALLOWED=NO \
             build

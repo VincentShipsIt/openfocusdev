@@ -2,7 +2,7 @@ import SwiftUI
 import SwiftData
 
 @main
-struct OpenCheckApp: App {
+struct OpenFocusApp: App {
     @StateObject private var container: DependencyContainer
 
     init() {
@@ -11,7 +11,7 @@ struct OpenCheckApp: App {
 
     var body: some Scene {
         #if os(macOS)
-        Window("OpenCheck", id: "main") {
+        Window("OpenFocus", id: "main") {
             MainWindowView()
                 .environmentObject(container)
                 .environment(container.taskService)
@@ -19,7 +19,7 @@ struct OpenCheckApp: App {
                 .environment(container.aiService)
         }
         .modelContainer(container.modelContainer)
-        .commands { OpenCheckCommands() }
+        .commands { OpenFocusCommands() }
         .defaultSize(width: 1100, height: 720)
 
         Settings {

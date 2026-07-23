@@ -1,6 +1,6 @@
 import SwiftUI
 import SwiftData
-import OpenCheckData
+import OpenFocusData
 
 /// iOS "Projects" tab: a list of projects that pushes into the project's tasks.
 struct ProjectsListView: View {

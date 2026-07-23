@@ -4,7 +4,7 @@
 
 - All task data is stored **on device** via SwiftData. When iCloud sync is
   enabled it lives in the user's **private** CloudKit database — there is no
-  OpenCheck server and no third party in the loop.
+  OpenFocus server and no third party in the loop.
 - The AI API key is stored in the **Keychain** (`KeychainService`), never in
   plaintext, `UserDefaults`, or the repo.
 - Only task text the user explicitly sends to the planning agent leaves the

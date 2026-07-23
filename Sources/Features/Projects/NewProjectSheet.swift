@@ -1,5 +1,5 @@
 import SwiftUI
-import OpenCheckData
+import OpenFocusData
 
 struct NewProjectSheet: View {
     @Environment(ProjectService.self) private var projectService
