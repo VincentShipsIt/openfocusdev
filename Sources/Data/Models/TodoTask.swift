@@ -13,6 +13,8 @@ public final class TodoTask {
     public var dueDate: Date?
     public var completedAt: Date?
     public var priorityRaw: Int = Priority.medium.rawValue
+    /// Board column. `completedAt` still owns done-ness — see `TaskStatus`.
+    public var statusRaw: Int = TaskStatus.todo.rawValue
     public var labels: [String] = []
     public var order: Int = 0
     public var createdAt: Date = Date()
@@ -62,6 +64,17 @@ public extension TodoTask {
 
     var isCompleted: Bool { completedAt != nil }
 
+    /// Which board column this task belongs in. Reads reconcile the stored value
+    /// against `completedAt`; writes keep the two in step, so a drag onto Done and
+    /// a tap on the list-view checkmark produce the same state.
+    var status: TaskStatus {
+        get { TaskStatus.resolved(storedRaw: statusRaw, completedAt: completedAt) }
+        set {
+            statusRaw = newValue.rawValue
+            completedAt = newValue.completionDate(from: completedAt)
+        }
+    }
+
     var recurrence: RecurrenceRule? {
         get {
             guard let recurrenceData else { return nil }
@@ -71,7 +84,8 @@ public extension TodoTask {
     }
 
     func toggleCompletion() {
-        completedAt = isCompleted ? nil : Date()
+        // Routed through `status` so the board column follows the checkmark.
+        status = isCompleted ? .todo : .done
         updatedAt = Date()
     }
 }
