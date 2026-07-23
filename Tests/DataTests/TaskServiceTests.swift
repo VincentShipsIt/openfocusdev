@@ -14,15 +14,7 @@ struct TaskServiceTests {
     }
 
     private func makeHarness() throws -> Harness {
-        let configuration = ModelConfiguration(
-            schema: OpenFocusModelContainer.schema,
-            isStoredInMemoryOnly: true,
-            cloudKitDatabase: .none
-        )
-        let container = try ModelContainer(
-            for: OpenFocusModelContainer.schema,
-            configurations: configuration
-        )
+        let container = try OpenFocusModelContainer.make(inMemory: true)
         return Harness(
             container: container,
             tasks: TaskService(context: container.mainContext),
