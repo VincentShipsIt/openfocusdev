@@ -1,6 +1,6 @@
 import Foundation
 import Testing
-@testable import OpenCheckCore
+@testable import OpenFocusCore
 
 @Suite struct CLIToolLocatorTests {
     @Test func resolvesAKnownSystemTool() {
@@ -10,7 +10,7 @@ import Testing
     }
 
     @Test func returnsNilForAMissingTool() {
-        #expect(CLIToolLocator.resolve("opencheck-definitely-not-installed-xyz") == nil)
+        #expect(CLIToolLocator.resolve("openfocus-definitely-not-installed-xyz") == nil)
     }
 }
 
@@ -31,14 +31,40 @@ import Testing
         #expect(AIBackend.available().contains(.openRouter))
     }
 
+    /// OpenRouter is the shipped default; the CLI backends are opt-in and must
+    /// never be selected by auto-detection alone.
+    @Test func defaultBackendIsOpenRouter() {
+        #expect(AIBackend.defaultBackend == .openRouter)
+    }
+
+    @Test func preferencesDefaultToOpenRouterWhenUnset() {
+        withScratchDefaults { defaults in
+            #expect(AIPreferences(defaults: defaults).backend == .openRouter)
+        }
+    }
+
+    @Test func preferencesFallBackToTheDefaultForAnUnknownStoredValue() {
+        withScratchDefaults { defaults in
+            defaults.set("some_retired_backend", forKey: "ai.backend")
+            #expect(AIPreferences(defaults: defaults).backend == .openRouter)
+        }
+    }
+
     @Test func preferencesRoundTripBackend() {
-        let suiteName = "opencheck.tests.\(UUID().uuidString)"
+        withScratchDefaults { defaults in
+            let prefs = AIPreferences(defaults: defaults)
+            prefs.backend = .codexCLI
+            #expect(AIPreferences(defaults: defaults).backend == .codexCLI)
+        }
+    }
+
+    /// Run `body` against an isolated `UserDefaults` suite, torn down afterwards
+    /// so tests never touch (or leak into) the real app domain.
+    private func withScratchDefaults(_ body: (UserDefaults) -> Void) {
+        let suiteName = "openfocus.tests.\(UUID().uuidString)"
         let defaults = UserDefaults(suiteName: suiteName)!
         defer { defaults.removePersistentDomain(forName: suiteName) }
-
-        let prefs = AIPreferences(defaults: defaults)
-        prefs.backend = .codexCLI
-        #expect(AIPreferences(defaults: defaults).backend == .codexCLI)
+        body(defaults)
     }
 }
 
@@ -128,7 +154,7 @@ private struct TestScript {
 
     static func make(_ body: String) throws -> TestScript {
         let url = FileManager.default.temporaryDirectory
-            .appendingPathComponent("opencheck-clitest-\(UUID().uuidString).sh")
+            .appendingPathComponent("openfocus-clitest-\(UUID().uuidString).sh")
         try body.write(to: url, atomically: true, encoding: .utf8)
         try FileManager.default.setAttributes(
             [.posixPermissions: 0o755], ofItemAtPath: url.path

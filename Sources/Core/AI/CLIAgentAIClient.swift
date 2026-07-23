@@ -3,7 +3,7 @@ import Foundation
 /// An `AIClient` that drives a locally-installed agent CLI — Claude Code
 /// (`claude`) or Codex (`codex`) — in headless mode instead of calling a hosted
 /// API. There is **no API key**: each CLI authenticates with the user's existing
-/// subscription. OpenCheck ships unsandboxed and ad-hoc signed, so spawning the
+/// subscription. OpenFocus ships unsandboxed and ad-hoc signed, so spawning the
 /// tool is permitted.
 ///
 /// The same `AIClient.complete(system:user:)` seam every feature already uses, so
@@ -78,7 +78,7 @@ public struct CLIAgentAIClient: AIClient {
     private func runCodex(system: String, user: String) async throws -> String {
         let prompt = system + "\n\n" + user
         let scratch = FileManager.default.temporaryDirectory
-        let lastMessageURL = scratch.appendingPathComponent("opencheck-codex-\(UUID().uuidString).txt")
+        let lastMessageURL = scratch.appendingPathComponent("openfocus-codex-\(UUID().uuidString).txt")
         defer { try? FileManager.default.removeItem(at: lastMessageURL) }
 
         var arguments = [
@@ -152,7 +152,7 @@ enum CLIProcess {
         context.process.standardInput = context.inPipe
 
         return try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<CLIProcessResult, Error>) in
-            let queue = DispatchQueue(label: "com.opencheck.cli-agent", qos: .userInitiated)
+            let queue = DispatchQueue(label: "com.openfocus.cli-agent", qos: .userInitiated)
             queue.async {
                 do {
                     try context.process.run()
@@ -164,7 +164,7 @@ enum CLIProcess {
                 }
 
                 // Drain both pipes concurrently before waiting on exit.
-                let readQueue = DispatchQueue(label: "com.opencheck.cli-agent.read", attributes: .concurrent)
+                let readQueue = DispatchQueue(label: "com.openfocus.cli-agent.read", attributes: .concurrent)
                 let group = DispatchGroup()
                 group.enter()
                 readQueue.async {
@@ -192,7 +192,7 @@ enum CLIProcess {
                 // block in `waitUntilExit()` below, so a timer scheduled on this
                 // same serial queue would never run until the process had already
                 // exited — defeating the timeout entirely.
-                let timeoutQueue = DispatchQueue(label: "com.opencheck.cli-agent.timeout")
+                let timeoutQueue = DispatchQueue(label: "com.openfocus.cli-agent.timeout")
                 timeoutQueue.asyncAfter(deadline: .now() + timeout, execute: watchdog)
 
                 context.process.waitUntilExit()

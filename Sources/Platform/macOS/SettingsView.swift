@@ -1,11 +1,12 @@
 import SwiftUI
-import OpenCheckCore
+import OpenFocusCore
 
-/// macOS Settings: pick the AI backend for "Plan my day" — a local agent CLI
-/// (no API key) or the OpenRouter fallback (API key stored in the Keychain).
+/// macOS Settings: pick the AI backend for "Plan my day" — OpenRouter by default
+/// (API key stored in the Keychain), or opt in to a locally-installed agent CLI
+/// that runs on your existing subscription instead.
 struct SettingsView: View {
     @EnvironmentObject private var container: DependencyContainer
-    @State private var backend: AIBackend = .openRouter
+    @State private var backend: AIBackend = .defaultBackend
     @State private var availableBackends: [AIBackend] = AIBackend.allCases
     @State private var apiKey = ""
     @State private var saved = false
@@ -26,7 +27,8 @@ struct SettingsView: View {
                     .foregroundStyle(.secondary)
                 if noCLIInstalled {
                     Label(
-                        "Install the Claude Code or Codex CLI to plan without an API key.",
+                        "The CLI backends are optional — install the Claude Code or Codex CLI "
+                            + "to plan without an API key.",
                         systemImage: "terminal"
                     )
                     .font(.caption)
@@ -36,7 +38,7 @@ struct SettingsView: View {
 
             Section("OpenRouter API key") {
                 SecureField("API key", text: $apiKey)
-                Text("Only used by the “API key (OpenRouter)” backend. Stored in your Keychain.")
+                Text("Used by the default “OpenRouter (API key)” backend. Stored in your Keychain.")
                     .font(.caption)
                     .foregroundStyle(.secondary)
                 HStack {

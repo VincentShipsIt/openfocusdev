@@ -28,8 +28,8 @@ public final class OpenFocusServices {
         self.taskService = taskService
         self.projectService = ProjectService(context: context)
 
-        // Route to whichever backend Settings selects (a local CLI by default —
-        // no API key — or OpenRouter as a fallback), resolved fresh per call.
+        // Route to whichever backend Settings selects (OpenRouter by default, or
+        // a local agent CLI if the user opts in), resolved fresh per call.
         let client = RoutingAIClient(
             keychain: keychain,
             backend: { aiPreferences.backend }

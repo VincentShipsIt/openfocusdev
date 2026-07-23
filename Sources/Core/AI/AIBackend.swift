@@ -1,39 +1,46 @@
 import Foundation
 
 /// Which engine the AI features ("Plan my day", natural-language refinement) talk
-/// to. Two are local agent CLIs that need no API key; the third is the hosted
-/// OpenRouter fallback.
+/// to. OpenRouter is the default and works on every platform; the two local agent
+/// CLIs are opt-in choices for users who'd rather spend their existing Claude /
+/// ChatGPT subscription than an API key.
 public enum AIBackend: String, CaseIterable, Sendable, Identifiable {
+    case openRouter = "openrouter"
     case claudeCLI = "claude_cli"
     case codexCLI = "codex_cli"
-    case openRouter = "openrouter"
 
     public var id: String { rawValue }
 
     public var label: String {
         switch self {
+        case .openRouter: return "OpenRouter (API key)"
         case .claudeCLI: return "Claude CLI"
         case .codexCLI: return "Codex CLI"
-        case .openRouter: return "API key (OpenRouter)"
         }
     }
 
     public var detail: String {
         switch self {
+        case .openRouter: return "Calls OpenRouter over HTTP with the API key below. The default."
         case .claudeCLI: return "Runs the local `claude` CLI using your Claude subscription. No API key."
         case .codexCLI: return "Runs the local `codex` CLI using your ChatGPT auth. No API key."
-        case .openRouter: return "Calls OpenRouter over HTTP with the API key below."
         }
     }
 
     /// The CLI this backend drives, or `nil` for the hosted backend.
     public var cliAgent: CLIAgentAIClient.Agent? {
         switch self {
+        case .openRouter: return nil
         case .claudeCLI: return .claude
         case .codexCLI: return .codex
-        case .openRouter: return nil
         }
     }
+
+    /// The backend used until the user picks one. OpenRouter: it's the only
+    /// backend that works on every platform and needs nothing installed, so the
+    /// CLI backends stay an explicit opt-in rather than something auto-detection
+    /// switches on behind the user's back.
+    public static let defaultBackend: AIBackend = .openRouter
 
     /// Backends usable right now: a CLI backend qualifies only if its tool is
     /// installed; OpenRouter is always listed (it just needs a key).
@@ -43,16 +50,6 @@ public enum AIBackend: String, CaseIterable, Sendable, Identifiable {
             return CLIToolLocator.resolve(agent.commandName) != nil
         }
     }
-
-    /// The backend to use before the user has chosen one: the first installed CLI
-    /// (Claude, then Codex), otherwise OpenRouter.
-    public static func detectedDefault() -> AIBackend {
-        if CLIToolLocator.resolve(Agent.claude.commandName) != nil { return .claudeCLI }
-        if CLIToolLocator.resolve(Agent.codex.commandName) != nil { return .codexCLI }
-        return .openRouter
-    }
-
-    private typealias Agent = CLIAgentAIClient.Agent
 }
 
 /// User-facing AI settings that aren't secrets (the API key stays in the
@@ -66,15 +63,14 @@ public struct AIPreferences: @unchecked Sendable {
         self.defaults = defaults
     }
 
-    /// The selected backend. The first time (no stored value), this auto-detects
-    /// an installed CLI so a fresh install plans without any setup.
+    /// The selected backend, defaulting to `AIBackend.defaultBackend` until the
+    /// user chooses otherwise in Settings.
     public var backend: AIBackend {
         get {
-            if let raw = defaults.string(forKey: Self.backendKey),
-               let backend = AIBackend(rawValue: raw) {
-                return backend
-            }
-            return AIBackend.detectedDefault()
+            guard let raw = defaults.string(forKey: Self.backendKey),
+                  let backend = AIBackend(rawValue: raw)
+            else { return AIBackend.defaultBackend }
+            return backend
         }
         nonmutating set {
             defaults.set(newValue.rawValue, forKey: Self.backendKey)
