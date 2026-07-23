@@ -1,6 +1,6 @@
-name: OpenCheck
+name: OpenFocus
 options:
-  bundleIdPrefix: dev.opencheck
+  bundleIdPrefix: dev.openfocus
   deploymentTarget:
     iOS: "26.0"
     macOS: "26.0"
@@ -22,13 +22,13 @@ packages:
 
 # Layered targets. The Xcode project compiles the engine sources directly into
 # framework targets (it does NOT consume the root Package.swift products) so the
-# GUI apps and the `opencheck` tool link the same layers. SwiftData is a system
+# GUI apps and the `openfocus` tool link the same layers. SwiftData is a system
 # framework, auto-linked wherever `import SwiftData` appears.
 targets:
 
   # Pure engine — value types, AI client seam, natural-language date parsing,
   # Keychain. No SwiftData. Shared by every other target. macOS + iOS.
-  OpenCheckCore:
+  OpenFocusCore:
     type: framework
     supportedDestinations: [macOS, iOS]
     sources:
@@ -37,37 +37,37 @@ targets:
       - package: KeychainAccess
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: dev.opencheck.core
+        PRODUCT_BUNDLE_IDENTIFIER: dev.openfocus.core
         GENERATE_INFOPLIST_FILE: YES
 
   # Persistence + stateful services — SwiftData @Model types and ModelContext-bound
   # services (Task/Project/AI) + the CloudKit-ready ModelContainer. macOS + iOS.
-  OpenCheckData:
+  OpenFocusData:
     type: framework
     supportedDestinations: [macOS, iOS]
     sources:
       - path: Sources/Data
     dependencies:
-      - target: OpenCheckCore
+      - target: OpenFocusCore
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: dev.opencheck.data
+        PRODUCT_BUNDLE_IDENTIFIER: dev.openfocus.data
         GENERATE_INFOPLIST_FILE: YES
 
   # CLI command parser + help/usage. Pure, no persistence. macOS only.
-  OpenCheckCLIKit:
+  OpenFocusCLIKit:
     type: framework
     platform: macOS
     sources:
       - path: Sources/CLIKit
     dependencies:
-      - target: OpenCheckCore
+      - target: OpenFocusCore
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: dev.opencheck.clikit
+        PRODUCT_BUNDLE_IDENTIFIER: dev.openfocus.clikit
         GENERATE_INFOPLIST_FILE: YES
 
-  OpenCheck-macOS:
+  OpenFocus-macOS:
     type: application
     platform: macOS
     deploymentTarget: "26.0"
@@ -78,17 +78,17 @@ targets:
       - path: Sources/Platform/macOS
       - path: Resources
     dependencies:
-      - target: OpenCheckCore
-      - target: OpenCheckData
+      - target: OpenFocusCore
+      - target: OpenFocusData
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: dev.opencheck.app.macos
-        PRODUCT_NAME: OpenCheck
+        PRODUCT_BUNDLE_IDENTIFIER: dev.openfocus.app.macos
+        PRODUCT_NAME: OpenFocus
         GENERATE_INFOPLIST_FILE: YES
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
         INFOPLIST_KEY_LSApplicationCategoryType: public.app-category.productivity
-        INFOPLIST_KEY_NSHumanReadableCopyright: "© 2026 OpenCheck"
+        INFOPLIST_KEY_NSHumanReadableCopyright: "© 2026 OpenFocus"
         # Hardened runtime enforces same-Team-ID library validation, which ad-hoc
         # (no-team) signing can't satisfy for the embedded frameworks. Re-enable it
         # for notarized distribution once a real DEVELOPMENT_TEAM is set.
@@ -104,7 +104,7 @@ targets:
             echo "warning: SwiftLint not installed"
           fi
 
-  OpenCheck-iOS:
+  OpenFocus-iOS:
     type: application
     platform: iOS
     deploymentTarget: "26.0"
@@ -115,62 +115,75 @@ targets:
       - path: Sources/Platform/iOS
       - path: Resources
     dependencies:
-      - target: OpenCheckCore
-      - target: OpenCheckData
+      - target: OpenFocusCore
+      - target: OpenFocusData
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: dev.opencheck.app.ios
-        PRODUCT_NAME: OpenCheck
+        PRODUCT_BUNDLE_IDENTIFIER: dev.openfocus.app.ios
+        PRODUCT_NAME: OpenFocus
         GENERATE_INFOPLIST_FILE: YES
         TARGETED_DEVICE_FAMILY: "1,2"
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
+        INFOPLIST_KEY_CFBundleIconName: AppIcon
+        INFOPLIST_KEY_ITSAppUsesNonExemptEncryption: NO
         INFOPLIST_KEY_UILaunchScreen_Generation: YES
         INFOPLIST_KEY_UIApplicationSceneManifest_Generation: YES
+        INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone:
+          - UIInterfaceOrientationPortrait
+          - UIInterfaceOrientationLandscapeLeft
+          - UIInterfaceOrientationLandscapeRight
+        INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad:
+          - UIInterfaceOrientationPortrait
+          - UIInterfaceOrientationPortraitUpsideDown
+          - UIInterfaceOrientationLandscapeLeft
+          - UIInterfaceOrientationLandscapeRight
 
-  # `opencheck` CLI. Compiles Sources/CLI only (the @main entry + SwiftData-backed
+  # `openfocus` CLI. Compiles Sources/CLI only (the @main entry + SwiftData-backed
   # executor) and links the layers it imports. macOS only.
-  opencheck:
+  openfocus:
     type: tool
     platform: macOS
     sources:
       - path: Sources/CLI
     dependencies:
-      - target: OpenCheckCore
-      - target: OpenCheckData
-      - target: OpenCheckCLIKit
+      - target: OpenFocusCore
+      - target: OpenFocusData
+      - target: OpenFocusCLIKit
     settings:
       base:
-        PRODUCT_NAME: opencheck
-        PRODUCT_BUNDLE_IDENTIFIER: dev.opencheck.cli
+        PRODUCT_NAME: openfocus
+        PRODUCT_BUNDLE_IDENTIFIER: dev.openfocus.cli
 
-  OpenCheckCoreTests:
+  OpenFocusCoreTests:
     type: bundle.unit-test
     platform: macOS
     sources:
       - path: Tests/UnitTests
     dependencies:
-      - target: OpenCheckCore
-      - target: OpenCheckCLIKit
+      - target: OpenFocusCore
+      - target: OpenFocusCLIKit
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: dev.opencheck.core.tests
+        PRODUCT_BUNDLE_IDENTIFIER: dev.openfocus.core.tests
         GENERATE_INFOPLIST_FILE: YES
 
 schemes:
-  OpenCheck-macOS:
+  OpenFocus-macOS:
     build:
       targets:
-        OpenCheck-macOS: all
-        OpenCheckCoreTests: [test]
+        OpenFocus-macOS: all
+        OpenFocusCoreTests: [test]
     run:
       config: Debug
     test:
       targets:
-        - OpenCheckCoreTests
-  OpenCheck-iOS:
+        - OpenFocusCoreTests
+  OpenFocus-iOS:
     build:
       targets:
-        OpenCheck-iOS: all
+        OpenFocus-iOS: all
     run:
       config: Debug
+    archive:
+      config: Release

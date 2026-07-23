@@ -1,6 +1,6 @@
 import Foundation
 import SwiftData
-import OpenCheckCore
+import OpenFocusCore
 
 /// AI-native actions over the day's tasks. `@Observable` so the UI can bind to
 /// `planState`; `@MainActor` because it reads tasks from the UI context and

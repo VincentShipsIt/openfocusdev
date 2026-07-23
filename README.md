@@ -1,4 +1,4 @@
-<h1 align="center">OpenCheck</h1>
+<h1 align="center">OpenFocus</h1>
 
 <p align="center">
   <strong>A fast, native, AI-native task manager for Mac & iPhone.</strong><br>
@@ -20,7 +20,7 @@
 ## Why
 
 A to-do app should feel instant, live natively on every Apple device, and quietly
-do the boring parts for you. OpenCheck is a **single SwiftUI codebase** for macOS 26
+do the boring parts for you. OpenFocus is a **single SwiftUI codebase** for macOS 26
 and iOS 26, persisting locally with **SwiftData**, syncing **Mac ↔ iPhone** over
 your private iCloud, and acting on your day through an **AI planning agent**.
 
@@ -30,10 +30,10 @@ A single Swift package with surfaces over one engine:
 
 | Surface        | What it is                                                              |
 | -------------- | ---------------------------------------------------------------------- |
-| `OpenCheckCore`     | The engine: models, AI client seam, natural-language date parsing. No UI, no DB. |
-| `OpenCheckData`     | SwiftData `@Model` types + services + the CloudKit-ready store.        |
-| `OpenCheck`     | The SwiftUI app for **macOS + iOS**, built with Xcode (Liquid Glass).  |
-| `opencheck`         | A scriptable CLI sharing the exact same engine.                        |
+| `OpenFocusCore`     | The engine: models, AI client seam, natural-language date parsing. No UI, no DB. |
+| `OpenFocusData`     | SwiftData `@Model` types + services + the CloudKit-ready store.        |
+| `OpenFocus`     | The SwiftUI app for **macOS + iOS**, built with Xcode (Liquid Glass).  |
+| `openfocus`         | A scriptable CLI sharing the exact same engine.                        |
 
 ## Features
 
@@ -51,12 +51,12 @@ A single Swift package with surfaces over one engine:
 
 ```bash
 brew install xcodegen swiftlint   # one-time
-xcodegen generate                 # project.yml -> OpenCheck.xcodeproj
-open OpenCheck.xcodeproj            # run OpenCheck-macOS or OpenCheck-iOS
+xcodegen generate                 # project.yml -> OpenFocus.xcodeproj
+open OpenFocus.xcodeproj            # run OpenFocus-macOS or OpenFocus-iOS
 
 # or, from the terminal:
-xcodebuild -scheme OpenCheck-macOS -destination 'platform=macOS' build
-swift build && swift test         # pure engine (OpenCheckCore) + CLI
+xcodebuild -scheme OpenFocus-macOS -destination 'platform=macOS' build
+swift build && swift test         # pure engine (OpenFocusCore) + CLI
 ```
 
 ## Status
@@ -70,6 +70,33 @@ swift build && swift test         # pure engine (OpenCheckCore) + CLI
 | AI planning agent | 🔧 engine wired; bring an API key                  |
 
 See [ARCHITECTURE.md](ARCHITECTURE.md) for the design and how to enable iCloud sync.
+
+## TestFlight releases
+
+OpenFocus uses the same Apple credential names as MeterBar, MacSweep, and
+OpenTVTracker. Configure them under the repository Actions settings. The
+upload job itself runs in the protected `release` environment:
+
+| Kind | Name | Purpose |
+| --- | --- | --- |
+| Variable | `APPLE_TEAM_ID` | Apple Developer team used for automatic signing |
+| Variable | `APPLE_API_KEY_ID` | App Store Connect API key identifier |
+| Variable | `APPLE_API_ISSUER_ID` | App Store Connect API issuer identifier |
+| Secret | `APPLE_API_PRIVATE_KEY_P8_BASE64` | Base64-encoded App Store Connect `.p8` private key |
+
+The private key must belong to the key ID and issuer configured above and have
+permission to manage signing assets and upload builds. Keep the raw `.p8` file
+out of the repository.
+
+- Pull requests run an unsigned iPhone Simulator build through `ci.yml`.
+- Pushing a semantic version tag such as `v0.1.0` archives and uploads that
+  commit through `testflight.yml`. The tagged commit must already be on the
+  repository default branch.
+- The TestFlight workflow can also be dispatched manually with an `X.Y.Z`
+  marketing version from a default-branch commit. Its build number is the
+  monotonic GitHub Actions run number.
+- Signing material is decoded only on the ephemeral runner and deleted in the
+  workflow cleanup step.
 
 ## License
 
