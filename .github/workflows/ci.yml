@@ -67,7 +67,7 @@ jobs:
         run: |
           xcodebuild -project OpenFocus.xcodeproj \
             -scheme OpenFocus-iOS \
-            -destination 'platform=iOS Simulator,name=iPhone 17 Pro,OS=latest' \
+            -destination 'generic/platform=iOS Simulator' \
             -derivedDataPath "$RUNNER_TEMP/OpenFocusDerivedData" \
             CODE_SIGNING_ALLOWED=NO \
             build
