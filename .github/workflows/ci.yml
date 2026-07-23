@@ -38,6 +38,8 @@ jobs:
         run: sudo xcode-select -s /Applications/Xcode_26.4.1.app
       - name: Show toolchain
         run: xcodebuild -version
+      - name: Build SwiftData CLI
+        run: swift build --product openfocus
       - name: Install XcodeGen
         run: brew install xcodegen
       - name: Generate project

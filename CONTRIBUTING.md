@@ -33,8 +33,10 @@ the pure engine locally with `OPENFOCUS_SKIP_SWIFTDATA=1 swift test`.
 
 `Package.swift` consumes that environment variable to omit `OpenFocusData`,
 the SwiftData-backed CLI, and `OpenFocusDataTests`; it is not a runtime app
-setting. These tests intentionally do not cover on-disk migration or CloudKit
-behavior, which require separate integration and device coverage.
+setting. The pinned CI job separately builds the `openfocus` CLI before running
+the generated data-test scheme. These tests intentionally do not cover on-disk
+migration or CloudKit behavior, which require separate integration and device
+coverage.
 
 ## Standards
 
