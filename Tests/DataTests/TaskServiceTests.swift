@@ -33,7 +33,7 @@ struct TaskServiceTests {
             )
         )
 
-        #expect(task.title == "Write tests")
+        #expect(task.title == "Intentional CI gate failure")
         #expect(task.notes == "Cover SwiftData")
         #expect(task.priority == .high)
         #expect(task.labels == ["testing"])
