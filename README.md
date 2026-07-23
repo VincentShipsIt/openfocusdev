@@ -71,6 +71,32 @@ swift build && swift test         # pure engine (OpenFocusCore) + CLI
 
 See [ARCHITECTURE.md](ARCHITECTURE.md) for the design and how to enable iCloud sync.
 
+## TestFlight releases
+
+OpenFocus uses the same Apple credential names as MeterBar, MacSweep, and
+OpenTVTracker. Configure them under the repository Actions settings. The
+upload job itself runs in the protected `release` environment:
+
+| Kind | Name | Purpose |
+| --- | --- | --- |
+| Variable | `APPLE_TEAM_ID` | Apple Developer team used for automatic signing |
+| Variable | `APPLE_API_KEY_ID` | App Store Connect API key identifier |
+| Variable | `APPLE_API_ISSUER_ID` | App Store Connect API issuer identifier |
+| Secret | `APPLE_API_PRIVATE_KEY_P8_BASE64` | Base64-encoded App Store Connect `.p8` private key |
+
+The private key must belong to the key ID and issuer configured above and have
+permission to manage signing assets and upload builds. Keep the raw `.p8` file
+out of the repository.
+
+- Pull requests run an unsigned iPhone Simulator build through `ci.yml`.
+- Pushing a semantic version tag such as `v0.1.0` archives and uploads that
+  commit through `testflight.yml`.
+- The TestFlight workflow can also be dispatched manually with an `X.Y.Z`
+  marketing version. Its build number is the monotonic GitHub Actions run
+  number.
+- Signing material is decoded only on the ephemeral runner and deleted in the
+  workflow cleanup step.
+
 ## License
 
 MIT — see [LICENSE](LICENSE).
