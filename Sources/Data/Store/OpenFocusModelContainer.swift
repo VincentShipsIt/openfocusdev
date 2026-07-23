@@ -27,9 +27,14 @@ public enum OpenFocusModelContainer {
         do {
             return try make(inMemory: inMemory)
         } catch {
-            // Last-resort in-memory fallback so a corrupt store never bricks launch.
+            // Keep recovery local-only even after the live store enables CloudKit.
+            let fallback = ModelConfiguration(
+                schema: schema,
+                isStoredInMemoryOnly: true,
+                cloudKitDatabase: .none
+            )
             // swiftlint:disable:next force_try
-            return try! make(inMemory: true)
+            return try! ModelContainer(for: schema, configurations: fallback)
         }
     }
 }

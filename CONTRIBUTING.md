@@ -26,10 +26,15 @@ in-memory launch fallback.
 
 The suite was disabled after Xcode 26.6 test hosts trapped with signal 5 while
 creating or fetching `@Model` instances with both in-memory and temporary-file
-stores. The bounded workaround is to keep SwiftPM focused on the pure engine and
-run the isolated SwiftData suite through its dedicated Xcode scheme in CI.
-These tests intentionally do not cover on-disk migration or CloudKit behavior;
-those require separate integration and device coverage.
+stores. CI currently validates the isolated suite through its dedicated Xcode
+scheme on the supported Xcode 26.4.1 runner. Contributors using a toolchain that
+still reproduces the 26.6 trap should leave SwiftData verification to CI and run
+the pure engine locally with `OPENFOCUS_SKIP_SWIFTDATA=1 swift test`.
+
+`Package.swift` consumes that environment variable to omit `OpenFocusData`,
+the SwiftData-backed CLI, and `OpenFocusDataTests`; it is not a runtime app
+setting. These tests intentionally do not cover on-disk migration or CloudKit
+behavior, which require separate integration and device coverage.
 
 ## Standards
 

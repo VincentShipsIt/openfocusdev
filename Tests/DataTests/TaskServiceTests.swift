@@ -85,7 +85,8 @@ struct TaskServiceTests {
 
     @Test func materializesNextRecurrence() throws {
         let harness = try makeHarness()
-        let calendar = Calendar(identifier: .gregorian)
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = TimeZone(secondsFromGMT: 0) ?? .current
         let dueDate = try #require(
             calendar.date(from: DateComponents(year: 2026, month: 7, day: 23, hour: 9))
         )
