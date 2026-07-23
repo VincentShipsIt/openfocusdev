@@ -69,7 +69,8 @@ swift build && swift test         # pure engine (OpenFocusCore) + CLI
 | iCloud sync       | 🔧 store is CloudKit-ready — flip on with your team |
 | AI planning agent | 🔧 engine wired; bring an API key                  |
 
-See [ARCHITECTURE.md](ARCHITECTURE.md) for the design and how to enable iCloud sync.
+See [ROADMAP.md](ROADMAP.md) for the Todoist-parity plan and
+[ARCHITECTURE.md](ARCHITECTURE.md) for the design and how to enable iCloud sync.
 
 ## TestFlight releases
 
