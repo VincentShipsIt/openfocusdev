@@ -1,23 +1,39 @@
 import SwiftUI
 
 /// The collapsed quick-add affordance: Todoist's floating "+" reimagined as a
-/// labeled glass chip that sits above the tab bar. Small on purpose — it never
-/// competes with the task list. Tapping it (or the macOS ⌘N shortcut) presents
-/// the compose sheet, where the text is parsed on-device.
+/// labeled glass chip that sits above the tab bar. A single accent-tinted glass
+/// capsule split into two zones — "Add task" opens the compose sheet (or the
+/// macOS ⌘N shortcut), and the trailing ✨ triggers "Plan my day". Merging the
+/// AI action in here is what clears the top of the list.
 struct QuickAddChip: View {
-    let action: () -> Void
+    let addAction: () -> Void
+    let planAction: () -> Void
 
     var body: some View {
-        Button(action: action) {
-            Label("Add task", systemImage: "plus")
-                .font(.headline)
-                .padding(.horizontal, AppTheme.Spacing.md)
-                .padding(.vertical, AppTheme.Spacing.sm)
+        HStack(spacing: 0) {
+            Button(action: addAction) {
+                Label("Add task", systemImage: "plus")
+                    .font(.headline)
+                    .padding(.horizontal, AppTheme.Spacing.md)
+                    .padding(.vertical, AppTheme.Spacing.sm)
+            }
+
+            Rectangle()
+                .fill(.white.opacity(0.35))
+                .frame(width: 1, height: 22)
+
+            Button(action: planAction) {
+                Image(systemName: "sparkles")
+                    .font(.headline)
+                    .padding(.horizontal, AppTheme.Spacing.md)
+                    .padding(.vertical, AppTheme.Spacing.sm)
+            }
+            .accessibilityLabel("Plan my day")
         }
-        .buttonStyle(.glassProminent)
-        .tint(.accentColor)
-        .onReceive(NotificationCenter.default.publisher(for: .newTask)) { _ in
-            action()
-        }
+        .buttonStyle(.plain)
+        // Fixed white on the fixed accent tint — this capsule is always brand-red,
+        // so the contrast pairing is the same in light and dark.
+        .foregroundStyle(.white)
+        .glassEffect(.regular.tint(.accentColor).interactive(), in: .capsule)
     }
 }

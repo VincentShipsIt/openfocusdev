@@ -1,11 +1,12 @@
+import Combine
 import SwiftUI
 import SwiftData
 import OpenFocusCore
 import OpenFocusData
 
-/// The detail pane: a filtered task list — or a kanban board — with a glass
-/// quick-add chip and the "Plan my day" AI action. Shared by macOS (split-view
-/// detail) and iOS (tabs).
+/// The detail pane: a filtered task list — or a kanban board — with a split glass
+/// chip that carries both quick-add and the "Plan my day" AI action. Shared by
+/// macOS (split-view detail) and iOS (tabs).
 struct TaskListContainer: View {
     let selection: SidebarSelection
 
@@ -49,28 +50,20 @@ struct TaskListContainer: View {
     /// Tasks in scope for the current selection.
     ///
     /// The list hides completed rows; the board keeps them so its Done column has
-    /// something in it. Every other predicate is shared, so the two layouts always
-    /// show the same set of work.
+    /// something in it. Smart lists route through `SmartList.filter` — the single
+    /// predicate — so this pane and the tab-bar badge can never disagree.
     private func visibleTasks(includeCompleted: Bool = false) -> [TodoTask] {
-        let calendar = Calendar.current
-        let now = Date()
-        let tomorrow = calendar.date(byAdding: .day, value: 1, to: now) ?? now
-        let endOfToday = calendar.startOfDay(for: tomorrow)
-        let ordered = tasks.sorted { $0.order < $1.order }
-        func included(_ task: TodoTask) -> Bool { includeCompleted || !task.isCompleted }
-
         switch selection {
-        case .smart(.today):
-            return ordered.filter { $0.parent == nil && included($0) && ($0.dueDate.map { $0 < endOfToday } ?? false) }
-        case .smart(.upcoming):
-            return ordered.filter { $0.parent == nil && included($0) && ($0.dueDate.map { $0 >= endOfToday } ?? false) }
-        case .smart(.inbox):
-            return ordered.filter { $0.parent == nil && included($0) && $0.project == nil }
-        case .smart(.completed):
-            return ordered.filter(\.isCompleted)
-                .sorted { ($0.completedAt ?? .distantPast) > ($1.completedAt ?? .distantPast) }
+        case .smart(let list):
+            return list.filter(tasks, includeCompleted: includeCompleted)
         case .project(let id):
-            return ordered.filter { $0.parent == nil && included($0) && $0.project?.id == id }
+            return tasks
+                .sorted { $0.order < $1.order }
+                .filter {
+                    $0.parent == nil
+                        && (includeCompleted || !$0.isCompleted)
+                        && $0.project?.id == id
+                }
         }
     }
 
@@ -80,7 +73,7 @@ struct TaskListContainer: View {
                 if !isCompletedList {
                     HStack {
                         Spacer()
-                        QuickAddChip { showingQuickAdd = true }
+                        QuickAddChip(addAction: presentQuickAdd, planAction: planDay)
                     }
                     .padding()
                 }
@@ -92,6 +85,11 @@ struct TaskListContainer: View {
             .toolbar { toolbarContent }
             .sheet(isPresented: $showingPlan) {
                 PlanSheet()
+            }
+            // Belongs to the pane, not the chip: the chip is hidden on Completed,
+            // and ⌘N has to keep opening the compose sheet there too.
+            .onReceive(NotificationCenter.default.publisher(for: .newTask)) { _ in
+                presentQuickAdd()
             }
     }
 
@@ -125,6 +123,8 @@ struct TaskListContainer: View {
         }
     }
 
+    /// Just the layout picker — "Plan my day" moved into the quick-add chip so the
+    /// top of the pane stays clear.
     @ToolbarContentBuilder
     private var toolbarContent: some ToolbarContent {
         if supportsBoard {
@@ -136,15 +136,6 @@ struct TaskListContainer: View {
                 }
                 .pickerStyle(.segmented)
                 .labelsHidden()
-            }
-        }
-
-        ToolbarItem(placement: .primaryAction) {
-            Button {
-                showingPlan = true
-                Task { await aiService.planDay() }
-            } label: {
-                Label("Plan my day", systemImage: "sparkles")
             }
         }
     }
@@ -169,10 +160,19 @@ struct TaskListContainer: View {
         .padding(.top, 80)
     }
 
+    private func presentQuickAdd() {
+        showingQuickAdd = true
+    }
+
     private func submit() {
         let text = quickAddText.trimmingCharacters(in: .whitespaces)
         guard !text.isEmpty else { return }
         aiService.quickAdd(text, project: project)
         quickAddText = ""
+    }
+
+    private func planDay() {
+        showingPlan = true
+        Task { await aiService.planDay() }
     }
 }

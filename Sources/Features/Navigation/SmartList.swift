@@ -40,18 +40,28 @@ extension SmartList {
     /// them. One predicate, so a tab-bar badge count can never disagree with what the
     /// list itself displays. `now`/`calendar` are injectable and let a caller take a
     /// single stable read of "today" across a render pass.
-    func filter(_ tasks: [TodoTask], now: Date = Date(), calendar: Calendar = .current) -> [TodoTask] {
+    ///
+    /// `includeCompleted` is for the board, whose Done column needs the completed
+    /// rows the list drops — same predicate either way, so the two layouts always
+    /// scope to the same work.
+    func filter(
+        _ tasks: [TodoTask],
+        includeCompleted: Bool = false,
+        now: Date = Date(),
+        calendar: Calendar = .current
+    ) -> [TodoTask] {
         let tomorrow = calendar.date(byAdding: .day, value: 1, to: now) ?? now
         let endOfToday = calendar.startOfDay(for: tomorrow)
         let ordered = tasks.sorted { $0.order < $1.order }
+        func included(_ task: TodoTask) -> Bool { includeCompleted || !task.isCompleted }
 
         switch self {
         case .today:
-            return ordered.filter { $0.parent == nil && !$0.isCompleted && ($0.dueDate.map { $0 < endOfToday } ?? false) }
+            return ordered.filter { $0.parent == nil && included($0) && ($0.dueDate.map { $0 < endOfToday } ?? false) }
         case .upcoming:
-            return ordered.filter { $0.parent == nil && !$0.isCompleted && ($0.dueDate.map { $0 >= endOfToday } ?? false) }
+            return ordered.filter { $0.parent == nil && included($0) && ($0.dueDate.map { $0 >= endOfToday } ?? false) }
         case .inbox:
-            return ordered.filter { $0.parent == nil && !$0.isCompleted && $0.project == nil }
+            return ordered.filter { $0.parent == nil && included($0) && $0.project == nil }
         case .completed:
             return ordered.filter(\.isCompleted)
                 .sorted { ($0.completedAt ?? .distantPast) > ($1.completedAt ?? .distantPast) }
