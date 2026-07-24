@@ -95,7 +95,8 @@ out of the repository.
 - The TestFlight workflow can also be dispatched manually with an `X.Y.Z`
   marketing version from a default-branch commit. Its build number uses
   `<run-number>.<run-attempt>` (for example, `42.1`; a rerun becomes `42.2`),
-  so every attempt has a distinct App Store build string.
+  so every attempt has a distinct App Store build string. Reruns are accepted
+  only for the latest TestFlight workflow run, preserving upload order.
 - Signing material is decoded only on the ephemeral runner and deleted in the
   workflow cleanup step.
 

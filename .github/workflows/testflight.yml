@@ -12,6 +12,7 @@ on:
         type: string
 
 permissions:
+  actions: read
   contents: read
 
 concurrency:
@@ -66,6 +67,7 @@ jobs:
       - name: Validate release inputs
         env:
           APPLE_API_PRIVATE_KEY_P8_BASE64: ${{ secrets.APPLE_API_PRIVATE_KEY_P8_BASE64 }}
+          GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
 
@@ -81,6 +83,21 @@ jobs:
             echo "::error::Build number must use <run-number>.<run-attempt>."
             exit 1
           fi
+
+          LATEST_RUN_NUMBER="$(
+            gh api \
+              "repos/$GITHUB_REPOSITORY/actions/workflows/testflight.yml/runs?per_page=1" \
+              --jq ".workflow_runs[0].run_number"
+          )"
+          if [[ ! "$LATEST_RUN_NUMBER" =~ ^[0-9]+$ ]]; then
+            echo "::error::Could not determine the latest TestFlight workflow run."
+            exit 1
+          fi
+          if (( GITHUB_RUN_NUMBER < LATEST_RUN_NUMBER )); then
+            echo "::error::Older TestFlight workflow runs cannot be rerun after a newer run."
+            exit 1
+          fi
+
           if [[ "$BUILD_NUMBER" == "$NEXT_ATTEMPT_BUILD_NUMBER" ]]; then
             echo "::error::Workflow reruns must produce distinct build numbers."
             exit 1
