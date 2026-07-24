@@ -69,7 +69,8 @@ swift build && swift test         # pure engine (OpenFocusCore) + CLI
 | iCloud sync       | 🔧 store is CloudKit-ready — flip on with your team |
 | AI planning agent | 🔧 engine wired; bring an API key                  |
 
-See [ARCHITECTURE.md](ARCHITECTURE.md) for the design and how to enable iCloud sync.
+See [ROADMAP.md](ROADMAP.md) for the Todoist-parity plan and
+[ARCHITECTURE.md](ARCHITECTURE.md) for the design and how to enable iCloud sync.
 
 ## TestFlight releases
 
@@ -93,8 +94,10 @@ out of the repository.
   commit through `testflight.yml`. The tagged commit must already be on the
   repository default branch.
 - The TestFlight workflow can also be dispatched manually with an `X.Y.Z`
-  marketing version from a default-branch commit. Its build number is the
-  monotonic GitHub Actions run number.
+  marketing version from a default-branch commit. Its build number uses
+  `<run-number>.<run-attempt>` (for example, `42.1`; a rerun becomes `42.2`),
+  so every attempt has a distinct App Store build string. Reruns are accepted
+  only for the latest TestFlight workflow run, preserving upload order.
 - Signing material is decoded only on the ephemeral runner and deleted in the
   workflow cleanup step.
 

@@ -76,6 +76,9 @@ public final class AIService {
         case .requestFailed(let status, _): return "The AI request failed (HTTP \(status))."
         case .emptyResponse: return "The AI returned an empty plan."
         case .invalidResponse: return "Unexpected response from the AI endpoint."
+        case .cliNotFound(let tool):
+            return "Couldn't find the \(tool) CLI. Install it, or choose a different AI backend in Settings."
+        case .cliFailed(let detail): return detail
         }
     }
 }
