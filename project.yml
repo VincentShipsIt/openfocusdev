@@ -168,6 +168,19 @@ targets:
         PRODUCT_BUNDLE_IDENTIFIER: dev.openfocus.core.tests
         GENERATE_INFOPLIST_FILE: YES
 
+  OpenFocusDataTests:
+    type: bundle.unit-test
+    platform: macOS
+    sources:
+      - path: Tests/DataTests
+    dependencies:
+      - target: OpenFocusCore
+      - target: OpenFocusData
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: dev.openfocus.data.tests
+        GENERATE_INFOPLIST_FILE: YES
+
 schemes:
   OpenFocus-macOS:
     build:
@@ -179,6 +192,13 @@ schemes:
     test:
       targets:
         - OpenFocusCoreTests
+  OpenFocusDataTests:
+    build:
+      targets:
+        OpenFocusDataTests: [test]
+    test:
+      targets:
+        - OpenFocusDataTests
   OpenFocus-iOS:
     build:
       targets:

@@ -1,3 +1,4 @@
+import Combine
 import SwiftUI
 import SwiftData
 import OpenFocusData
@@ -8,6 +9,8 @@ struct SidebarView: View {
     @Binding var selection: SidebarSelection?
     @Query private var projects: [Project]
     @State private var showingNewProject = false
+    /// Drives Today's numbered icon; a Mac window can stay open across midnight.
+    @State private var today = Date()
 
     private var sortedProjects: [Project] { projects.sorted { $0.order < $1.order } }
 
@@ -15,7 +18,7 @@ struct SidebarView: View {
         List(selection: $selection) {
             Section {
                 ForEach(SmartList.allCases) { item in
-                    Label(item.title, systemImage: item.symbol)
+                    Label(item.title, systemImage: item.symbol(on: today))
                         .tag(SidebarSelection.smart(item))
                 }
             }
@@ -37,5 +40,8 @@ struct SidebarView: View {
             }
         }
         .sheet(isPresented: $showingNewProject) { NewProjectSheet() }
+        .onReceive(NotificationCenter.default.publisher(for: .NSCalendarDayChanged)) { _ in
+            today = Date()
+        }
     }
 }
