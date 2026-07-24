@@ -36,23 +36,17 @@ public final class TaskService {
 
     public func toggleCompletion(_ task: TodoTask) {
         task.toggleCompletion()
-        // Materialize the next occurrence of a recurring task on completion.
-        if task.isCompleted,
-           let rule = task.recurrence,
-           let due = task.dueDate,
-           let next = rule.nextDate(after: due) {
-            let copy = TodoTask(
-                title: task.title,
-                notes: task.notes,
-                dueDate: next,
-                priority: task.priority,
-                labels: task.labels,
-                order: task.order
-            )
-            copy.project = task.project
-            copy.recurrence = rule
-            context.insert(copy)
-        }
+        materializeNextOccurrence(of: task)
+        save()
+    }
+
+    /// Move a task between board columns. `order` is deliberately left alone so a
+    /// column change never reshuffles the shared list ordering.
+    public func move(_ task: TodoTask, to status: TaskStatus) {
+        guard task.status != status else { return }
+        task.status = status
+        task.updatedAt = Date()
+        materializeNextOccurrence(of: task)
         save()
     }
 
@@ -92,6 +86,26 @@ public final class TaskService {
     }
 
     // MARK: - Internals
+
+    /// Materialize the next occurrence of a recurring task once it lands in Done.
+    /// Shared by the list checkmark and the board drop so both behave identically.
+    private func materializeNextOccurrence(of task: TodoTask) {
+        guard task.isCompleted,
+              let rule = task.recurrence,
+              let due = task.dueDate,
+              let next = rule.nextDate(after: due) else { return }
+        let copy = TodoTask(
+            title: task.title,
+            notes: task.notes,
+            dueDate: next,
+            priority: task.priority,
+            labels: task.labels,
+            order: task.order
+        )
+        copy.project = task.project
+        copy.recurrence = rule
+        context.insert(copy)
+    }
 
     private func nextOrder() -> Int {
         (allTasks().map(\.order).max() ?? -1) + 1
