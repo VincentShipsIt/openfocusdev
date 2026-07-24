@@ -14,6 +14,7 @@ struct TaskListContainer: View {
     @Query private var projects: [Project]
 
     @State private var quickAddText = ""
+    @State private var showingQuickAdd = false
     @State private var showingPlan = false
 
     private var project: Project? {
@@ -29,24 +30,13 @@ struct TaskListContainer: View {
     }
 
     private var visibleTasks: [TodoTask] {
-        let calendar = Calendar.current
-        let now = Date()
-        let tomorrow = calendar.date(byAdding: .day, value: 1, to: now) ?? now
-        let endOfToday = calendar.startOfDay(for: tomorrow)
-        let ordered = tasks.sorted { $0.order < $1.order }
-
         switch selection {
-        case .smart(.today):
-            return ordered.filter { $0.parent == nil && !$0.isCompleted && ($0.dueDate.map { $0 < endOfToday } ?? false) }
-        case .smart(.upcoming):
-            return ordered.filter { $0.parent == nil && !$0.isCompleted && ($0.dueDate.map { $0 >= endOfToday } ?? false) }
-        case .smart(.inbox):
-            return ordered.filter { $0.parent == nil && !$0.isCompleted && $0.project == nil }
-        case .smart(.completed):
-            return ordered.filter(\.isCompleted)
-                .sorted { ($0.completedAt ?? .distantPast) > ($1.completedAt ?? .distantPast) }
+        case .smart(let list):
+            return list.filter(tasks)
         case .project(let id):
-            return ordered.filter { $0.parent == nil && !$0.isCompleted && $0.project?.id == id }
+            return tasks
+                .sorted { $0.order < $1.order }
+                .filter { $0.parent == nil && !$0.isCompleted && $0.project?.id == id }
         }
     }
 
@@ -67,9 +57,15 @@ struct TaskListContainer: View {
         }
         .safeAreaInset(edge: .bottom) {
             if !isCompletedList {
-                QuickAddBar(text: $quickAddText, onSubmit: submit)
-                    .padding()
+                HStack {
+                    Spacer()
+                    QuickAddChip { showingQuickAdd = true }
+                }
+                .padding()
             }
+        }
+        .sheet(isPresented: $showingQuickAdd) {
+            QuickAddSheet(text: $quickAddText, onSubmit: submit)
         }
         .navigationTitle(title)
         .toolbar {
@@ -96,7 +92,7 @@ struct TaskListContainer: View {
         ContentUnavailableView(
             "Nothing here",
             systemImage: "checkmark.circle",
-            description: Text("Add a task below — try \"report fri 5pm !!\".")
+            description: Text("Tap Add task — try \"report fri 5pm !!\".")
         )
         .padding(.top, 80)
     }
