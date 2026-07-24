@@ -93,8 +93,9 @@ out of the repository.
   commit through `testflight.yml`. The tagged commit must already be on the
   repository default branch.
 - The TestFlight workflow can also be dispatched manually with an `X.Y.Z`
-  marketing version from a default-branch commit. Its build number is the
-  monotonic GitHub Actions run number.
+  marketing version from a default-branch commit. Its build number uses
+  `<run-number>.<run-attempt>` (for example, `42.1`; a rerun becomes `42.2`),
+  so every attempt has a distinct App Store build string.
 - Signing material is decoded only on the ephemeral runner and deleted in the
   workflow cleanup step.
 

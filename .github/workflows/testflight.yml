@@ -75,6 +75,18 @@ jobs:
             exit 1
           fi
 
+          BUILD_NUMBER="${GITHUB_RUN_NUMBER}.${GITHUB_RUN_ATTEMPT}"
+          NEXT_ATTEMPT_BUILD_NUMBER="${GITHUB_RUN_NUMBER}.$((GITHUB_RUN_ATTEMPT + 1))"
+          if [[ ! "$BUILD_NUMBER" =~ ^[0-9]+\.[0-9]+$ ]]; then
+            echo "::error::Build number must use <run-number>.<run-attempt>."
+            exit 1
+          fi
+          if [[ "$BUILD_NUMBER" == "$NEXT_ATTEMPT_BUILD_NUMBER" ]]; then
+            echo "::error::Workflow reruns must produce distinct build numbers."
+            exit 1
+          fi
+          echo "Validated rerun build numbers: $BUILD_NUMBER, $NEXT_ATTEMPT_BUILD_NUMBER"
+
           missing=()
           [[ -n "$APPLE_TEAM_ID" ]] || missing+=(APPLE_TEAM_ID)
           [[ -n "$APPLE_API_KEY_ID" ]] || missing+=(APPLE_API_KEY_ID)
@@ -87,7 +99,7 @@ jobs:
 
           {
             echo "MARKETING_VERSION=$VERSION"
-            echo "CURRENT_PROJECT_VERSION=$GITHUB_RUN_NUMBER"
+            echo "CURRENT_PROJECT_VERSION=$BUILD_NUMBER"
           } >> "$GITHUB_ENV"
 
       - name: Configure App Store Connect key
