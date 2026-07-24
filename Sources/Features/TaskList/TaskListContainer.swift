@@ -3,8 +3,9 @@ import SwiftData
 import OpenFocusCore
 import OpenFocusData
 
-/// The detail pane: a filtered task list with a glass quick-add bar and the
-/// "Plan my day" AI action. Shared by macOS (split-view detail) and iOS (tabs).
+/// The detail pane: a filtered task list with a split glass chip that carries
+/// both quick-add and the "Plan my day" AI action. Shared by macOS (split-view
+/// detail) and iOS (tabs).
 struct TaskListContainer: View {
     let selection: SidebarSelection
 
@@ -59,7 +60,7 @@ struct TaskListContainer: View {
             if !isCompletedList {
                 HStack {
                     Spacer()
-                    QuickAddChip { showingQuickAdd = true }
+                    QuickAddChip(addAction: { showingQuickAdd = true }, planAction: planDay)
                 }
                 .padding()
             }
@@ -68,16 +69,6 @@ struct TaskListContainer: View {
             QuickAddSheet(text: $quickAddText, onSubmit: submit)
         }
         .navigationTitle(title)
-        .toolbar {
-            ToolbarItem(placement: .primaryAction) {
-                Button {
-                    showingPlan = true
-                    Task { await aiService.planDay() }
-                } label: {
-                    Label("Plan my day", systemImage: "sparkles")
-                }
-            }
-        }
         .sheet(isPresented: $showingPlan) {
             PlanSheet()
         }
@@ -102,5 +93,10 @@ struct TaskListContainer: View {
         guard !text.isEmpty else { return }
         aiService.quickAdd(text, project: project)
         quickAddText = ""
+    }
+
+    private func planDay() {
+        showingPlan = true
+        Task { await aiService.planDay() }
     }
 }
