@@ -22,9 +22,45 @@ jobs:
       - name: Show toolchain
         run: xcodebuild -version
       - name: Build & test pure engine
+        env:
+          OPENFOCUS_SKIP_SWIFTDATA: "1"
         run: |
           swift build
           swift test
+
+  data-tests:
+    name: SwiftData service tests
+    runs-on: macos-26
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+      - name: Select Xcode
+        run: sudo xcode-select -s /Applications/Xcode_26.4.1.app
+      - name: Show toolchain
+        run: xcodebuild -version
+      - name: Build SwiftData CLI
+        run: swift build --product openfocus
+      - name: Install XcodeGen
+        run: brew install xcodegen
+      - name: Generate project
+        run: xcodegen generate
+      - name: Run SwiftData service tests
+        run: |
+          xcodebuild test \
+            -project OpenFocus.xcodeproj \
+            -scheme OpenFocusDataTests \
+            -destination 'platform=macOS' \
+            -derivedDataPath "$RUNNER_TEMP/OpenFocusDerivedData" \
+            -resultBundlePath "$RUNNER_TEMP/OpenFocusDataTests.xcresult" \
+            CODE_SIGNING_ALLOWED=NO
+      - name: Upload test result bundle
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: OpenFocusDataTests-${{ github.sha }}
+          path: ${{ runner.temp }}/OpenFocusDataTests.xcresult
+          if-no-files-found: warn
+          retention-days: 14
 
   app:
     name: App build (macOS)
@@ -65,9 +101,21 @@ jobs:
         run: xcodegen generate
       - name: Build OpenFocus-iOS
         run: |
+          set -o pipefail
           xcodebuild -project OpenFocus.xcodeproj \
             -scheme OpenFocus-iOS \
             -destination 'generic/platform=iOS Simulator' \
             -derivedDataPath "$RUNNER_TEMP/OpenFocusDerivedData" \
+            -resultBundlePath "$RUNNER_TEMP/OpenFocus-iOS.xcresult" \
             CODE_SIGNING_ALLOWED=NO \
-            build
+            build 2>&1 | tee "$RUNNER_TEMP/OpenFocus-iOS-build.log"
+      - name: Retain iOS build diagnostics
+        if: failure()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: OpenFocus-iOS-diagnostics-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            ${{ runner.temp }}/OpenFocus-iOS.xcresult
+            ${{ runner.temp }}/OpenFocus-iOS-build.log
+          if-no-files-found: warn
+          retention-days: 14

@@ -4,7 +4,7 @@ import OpenFocusCore
 import OpenFocusData
 
 /// The detail pane: a filtered task list — or a kanban board — with a glass
-/// quick-add bar and the "Plan my day" AI action. Shared by macOS (split-view
+/// quick-add chip and the "Plan my day" AI action. Shared by macOS (split-view
 /// detail) and iOS (tabs).
 struct TaskListContainer: View {
     let selection: SidebarSelection
@@ -19,6 +19,7 @@ struct TaskListContainer: View {
     /// to the board never writes to the store or syncs to another device.
     @AppStorage private var layout: TaskLayout
     @State private var quickAddText = ""
+    @State private var showingQuickAdd = false
     @State private var showingPlan = false
 
     init(selection: SidebarSelection) {
@@ -77,9 +78,15 @@ struct TaskListContainer: View {
         content
             .safeAreaInset(edge: .bottom) {
                 if !isCompletedList {
-                    QuickAddBar(text: $quickAddText, onSubmit: submit)
-                        .padding()
+                    HStack {
+                        Spacer()
+                        QuickAddChip { showingQuickAdd = true }
+                    }
+                    .padding()
                 }
+            }
+            .sheet(isPresented: $showingQuickAdd) {
+                QuickAddSheet(text: $quickAddText, onSubmit: submit)
             }
             .navigationTitle(title)
             .toolbar { toolbarContent }
@@ -157,7 +164,7 @@ struct TaskListContainer: View {
         ContentUnavailableView(
             "Nothing here",
             systemImage: "checkmark.circle",
-            description: Text("Add a task below — try \"report fri 5pm !!\".")
+            description: Text("Tap Add task — try \"report fri 5pm !!\".")
         )
         .padding(.top, 80)
     }

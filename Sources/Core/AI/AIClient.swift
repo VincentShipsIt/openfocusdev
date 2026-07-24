@@ -20,6 +20,11 @@ public enum AIError: Error, Sendable, Equatable {
     case requestFailed(status: Int, body: String)
     case emptyResponse
     case invalidResponse
+    /// A CLI backend is selected but its tool isn't installed.
+    case cliNotFound(tool: String)
+    /// A CLI backend ran but failed (non-zero exit, timeout, launch error). The
+    /// associated string is a user-facing explanation.
+    case cliFailed(String)
 }
 
 /// The seam every AI feature talks to. Swap the implementation (OpenRouter today,
