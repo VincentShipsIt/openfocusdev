@@ -16,6 +16,28 @@ open OpenFocus.xcodeproj
   `xcodebuild -scheme OpenFocus-macOS -destination 'platform=macOS' build`.
 - Regenerate the project after editing `project.yml`: `xcodegen generate`.
 
+### SwiftData service tests
+
+`OpenFocusDataTests` is a hostless macOS unit-test target generated from
+`project.yml`. Each test creates and retains its own in-memory `ModelContainer`
+through the throwing `OpenFocusModelContainer.make(inMemory:)` entry point.
+The app continues to use `live(inMemory:)`, which preserves its last-resort
+in-memory launch fallback.
+
+The suite was disabled after Xcode 26.6 test hosts trapped with signal 5 while
+creating or fetching `@Model` instances with both in-memory and temporary-file
+stores. CI currently validates the isolated suite through its dedicated Xcode
+scheme on the supported Xcode 26.4.1 runner. Contributors using a toolchain that
+still reproduces the 26.6 trap should leave SwiftData verification to CI and run
+the pure engine locally with `OPENFOCUS_SKIP_SWIFTDATA=1 swift test`.
+
+`Package.swift` consumes that environment variable to omit `OpenFocusData`,
+the SwiftData-backed CLI, and `OpenFocusDataTests`; it is not a runtime app
+setting. The pinned CI job separately builds the `openfocus` CLI before running
+the generated data-test scheme. These tests intentionally do not cover on-disk
+migration or CloudKit behavior, which require separate integration and device
+coverage.
+
 ## Standards
 
 - Swift 5 language mode, 4-space indent, SwiftLint clean (`.swiftlint.yml`).
