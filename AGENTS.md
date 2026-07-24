@@ -5,6 +5,7 @@ Entry point for AI agents working in this repo.
 ## Orientation
 
 - `.agents/memory/MEMORY.md` — repo memory index (direction + hard facts). Start here.
+- [ROADMAP.md](ROADMAP.md) — canonical Todoist-parity scope, status, release sequence, and issue map.
 - [ARCHITECTURE.md](ARCHITECTURE.md) — how the code fits together and the layer boundaries.
 - [CONTRIBUTING.md](CONTRIBUTING.md) and `.swiftlint.yml` — coding standards and dev setup.
 - `.agents/skills/liquid-glass/SKILL.md` — how to apply Liquid Glass correctly (glass is chrome, not wallpaper).
