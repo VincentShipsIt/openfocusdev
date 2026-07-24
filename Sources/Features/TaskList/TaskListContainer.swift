@@ -29,24 +29,13 @@ struct TaskListContainer: View {
     }
 
     private var visibleTasks: [TodoTask] {
-        let calendar = Calendar.current
-        let now = Date()
-        let tomorrow = calendar.date(byAdding: .day, value: 1, to: now) ?? now
-        let endOfToday = calendar.startOfDay(for: tomorrow)
-        let ordered = tasks.sorted { $0.order < $1.order }
-
         switch selection {
-        case .smart(.today):
-            return ordered.filter { $0.parent == nil && !$0.isCompleted && ($0.dueDate.map { $0 < endOfToday } ?? false) }
-        case .smart(.upcoming):
-            return ordered.filter { $0.parent == nil && !$0.isCompleted && ($0.dueDate.map { $0 >= endOfToday } ?? false) }
-        case .smart(.inbox):
-            return ordered.filter { $0.parent == nil && !$0.isCompleted && $0.project == nil }
-        case .smart(.completed):
-            return ordered.filter(\.isCompleted)
-                .sorted { ($0.completedAt ?? .distantPast) > ($1.completedAt ?? .distantPast) }
+        case .smart(let list):
+            return list.filter(tasks)
         case .project(let id):
-            return ordered.filter { $0.parent == nil && !$0.isCompleted && $0.project?.id == id }
+            return tasks
+                .sorted { $0.order < $1.order }
+                .filter { $0.parent == nil && !$0.isCompleted && $0.project?.id == id }
         }
     }
 
