@@ -212,11 +212,17 @@ public final class ReminderService {
             return
         }
 
-        do {
-            for request in desired.values.sorted(by: { $0.identifier < $1.identifier }) {
+        // Schedule each request independently: one scheduler failure (e.g. the OS
+        // pending-notification cap) must not skip the rest of the sorted list.
+        var encounteredFailure = false
+        for request in desired.values.sorted(by: { $0.identifier < $1.identifier }) {
+            do {
                 try await scheduler.schedule(request)
+            } catch {
+                encounteredFailure = true
             }
-        } catch {
+        }
+        if encounteredFailure {
             lastErrorMessage = "OpenFocus could not reconcile all pending reminders."
         }
     }
