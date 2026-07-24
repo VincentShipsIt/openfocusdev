@@ -10,3 +10,4 @@ Direction and hard facts for OpenFocus. One line per fact.
 - **Sync** — store is CloudKit-ready but ships local-only (`cloudKitDatabase: .none`) so it builds with no Apple team. Enable: add iCloud entitlement + team, flip to `.automatic`.
 - **AI** — `AIClient` seam; `OpenRouterAIClient` (OpenAI-compatible) with key in Keychain. NL capture (on-device heuristics first) + `planDay()`. Apple Foundation Models can back the seam later.
 - **Accent** — Todoist-style red (`#DC4C3E`) as the app accent, honoring the Todoist UI reference while staying fully native glass.
+- **Nav** — iOS bottom bar mirrors Todoist: Inbox / Today / Upcoming / Browse (`SmartList.tabs` + `BrowseView`; there is no Projects tab — projects, search and Completed live in Browse). Today's icon is the day-of-month SF Symbol (`CalendarDaySymbol` → `<n>.square`), refreshed on `.NSCalendarDayChanged`. macOS keeps the full sidebar.
