@@ -14,6 +14,7 @@ struct TaskListContainer: View {
     @Query private var projects: [Project]
 
     @State private var quickAddText = ""
+    @State private var showingQuickAdd = false
     @State private var showingPlan = false
 
     private var project: Project? {
@@ -56,9 +57,15 @@ struct TaskListContainer: View {
         }
         .safeAreaInset(edge: .bottom) {
             if !isCompletedList {
-                QuickAddBar(text: $quickAddText, onSubmit: submit)
-                    .padding()
+                HStack {
+                    Spacer()
+                    QuickAddChip { showingQuickAdd = true }
+                }
+                .padding()
             }
+        }
+        .sheet(isPresented: $showingQuickAdd) {
+            QuickAddSheet(text: $quickAddText, onSubmit: submit)
         }
         .navigationTitle(title)
         .toolbar {
@@ -85,7 +92,7 @@ struct TaskListContainer: View {
         ContentUnavailableView(
             "Nothing here",
             systemImage: "checkmark.circle",
-            description: Text("Add a task below — try \"report fri 5pm !!\".")
+            description: Text("Tap Add task — try \"report fri 5pm !!\".")
         )
         .padding(.top, 80)
     }
