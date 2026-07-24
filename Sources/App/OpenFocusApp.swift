@@ -17,6 +17,8 @@ struct OpenFocusApp: App {
                 .environment(container.taskService)
                 .environment(container.projectService)
                 .environment(container.aiService)
+                .environment(container.reminderService)
+                .task { await container.taskService.reconcileReminders() }
         }
         .modelContainer(container.modelContainer)
         .commands { OpenFocusCommands() }
@@ -33,6 +35,8 @@ struct OpenFocusApp: App {
                 .environment(container.taskService)
                 .environment(container.projectService)
                 .environment(container.aiService)
+                .environment(container.reminderService)
+                .task { await container.taskService.reconcileReminders() }
         }
         .modelContainer(container.modelContainer)
         #endif

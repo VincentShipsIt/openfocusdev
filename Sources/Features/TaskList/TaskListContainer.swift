@@ -14,6 +14,7 @@ struct TaskListContainer: View {
     @Query private var projects: [Project]
 
     @State private var quickAddText = ""
+    @State private var quickAddReminderEnabled = false
     @State private var showingPlan = false
 
     private var project: Project? {
@@ -57,7 +58,20 @@ struct TaskListContainer: View {
                     emptyState
                 } else {
                     ForEach(visibleTasks) { task in
-                        TaskRow(task: task) { taskService.toggleCompletion(task) }
+                        TaskRow(
+                            task: task,
+                            onToggle: {
+                                Task { await taskService.toggleCompletion(task) }
+                            },
+                            onToggleReminder: {
+                                Task {
+                                    await taskService.setReminderEnabled(
+                                        !task.reminderEnabled,
+                                        for: task
+                                    )
+                                }
+                            }
+                        )
                         Divider().padding(.leading, 40)
                     }
                 }
@@ -67,7 +81,12 @@ struct TaskListContainer: View {
         }
         .safeAreaInset(edge: .bottom) {
             if !isCompletedList {
-                QuickAddBar(text: $quickAddText, onSubmit: submit)
+                QuickAddBar(
+                    text: $quickAddText,
+                    reminderEnabled: $quickAddReminderEnabled,
+                    reminderAvailable: quickAddHasDueDate,
+                    onSubmit: submit
+                )
                     .padding()
             }
         }
@@ -92,6 +111,10 @@ struct TaskListContainer: View {
         return false
     }
 
+    private var quickAddHasDueDate: Bool {
+        NaturalLanguageTaskParser().parse(quickAddText).dueDate != nil
+    }
+
     private var emptyState: some View {
         ContentUnavailableView(
             "Nothing here",
@@ -104,7 +127,16 @@ struct TaskListContainer: View {
     private func submit() {
         let text = quickAddText.trimmingCharacters(in: .whitespaces)
         guard !text.isEmpty else { return }
-        aiService.quickAdd(text, project: project)
+        let reminderEnabled = quickAddReminderEnabled
+        let selectedProject = project
         quickAddText = ""
+        quickAddReminderEnabled = false
+        Task {
+            await aiService.quickAdd(
+                text,
+                project: selectedProject,
+                reminderEnabled: reminderEnabled
+            )
+        }
     }
 }

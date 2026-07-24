@@ -18,31 +18,53 @@ struct TaskServiceTests {
             .appendingPathComponent("openfocus-test-\(UUID().uuidString).store")
         let config = ModelConfiguration(schema: OpenFocusModelContainer.schema, url: url, cloudKitDatabase: .none)
         let container = try ModelContainer(for: OpenFocusModelContainer.schema, configurations: config)
-        return TaskService(context: container.mainContext)
+        let reminderService = ReminderService(scheduler: NoopReminderScheduler())
+        return TaskService(
+            context: container.mainContext,
+            reminderService: reminderService
+        )
     }
 
-    @Test func createsTask() throws {
+    @Test func createsTask() async throws {
         let svc = try makeService()
-        let task = svc.create(TaskDraft(title: "Write tests", priority: .high))
+        let task = await svc.create(TaskDraft(title: "Write tests", priority: .high))
         #expect(task.title == "Write tests")
         #expect(task.priority == .high)
         #expect(task.isCompleted == false)
     }
 
-    @Test func togglesCompletion() throws {
+    @Test func togglesCompletion() async throws {
         let svc = try makeService()
-        let task = svc.create(TaskDraft(title: "Toggle me"))
-        svc.toggleCompletion(task)
+        let task = await svc.create(TaskDraft(title: "Toggle me"))
+        await svc.toggleCompletion(task)
         #expect(task.isCompleted)
-        svc.toggleCompletion(task)
+        await svc.toggleCompletion(task)
         #expect(!task.isCompleted)
     }
 
-    @Test func todayIncludesDueTasks() throws {
+    @Test func todayIncludesDueTasks() async throws {
         let svc = try makeService()
-        svc.create(TaskDraft(title: "Due now", dueDate: Date()))
-        svc.create(TaskDraft(title: "No date"))
+        await svc.create(TaskDraft(title: "Due now", dueDate: Date()))
+        await svc.create(TaskDraft(title: "No date"))
         #expect(svc.today().contains { $0.title == "Due now" })
         #expect(!svc.today().contains { $0.title == "No date" })
     }
+}
+
+private actor NoopReminderScheduler: ReminderNotificationScheduling {
+    func authorizationStatus() async -> ReminderAuthorizationStatus {
+        .denied
+    }
+
+    func requestAuthorization() async throws -> ReminderAuthorizationStatus {
+        .denied
+    }
+
+    func schedule(_ request: ReminderNotificationRequest) async throws {}
+
+    func pendingRequestIdentifiers() async -> Set<String> {
+        []
+    }
+
+    func removePendingRequests(withIdentifiers identifiers: [String]) async {}
 }

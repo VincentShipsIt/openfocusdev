@@ -1,20 +1,36 @@
 import SwiftUI
+import OpenFocusData
 
 /// iOS shell: a `TabView` (which adopts the Liquid Glass tab bar automatically).
 struct MainTabView: View {
+    @Environment(TaskService.self) private var taskService
+    @Environment(\.scenePhase) private var scenePhase
+
     var body: some View {
         TabView {
             ForEach(SmartList.allCases.filter { $0 != .completed }) { list in
-                NavigationStack {
-                    TaskListContainer(selection: .smart(list))
+                Tab(list.title, systemImage: list.symbol) {
+                    NavigationStack {
+                        TaskListContainer(selection: .smart(list))
+                    }
                 }
-                .tabItem { Label(list.title, systemImage: list.symbol) }
             }
 
-            NavigationStack {
-                ProjectsListView()
+            Tab("Projects", systemImage: "folder") {
+                NavigationStack {
+                    ProjectsListView()
+                }
             }
-            .tabItem { Label("Projects", systemImage: "folder") }
+
+            Tab("Settings", systemImage: "gearshape") {
+                NavigationStack {
+                    SettingsView()
+                }
+            }
+        }
+        .onChange(of: scenePhase) { _, phase in
+            guard phase == .active else { return }
+            Task { await taskService.reconcileReminders() }
         }
     }
 }

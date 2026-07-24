@@ -5,6 +5,8 @@ import Combine
 /// ("report fri 5pm !!" → a dated, prioritized, labeled task).
 struct QuickAddBar: View {
     @Binding var text: String
+    @Binding var reminderEnabled: Bool
+    let reminderAvailable: Bool
     let onSubmit: () -> Void
     @FocusState private var focused: Bool
 
@@ -19,6 +21,17 @@ struct QuickAddBar: View {
                 .focused($focused)
                 .onSubmit(onSubmit)
 
+            Button {
+                reminderEnabled.toggle()
+            } label: {
+                Image(systemName: reminderEnabled ? "bell.fill" : "bell")
+            }
+            .buttonStyle(.plain)
+            .disabled(!reminderAvailable)
+            .accessibilityLabel("Remind at due date")
+            .accessibilityValue(reminderEnabled ? "On" : "Off")
+            .accessibilityHint("Add a date or time to the task before enabling a reminder.")
+
             if !text.trimmingCharacters(in: .whitespaces).isEmpty {
                 Button("Add", action: onSubmit)
                     .buttonStyle(.glassProminent)
@@ -29,6 +42,11 @@ struct QuickAddBar: View {
         .floatingGlassCard()
         .onReceive(NotificationCenter.default.publisher(for: .newTask)) { _ in
             focused = true
+        }
+        .onChange(of: reminderAvailable) { _, isAvailable in
+            if !isAvailable {
+                reminderEnabled = false
+            }
         }
     }
 }
