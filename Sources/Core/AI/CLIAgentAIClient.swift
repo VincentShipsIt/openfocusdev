@@ -40,12 +40,21 @@ public struct CLIAgentAIClient: AIClient {
     }
 
     public func complete(system: String, user: String) async throws -> String {
+        #if os(macOS)
         switch agent {
         case .claude: return try await runClaude(system: system, user: user)
         case .codex: return try await runCodex(system: system, user: user)
         }
+        #else
+        // Local CLI backends drive a subprocess (`Foundation.Process`), which
+        // only exists on macOS. On iOS this client is never constructed — the
+        // locator finds nothing — but the seam still has to compile, so fail
+        // loudly if it is ever reached.
+        throw AIError.cliFailed("Local CLI backends aren't available on this platform.")
+        #endif
     }
 
+    #if os(macOS)
     // MARK: - Claude Code
 
     /// `claude -p` (print / non-interactive). The system prompt is passed as a
@@ -119,8 +128,10 @@ public struct CLIAgentAIClient: AIClient {
         return "The \(agent.commandName) CLI failed (exit \(result.exitCode))\(detail). "
             + "If it isn't signed in yet, run `\(agent.commandName)` once in Terminal to authenticate."
     }
+    #endif
 }
 
+#if os(macOS)
 // MARK: - Process runner
 
 /// The captured result of a finished subprocess.
@@ -252,3 +263,4 @@ private final class ProcessIO: @unchecked Sendable {
     var err: Data { lock.withLock { errData } }
     var timedOut: Bool { lock.withLock { didTimeOut } }
 }
+#endif

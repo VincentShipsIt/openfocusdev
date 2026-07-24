@@ -41,6 +41,7 @@ public enum CLIToolLocator {
     /// the underlying binary, never an alias string. Returns `nil` unless the
     /// shell prints an absolute path to an existing executable.
     private static func loginShellResolve(_ name: String) -> URL? {
+        #if os(macOS)
         let shellPath = ProcessInfo.processInfo.environment["SHELL"] ?? "/bin/zsh"
         let process = Process()
         process.executableURL = URL(fileURLWithPath: shellPath)
@@ -64,5 +65,10 @@ public enum CLIToolLocator {
               FileManager.default.isExecutableFile(atPath: resolved)
         else { return nil }
         return URL(fileURLWithPath: resolved)
+        #else
+        // `Foundation.Process` is macOS-only; iOS can't shell out to resolve a
+        // tool. Directory probing above already returned nil in the sandbox.
+        return nil
+        #endif
     }
 }
