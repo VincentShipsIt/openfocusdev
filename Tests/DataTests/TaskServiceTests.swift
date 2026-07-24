@@ -17,14 +17,17 @@ struct TaskServiceTests {
         let container = try OpenFocusModelContainer.make(inMemory: true)
         return Harness(
             container: container,
-            tasks: TaskService(context: container.mainContext),
+            tasks: TaskService(
+                context: container.mainContext,
+                reminderService: ReminderService(scheduler: NoopReminderScheduler())
+            ),
             projects: ProjectService(context: container.mainContext)
         )
     }
 
-    @Test func createsTask() throws {
+    @Test func createsTask() async throws {
         let harness = try makeHarness()
-        let task = harness.tasks.create(
+        let task = await harness.tasks.create(
             TaskDraft(
                 title: "Write tests",
                 notes: "Cover SwiftData",
@@ -40,11 +43,11 @@ struct TaskServiceTests {
         #expect(!task.isCompleted)
     }
 
-    @Test func updatesTask() throws {
+    @Test func updatesTask() async throws {
         let harness = try makeHarness()
-        let task = harness.tasks.create(TaskDraft(title: "Draft"))
+        let task = await harness.tasks.create(TaskDraft(title: "Draft"))
 
-        harness.tasks.update(task) {
+        await harness.tasks.update(task) {
             $0.title = "Published"
             $0.priority = .urgent
         }
@@ -53,37 +56,37 @@ struct TaskServiceTests {
         #expect(task.priority == .urgent)
     }
 
-    @Test func togglesCompletion() throws {
+    @Test func togglesCompletion() async throws {
         let harness = try makeHarness()
-        let task = harness.tasks.create(TaskDraft(title: "Toggle me"))
+        let task = await harness.tasks.create(TaskDraft(title: "Toggle me"))
 
-        harness.tasks.toggleCompletion(task)
+        await harness.tasks.toggleCompletion(task)
         #expect(task.isCompleted)
 
-        harness.tasks.toggleCompletion(task)
+        await harness.tasks.toggleCompletion(task)
         #expect(!task.isCompleted)
     }
 
-    @Test func deletesTask() throws {
+    @Test func deletesTask() async throws {
         let harness = try makeHarness()
-        let task = harness.tasks.create(TaskDraft(title: "Delete me"))
+        let task = await harness.tasks.create(TaskDraft(title: "Delete me"))
 
-        harness.tasks.delete(task)
+        await harness.tasks.delete(task)
 
         #expect(harness.tasks.allActive().isEmpty)
     }
 
-    @Test func assignsSequentialOrder() throws {
+    @Test func assignsSequentialOrder() async throws {
         let harness = try makeHarness()
-        let first = harness.tasks.create(TaskDraft(title: "First"))
-        let second = harness.tasks.create(TaskDraft(title: "Second"))
+        let first = await harness.tasks.create(TaskDraft(title: "First"))
+        let second = await harness.tasks.create(TaskDraft(title: "Second"))
 
         #expect(first.order == 0)
         #expect(second.order == 1)
         #expect(harness.tasks.allActive().map(\.title) == ["First", "Second"])
     }
 
-    @Test func materializesNextRecurrence() throws {
+    @Test func materializesNextRecurrence() async throws {
         let harness = try makeHarness()
         var calendar = Calendar(identifier: .gregorian)
         calendar.timeZone = TimeZone(secondsFromGMT: 0) ?? .current
@@ -93,10 +96,10 @@ struct TaskServiceTests {
         let expectedNextDate = try #require(
             calendar.date(byAdding: .day, value: 1, to: dueDate)
         )
-        let task = harness.tasks.create(TaskDraft(title: "Daily", dueDate: dueDate))
+        let task = await harness.tasks.create(TaskDraft(title: "Daily", dueDate: dueDate))
         task.recurrence = RecurrenceRule(frequency: .daily)
 
-        harness.tasks.toggleCompletion(task)
+        await harness.tasks.toggleCompletion(task)
 
         let nextTask = try #require(harness.tasks.allActive().first)
         #expect(nextTask.id != task.id)
@@ -105,25 +108,25 @@ struct TaskServiceTests {
         #expect(nextTask.recurrence == task.recurrence)
     }
 
-    @Test func maintainsProjectRelationship() throws {
+    @Test func maintainsProjectRelationship() async throws {
         let harness = try makeHarness()
         let project = harness.projects.create(name: "OpenFocus")
-        let task = harness.tasks.create(TaskDraft(title: "Ship beta"), project: project)
+        let task = await harness.tasks.create(TaskDraft(title: "Ship beta"), project: project)
 
         #expect(task.project === project)
         #expect(project.tasks?.contains { $0 === task } == true)
         #expect(project.activeTaskCount == 1)
     }
 
-    @Test func todayIncludesDueTasks() throws {
+    @Test func todayIncludesDueTasks() async throws {
         let harness = try makeHarness()
         var calendar = Calendar(identifier: .gregorian)
         calendar.timeZone = TimeZone(secondsFromGMT: 0) ?? .current
         let now = try #require(
             calendar.date(from: DateComponents(year: 2026, month: 7, day: 23, hour: 12))
         )
-        harness.tasks.create(TaskDraft(title: "Due now", dueDate: now))
-        harness.tasks.create(TaskDraft(title: "No date"))
+        await harness.tasks.create(TaskDraft(title: "Due now", dueDate: now))
+        await harness.tasks.create(TaskDraft(title: "No date"))
 
         let today = harness.tasks.today(now: now, calendar: calendar)
 
@@ -131,13 +134,31 @@ struct TaskServiceTests {
         #expect(!today.contains { $0.title == "No date" })
     }
 
-    @Test func storesAreIsolated() throws {
+    @Test func storesAreIsolated() async throws {
         let first = try makeHarness()
         let second = try makeHarness()
-        first.tasks.create(TaskDraft(title: "First store only"))
+        await first.tasks.create(TaskDraft(title: "First store only"))
 
         #expect(first.container !== second.container)
         #expect(first.tasks.allActive().count == 1)
         #expect(second.tasks.allActive().isEmpty)
     }
+}
+
+private actor NoopReminderScheduler: ReminderNotificationScheduling {
+    func authorizationStatus() async -> ReminderAuthorizationStatus {
+        .denied
+    }
+
+    func requestAuthorization() async throws -> ReminderAuthorizationStatus {
+        .denied
+    }
+
+    func schedule(_ request: ReminderNotificationRequest) async throws {}
+
+    func pendingRequestIdentifiers() async -> Set<String> {
+        []
+    }
+
+    func removePendingRequests(withIdentifiers identifiers: [String]) async {}
 }

@@ -7,6 +7,7 @@ import OpenFocusData
 struct TaskRow: View {
     let task: TodoTask
     let onToggle: () -> Void
+    let onToggleReminder: () -> Void
 
     var body: some View {
         HStack(alignment: .firstTextBaseline, spacing: AppTheme.Spacing.sm) {
@@ -33,6 +34,12 @@ struct TaskRow: View {
                             .font(.caption)
                             .foregroundStyle(dueColor(due))
                         }
+                        if task.reminderEnabled {
+                            Image(systemName: "bell.fill")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                                .accessibilityLabel("Reminder enabled")
+                        }
                         ForEach(task.labels, id: \.self) { label in
                             Text("#\(label)")
                                 .font(.caption2)
@@ -53,6 +60,16 @@ struct TaskRow: View {
         }
         .padding(.vertical, AppTheme.Spacing.sm)
         .contentShape(Rectangle())
+        .contextMenu {
+            if task.dueDate != nil, !task.isCompleted {
+                Button(
+                    task.reminderEnabled ? "Turn Off Reminder" : "Remind at Due Date",
+                    systemImage: task.reminderEnabled ? "bell.slash" : "bell"
+                ) {
+                    onToggleReminder()
+                }
+            }
+        }
     }
 
     private var dueFormat: Date.FormatStyle {

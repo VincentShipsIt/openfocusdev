@@ -9,19 +9,26 @@ import OpenFocusCore
 @Observable
 public final class TaskService {
     private let context: ModelContext
+    private let reminderService: ReminderService
 
-    public init(context: ModelContext) {
+    public init(context: ModelContext, reminderService: ReminderService) {
         self.context = context
+        self.reminderService = reminderService
     }
 
     // MARK: - Create
 
     @discardableResult
-    public func create(_ draft: TaskDraft, project: Project? = nil) -> TodoTask {
+    public func create(
+        _ draft: TaskDraft,
+        project: Project? = nil,
+        reminderEnabled: Bool = false
+    ) async -> TodoTask {
         let task = TodoTask(
             title: draft.title,
             notes: draft.notes,
             dueDate: draft.dueDate,
+            reminderEnabled: reminderEnabled && draft.dueDate != nil,
             priority: draft.priority,
             labels: draft.labels,
             order: nextOrder()
@@ -29,36 +36,84 @@ public final class TaskService {
         task.project = project
         context.insert(task)
         save()
+        await reminderService.synchronize(
+            reminderSnapshot(for: task),
+            requestAuthorizationIfNeeded: task.reminderEnabled
+        )
         return task
     }
 
     // MARK: - Mutate
 
-    public func toggleCompletion(_ task: TodoTask) {
+    public func toggleCompletion(_ task: TodoTask) async {
         task.toggleCompletion()
-        materializeNextOccurrence(of: task)
+        let nextOccurrence = materializeNextOccurrence(of: task)
         save()
+        await reminderService.synchronize(
+            reminderSnapshot(for: task),
+            requestAuthorizationIfNeeded: false
+        )
+        if let nextOccurrence {
+            await reminderService.synchronize(
+                reminderSnapshot(for: nextOccurrence),
+                requestAuthorizationIfNeeded: false
+            )
+        }
     }
 
     /// Move a task between board columns. `order` is deliberately left alone so a
     /// column change never reshuffles the shared list ordering.
-    public func move(_ task: TodoTask, to status: TaskStatus) {
+    public func move(_ task: TodoTask, to status: TaskStatus) async {
         guard task.status != status else { return }
         task.status = status
         task.updatedAt = Date()
-        materializeNextOccurrence(of: task)
+        let nextOccurrence = materializeNextOccurrence(of: task)
         save()
+        await reminderService.synchronize(
+            reminderSnapshot(for: task),
+            requestAuthorizationIfNeeded: false
+        )
+        if let nextOccurrence {
+            await reminderService.synchronize(
+                reminderSnapshot(for: nextOccurrence),
+                requestAuthorizationIfNeeded: false
+            )
+        }
     }
 
-    public func update(_ task: TodoTask, _ mutate: (TodoTask) -> Void) {
+    public func update(_ task: TodoTask, _ mutate: (TodoTask) -> Void) async {
+        let wasReminderEnabled = task.reminderEnabled
         mutate(task)
+        if task.dueDate == nil {
+            task.reminderEnabled = false
+        }
         task.updatedAt = Date()
         save()
+        await reminderService.synchronize(
+            reminderSnapshot(for: task),
+            requestAuthorizationIfNeeded: !wasReminderEnabled && task.reminderEnabled
+        )
     }
 
-    public func delete(_ task: TodoTask) {
+    public func setReminderEnabled(_ enabled: Bool, for task: TodoTask) async {
+        task.reminderEnabled = enabled && task.dueDate != nil
+        task.updatedAt = Date()
+        save()
+        await reminderService.synchronize(
+            reminderSnapshot(for: task),
+            requestAuthorizationIfNeeded: task.reminderEnabled
+        )
+    }
+
+    public func delete(_ task: TodoTask) async {
+        let taskID = task.id
         context.delete(task)
         save()
+        await reminderService.remove(taskID: taskID)
+    }
+
+    public func reconcileReminders() async {
+        await reminderService.reconcile(allTasks().map(reminderSnapshot(for:)))
     }
 
     // MARK: - Fetch
@@ -89,15 +144,18 @@ public final class TaskService {
 
     /// Materialize the next occurrence of a recurring task once it lands in Done.
     /// Shared by the list checkmark and the board drop so both behave identically.
-    private func materializeNextOccurrence(of task: TodoTask) {
+    /// Returns the new occurrence (if any) so callers can schedule its reminder.
+    @discardableResult
+    private func materializeNextOccurrence(of task: TodoTask) -> TodoTask? {
         guard task.isCompleted,
               let rule = task.recurrence,
               let due = task.dueDate,
-              let next = rule.nextDate(after: due) else { return }
+              let next = rule.nextDate(after: due) else { return nil }
         let copy = TodoTask(
             title: task.title,
             notes: task.notes,
             dueDate: next,
+            reminderEnabled: task.reminderEnabled,
             priority: task.priority,
             labels: task.labels,
             order: task.order
@@ -105,10 +163,21 @@ public final class TaskService {
         copy.project = task.project
         copy.recurrence = rule
         context.insert(copy)
+        return copy
     }
 
     private func nextOrder() -> Int {
         (allTasks().map(\.order).max() ?? -1) + 1
+    }
+
+    private func reminderSnapshot(for task: TodoTask) -> ReminderSnapshot {
+        ReminderSnapshot(
+            id: task.id,
+            title: task.title,
+            dueDate: task.dueDate,
+            isEnabled: task.reminderEnabled,
+            isCompleted: task.isCompleted
+        )
     }
 
     private func save() {

@@ -11,6 +11,7 @@ final class DependencyContainer: ObservableObject {
     let services: OpenFocusServices
 
     var modelContainer: ModelContainer { services.modelContainer }
+    var reminderService: ReminderService { services.reminderService }
     var taskService: TaskService { services.taskService }
     var projectService: ProjectService { services.projectService }
     var aiService: AIService { services.aiService }

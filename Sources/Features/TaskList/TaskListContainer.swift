@@ -19,6 +19,7 @@ struct TaskListContainer: View {
     /// to the board never writes to the store or syncs to another device.
     @AppStorage private var layout: TaskLayout
     @State private var quickAddText = ""
+    @State private var quickAddReminderEnabled = false
     @State private var showingQuickAdd = false
     @State private var showingPlan = false
 
@@ -86,7 +87,12 @@ struct TaskListContainer: View {
                 }
             }
             .sheet(isPresented: $showingQuickAdd) {
-                QuickAddSheet(text: $quickAddText, onSubmit: submit)
+                QuickAddSheet(
+                    text: $quickAddText,
+                    reminderEnabled: $quickAddReminderEnabled,
+                    reminderAvailable: quickAddHasDueDate,
+                    onSubmit: submit
+                )
             }
             .navigationTitle(title)
             .toolbar { toolbarContent }
@@ -102,7 +108,7 @@ struct TaskListContainer: View {
             listContent
         case .board:
             BoardView(tasks: visibleTasks(includeCompleted: true)) { task, status in
-                taskService.move(task, to: status)
+                Task { await taskService.move(task, to: status) }
             }
         }
     }
@@ -115,7 +121,20 @@ struct TaskListContainer: View {
                     emptyState
                 } else {
                     ForEach(visible) { task in
-                        TaskRow(task: task) { taskService.toggleCompletion(task) }
+                        TaskRow(
+                            task: task,
+                            onToggle: {
+                                Task { await taskService.toggleCompletion(task) }
+                            },
+                            onToggleReminder: {
+                                Task {
+                                    await taskService.setReminderEnabled(
+                                        !task.reminderEnabled,
+                                        for: task
+                                    )
+                                }
+                            }
+                        )
                         Divider().padding(.leading, 40)
                     }
                 }
@@ -160,6 +179,10 @@ struct TaskListContainer: View {
         return false
     }
 
+    private var quickAddHasDueDate: Bool {
+        NaturalLanguageTaskParser().parse(quickAddText).dueDate != nil
+    }
+
     private var emptyState: some View {
         ContentUnavailableView(
             "Nothing here",
@@ -172,7 +195,16 @@ struct TaskListContainer: View {
     private func submit() {
         let text = quickAddText.trimmingCharacters(in: .whitespaces)
         guard !text.isEmpty else { return }
-        aiService.quickAdd(text, project: project)
+        let reminderEnabled = quickAddReminderEnabled
+        let selectedProject = project
         quickAddText = ""
+        quickAddReminderEnabled = false
+        Task {
+            await aiService.quickAdd(
+                text,
+                project: selectedProject,
+                reminderEnabled: reminderEnabled
+            )
+        }
     }
 }

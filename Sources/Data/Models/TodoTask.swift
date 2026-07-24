@@ -11,6 +11,7 @@ public final class TodoTask {
     public var title: String = ""
     public var notes: String?
     public var dueDate: Date?
+    public var reminderEnabled: Bool = false
     public var completedAt: Date?
     public var priorityRaw: Int = Priority.medium.rawValue
     /// Board column. `completedAt` still owns done-ness — see `TaskStatus`.
@@ -40,6 +41,7 @@ public final class TodoTask {
         title: String = "",
         notes: String? = nil,
         dueDate: Date? = nil,
+        reminderEnabled: Bool = false,
         priority: Priority = .medium,
         labels: [String] = [],
         order: Int = 0
@@ -48,6 +50,7 @@ public final class TodoTask {
         self.title = title
         self.notes = notes
         self.dueDate = dueDate
+        self.reminderEnabled = reminderEnabled
         self.priorityRaw = priority.rawValue
         self.labels = labels
         self.order = order

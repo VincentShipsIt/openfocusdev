@@ -9,6 +9,7 @@ import OpenFocusCore
 public final class OpenFocusServices {
     public let modelContainer: ModelContainer
     public let keychain: KeychainService
+    public let reminderService: ReminderService
     public let aiPreferences: AIPreferences
     public let taskService: TaskService
     public let projectService: ProjectService
@@ -24,7 +25,9 @@ public final class OpenFocusServices {
         self.aiPreferences = aiPreferences
 
         let context = modelContainer.mainContext
-        let taskService = TaskService(context: context)
+        let reminderService = ReminderService(scheduler: UserNotificationScheduler())
+        self.reminderService = reminderService
+        let taskService = TaskService(context: context, reminderService: reminderService)
         self.taskService = taskService
         self.projectService = ProjectService(context: context)
 

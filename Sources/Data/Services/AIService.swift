@@ -25,11 +25,20 @@ public final class AIService {
         self.taskService = taskService
     }
 
-    /// On-device natural-language capture → a task. Synchronous, no network.
+    /// On-device natural-language capture → a task. Parsing is local; reminder
+    /// delivery may require the system notification authorization prompt.
     @discardableResult
-    public func quickAdd(_ text: String, project: Project? = nil) -> TodoTask {
+    public func quickAdd(
+        _ text: String,
+        project: Project? = nil,
+        reminderEnabled: Bool = false
+    ) async -> TodoTask {
         let draft = NaturalLanguageTaskParser().parse(text)
-        return taskService.create(draft, project: project)
+        return await taskService.create(
+            draft,
+            project: project,
+            reminderEnabled: reminderEnabled
+        )
     }
 
     /// Ask the planning agent to order today's tasks. Drives `planState`.

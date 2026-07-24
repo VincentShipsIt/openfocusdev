@@ -7,6 +7,7 @@ import OpenFocusData
 /// adopts the Liquid Glass tab bar automatically, so there is no custom chrome
 /// here on purpose.
 struct MainTabView: View {
+    @Environment(TaskService.self) private var taskService
     /// Drives the Today tab's numbered icon. Refreshed when the calendar day rolls
     /// over, and again on foreground in case the app was suspended across midnight.
     @State private var today = Date()
@@ -30,12 +31,20 @@ struct MainTabView: View {
                     BrowseView()
                 }
             }
+
+            Tab("Settings", systemImage: "gearshape") {
+                NavigationStack {
+                    SettingsView()
+                }
+            }
         }
         .onReceive(NotificationCenter.default.publisher(for: .NSCalendarDayChanged)) { _ in
             today = Date()
         }
         .onChange(of: scenePhase) { _, phase in
-            if phase == .active { today = Date() }
+            guard phase == .active else { return }
+            today = Date()
+            Task { await taskService.reconcileReminders() }
         }
     }
 
