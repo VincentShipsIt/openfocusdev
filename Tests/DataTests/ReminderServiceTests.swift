@@ -25,6 +25,55 @@ struct ReminderServiceTests {
         #expect(service.authorizationStatus == .denied)
     }
 
+    // MARK: - Standalone authorization (the Settings entry point)
+
+    @Test
+    func requestingAuthorizationDirectlyPromptsAndRecordsTheAnswer() async {
+        let scheduler = MockReminderScheduler(
+            status: .notDetermined,
+            requestedStatus: .authorized
+        )
+        let service = ReminderService(scheduler: scheduler)
+
+        await service.requestAuthorization()
+        let snapshot = await scheduler.snapshot()
+
+        #expect(snapshot.authorizationRequests == 1)
+        #expect(service.authorizationStatus == .authorized)
+        #expect(service.lastErrorMessage == nil)
+        // Nothing to schedule — Settings asks for permission, not for a reminder.
+        #expect(snapshot.scheduled.isEmpty)
+    }
+
+    @Test
+    func requestingAuthorizationRecordsADenial() async {
+        let scheduler = MockReminderScheduler(
+            status: .notDetermined,
+            requestedStatus: .denied
+        )
+        let service = ReminderService(scheduler: scheduler)
+
+        await service.requestAuthorization()
+
+        #expect(service.authorizationStatus == .denied)
+        #expect(service.lastErrorMessage == nil)
+    }
+
+    @Test
+    func requestingAuthorizationSurfacesAFailureWithoutLosingTheStatus() async {
+        let scheduler = MockReminderScheduler(
+            status: .denied,
+            requestShouldFail: true
+        )
+        let service = ReminderService(scheduler: scheduler)
+
+        await service.requestAuthorization()
+
+        #expect(service.lastErrorMessage != nil)
+        // Falls back to reading the real status rather than leaving a stale one.
+        #expect(service.authorizationStatus == .denied)
+    }
+
     @Test
     func enablingReminderRequestsAuthorizationAndSchedules() async {
         let dueDate = Date().addingTimeInterval(3_600)

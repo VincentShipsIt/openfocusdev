@@ -142,19 +142,27 @@ struct TaskListContainer: View {
         }
     }
 
-    /// Just the layout picker — "Plan my day" moved into the quick-add chip so the
+    /// Just the layout switch — "Plan my day" moved into the quick-add chip so the
     /// top of the pane stays clear.
+    ///
+    /// A menu, not a segmented control: iOS 26 gives every toolbar item its own
+    /// glass background, so an icon-only segmented picker rendered as two separate
+    /// pills under the title that read like unlabelled tabs. One button, and the
+    /// layouts get named in words when you open it.
     @ToolbarContentBuilder
     private var toolbarContent: some ToolbarContent {
         if supportsBoard {
             ToolbarItem(placement: .primaryAction) {
-                Picker("Layout", selection: $layout) {
-                    ForEach(TaskLayout.allCases) { option in
-                        Label(option.title, systemImage: option.symbol).tag(option)
+                Menu {
+                    Picker("Layout", selection: $layout) {
+                        ForEach(TaskLayout.allCases) { option in
+                            Label(option.title, systemImage: option.symbol).tag(option)
+                        }
                     }
+                    .pickerStyle(.inline)
+                } label: {
+                    Label("Layout", systemImage: effectiveLayout.symbol)
                 }
-                .pickerStyle(.segmented)
-                .labelsHidden()
             }
         }
     }
