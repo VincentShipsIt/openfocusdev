@@ -21,16 +21,18 @@ struct BrowseView: View {
     var body: some View {
         List {
             Section("Projects") {
-                if filteredProjects.isEmpty {
-                    Text(query.isEmpty ? "No projects yet — tap + to create one." : "No matching projects.")
-                        .foregroundStyle(.secondary)
-                } else {
-                    ForEach(filteredProjects) { project in
-                        NavigationLink(value: SidebarSelection.project(project.id)) {
-                            Label(project.name, systemImage: project.symbol)
-                                .foregroundStyle(Color(hex: project.colorHex))
-                        }
+                ForEach(filteredProjects) { project in
+                    NavigationLink(value: SidebarSelection.project(project.id)) {
+                        Label(project.name, systemImage: project.symbol)
+                            .foregroundStyle(Color(hex: project.colorHex))
                     }
+                }
+
+                if query.isEmpty {
+                    addProjectRow
+                } else if filteredProjects.isEmpty {
+                    Text("No matching projects.")
+                        .foregroundStyle(.secondary)
                 }
             }
 
@@ -43,14 +45,17 @@ struct BrowseView: View {
         .navigationDestination(for: SidebarSelection.self) { selection in
             TaskListContainer(selection: selection)
         }
-        .toolbar {
-            ToolbarItem(placement: .primaryAction) {
-                Button { showingNewProject = true } label: {
-                    Label("New Project", systemImage: "plus")
-                }
-            }
-        }
         .sheet(isPresented: $showingNewProject) { NewProjectSheet() }
+    }
+
+    /// Todoist's "+ Add project" — inline at the foot of the list rather than a
+    /// toolbar button, so creating a project reads as part of the project list.
+    /// Always present when not searching, which also replaces the empty state.
+    private var addProjectRow: some View {
+        Button { showingNewProject = true } label: {
+            Label("Add project", systemImage: "plus")
+                .foregroundStyle(Color.accentColor)
+        }
     }
 
     private func row(for list: SmartList) -> some View {
