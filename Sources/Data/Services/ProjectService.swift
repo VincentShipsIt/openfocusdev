@@ -23,6 +23,23 @@ public final class ProjectService {
         return project
     }
 
+    /// Resolve a typed `#project` token to a real project, creating one on a miss.
+    ///
+    /// Matching is case-insensitive so "#Work" and "#work" don't end up as two
+    /// projects, and creating on a miss is the point of the syntax — `#reading`
+    /// should file the task without a detour through the project sheet. Returns
+    /// nil only for a blank name, which is what a bare `#` produces.
+    @discardableResult
+    public func findOrCreate(named name: String) -> Project? {
+        let trimmed = name.trimmingCharacters(in: .whitespaces)
+        guard !trimmed.isEmpty else { return nil }
+
+        let existing = allProjects().first {
+            $0.name.localizedCaseInsensitiveCompare(trimmed) == .orderedSame
+        }
+        return existing ?? create(name: trimmed)
+    }
+
     public func delete(_ project: Project) {
         context.delete(project)
         save()

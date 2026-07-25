@@ -15,13 +15,15 @@ struct TaskServiceTests {
 
     private func makeHarness() throws -> Harness {
         let container = try OpenFocusModelContainer.make(inMemory: true)
+        let projects = ProjectService(context: container.mainContext)
         return Harness(
             container: container,
             tasks: TaskService(
                 context: container.mainContext,
-                reminderService: ReminderService(scheduler: NoopReminderScheduler())
+                reminderService: ReminderService(scheduler: NoopReminderScheduler()),
+                projectService: projects
             ),
-            projects: ProjectService(context: container.mainContext)
+            projects: projects
         )
     }
 
@@ -116,6 +118,53 @@ struct TaskServiceTests {
         #expect(task.project === project)
         #expect(project.tasks?.contains { $0 === task } == true)
         #expect(project.activeTaskCount == 1)
+    }
+
+    @Test func draftProjectNameMatchesAnExistingProject() async throws {
+        let harness = try makeHarness()
+        let project = harness.projects.create(name: "Work")
+        let task = await harness.tasks.create(
+            TaskDraft(title: "Email boss", projectName: "work")
+        )
+
+        #expect(task.project === project)
+        #expect(harness.projects.all().count == 1)
+    }
+
+    @Test func draftProjectNameCreatesAMissingProject() async throws {
+        let harness = try makeHarness()
+        let task = await harness.tasks.create(
+            TaskDraft(title: "Read Dune", projectName: "Reading")
+        )
+
+        #expect(task.project?.name == "Reading")
+        #expect(harness.projects.all().count == 1)
+    }
+
+    /// A typed `#project` is a deliberate instruction; the `project:` argument is
+    /// only the list the user happened to be looking at, so the token wins.
+    @Test func draftProjectNameOverridesThePassedProject() async throws {
+        let harness = try makeHarness()
+        let inbox = harness.projects.create(name: "Inbox")
+        let task = await harness.tasks.create(
+            TaskDraft(title: "Fix leak", projectName: "Home"),
+            project: inbox
+        )
+
+        #expect(task.project?.name == "Home")
+        #expect(task.project !== inbox)
+    }
+
+    @Test func blankDraftProjectNameFallsBackToThePassedProject() async throws {
+        let harness = try makeHarness()
+        let project = harness.projects.create(name: "Work")
+        let task = await harness.tasks.create(
+            TaskDraft(title: "Standup", projectName: "  "),
+            project: project
+        )
+
+        #expect(task.project === project)
+        #expect(harness.projects.all().count == 1)
     }
 
     @Test func todayIncludesDueTasks() async throws {

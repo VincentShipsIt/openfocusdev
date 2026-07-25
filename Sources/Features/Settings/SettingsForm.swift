@@ -1,6 +1,9 @@
 import SwiftUI
 import OpenFocusCore
 import OpenFocusData
+#if os(iOS)
+import UIKit
+#endif
 
 /// The settings form itself, shared by the macOS Settings scene and the iOS
 /// Settings sheet so the two can't drift. Platform chrome — window sizing, the
@@ -8,6 +11,8 @@ import OpenFocusData
 struct SettingsForm: View {
     @EnvironmentObject private var container: DependencyContainer
     @AppStorage(AppearanceMode.storageKey) private var appearance: AppearanceMode = .defaultMode
+    @AppStorage(UserProfile.displayNameKey) private var displayName = ""
+    @Environment(\.openURL) private var openURL
     @State private var backend: AIBackend = .defaultBackend
     @State private var availableBackends: [AIBackend] = AIBackend.allCases
     @State private var apiKey = ""
@@ -24,6 +29,7 @@ struct SettingsForm: View {
 
     var body: some View {
         Form {
+            profileSection
             appearanceSection
             notificationSection
             backendSection
@@ -46,6 +52,23 @@ struct SettingsForm: View {
             // first render, and skip it entirely where CLIs can't run.
             guard allowsLocalShell else { return }
             availableBackends = await Task.detached { AIBackend.available() }.value
+        }
+    }
+
+    // MARK: - Profile
+
+    /// There is no account behind this — the name only sets the initials on the
+    /// avatar, which is why it's a plain text field and not a sign-in.
+    private var profileSection: some View {
+        Section {
+            HStack(spacing: AppTheme.Spacing.md) {
+                ProfileAvatar(displayName: displayName, diameter: 56)
+                TextField("Your name", text: $displayName)
+                    .font(.title3)
+                    .textFieldStyle(.plain)
+            }
+            .padding(.vertical, AppTheme.Spacing.xs)
+            caption("Only used for the avatar. Nothing leaves this device.")
         }
     }
 
@@ -87,6 +110,16 @@ struct SettingsForm: View {
                     "Reminders are off. Turn notifications on for OpenFocus in your "
                         + "system settings to get them back."
                 )
+                #if os(iOS)
+                // Once denied, the app can't ask again — the only way back is the
+                // system settings page, so link straight to it.
+                Button("Open System Settings", systemImage: "gear") {
+                    guard let url = URL(string: UIApplication.openSettingsURLString) else {
+                        return
+                    }
+                    openURL(url)
+                }
+                #endif
             case .authorized, .provisional, .ephemeral:
                 caption("Tasks with a due date and a reminder will notify you when they're due.")
             }

@@ -1,14 +1,17 @@
 import SwiftUI
 import SwiftData
+import OpenFocusCore
 import OpenFocusData
 
 /// iOS "Browse" tab — Todoist's fourth tab. Everything that isn't a bottom-bar
-/// list lives here: search, the project list, Completed, and the way into Settings
-/// (iOS has no Settings scene, so the gear has to live in the app's own chrome).
+/// list lives here: search, the project list, Completed, and the way into the
+/// profile page (iOS has no Settings scene, so the avatar in this view's chrome is
+/// the app's only entry point to settings).
 struct BrowseView: View {
     @Query private var projects: [Project]
+    @AppStorage(UserProfile.displayNameKey) private var displayName = ""
     @State private var showingNewProject = false
-    @State private var showingSettings = false
+    @State private var showingProfile = false
     @State private var searchText = ""
 
     private var sortedProjects: [Project] { projects.sorted { $0.order < $1.order } }
@@ -53,7 +56,7 @@ struct BrowseView: View {
             TaskListContainer(selection: selection)
         }
         .sheet(isPresented: $showingNewProject) { NewProjectSheet() }
-        .sheet(isPresented: $showingSettings) { SettingsScreen() }
+        .sheet(isPresented: $showingProfile) { ProfileScreen() }
     }
 
     /// `.primaryAction` rather than `.topBarTrailing`: this view is compiled into
@@ -61,9 +64,12 @@ struct BrowseView: View {
     @ToolbarContentBuilder
     private var toolbarContent: some ToolbarContent {
         ToolbarItem(placement: .primaryAction) {
-            Button { showingSettings = true } label: {
-                Label("Settings", systemImage: "gearshape")
+            Button { showingProfile = true } label: {
+                // The avatar is the label, so no glass background behind it — the
+                // circle already reads as a button at this size.
+                ProfileAvatar(displayName: displayName)
             }
+            .buttonStyle(.plain)
         }
     }
 

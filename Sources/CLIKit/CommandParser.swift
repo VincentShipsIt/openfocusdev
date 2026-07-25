@@ -27,7 +27,8 @@ public enum OpenFocusCommand: Equatable {
     OpenFocus — terminal companion to the app (shared engine, shared store).
 
     Usage:
-      openfocus add <text>   Add a task. Natural language works: "report fri 5pm !!"
+      openfocus add <text>   Add a task. Natural language works:
+                             "report fri 5pm !1 #work @review"
       openfocus list         List today's and overdue tasks
       openfocus help         Show this help
     """

@@ -10,20 +10,31 @@ import OpenFocusCore
 public final class TaskService {
     private let context: ModelContext
     private let reminderService: ReminderService
+    private let projectService: ProjectService
 
-    public init(context: ModelContext, reminderService: ReminderService) {
+    public init(
+        context: ModelContext,
+        reminderService: ReminderService,
+        projectService: ProjectService
+    ) {
         self.context = context
         self.reminderService = reminderService
+        self.projectService = projectService
     }
 
     // MARK: - Create
 
+    /// - Parameter project: where the task lands unless the draft names one. A
+    ///   typed `#project` wins over this: it's the more specific instruction, and
+    ///   the caller's value is only ever the list the user happened to be viewing.
     @discardableResult
     public func create(
         _ draft: TaskDraft,
         project: Project? = nil,
         reminderEnabled: Bool = false
     ) async -> TodoTask {
+        let resolvedProject = draft.projectName
+            .flatMap { projectService.findOrCreate(named: $0) } ?? project
         let task = TodoTask(
             title: draft.title,
             notes: draft.notes,
@@ -33,7 +44,7 @@ public final class TaskService {
             labels: draft.labels,
             order: nextOrder()
         )
-        task.project = project
+        task.project = resolvedProject
         context.insert(task)
         save()
         await reminderService.synchronize(

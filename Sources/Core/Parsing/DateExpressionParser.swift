@@ -1,9 +1,10 @@
 import Foundation
 
 /// On-device natural-language parser for quick-add. Turns strings like
-/// "submit report fri 5pm !! #work" into a `TaskDraft` with no network call.
-/// Deliberately conservative: it extracts what it is confident about (dates,
-/// times, priority bangs, labels) and leaves everything else in the title.
+/// "submit report fri 5pm !1 #work @review" into a `TaskDraft` with no network
+/// call. Deliberately conservative: it extracts what it is confident about
+/// (dates, times, `!` priority, `#project`, `@label`) and leaves everything else
+/// in the title.
 public struct DateExpressionParser: Sendable {
     public var calendar: Calendar
     public var now: Date
@@ -17,6 +18,7 @@ public struct DateExpressionParser: Sendable {
         let words = input.split(separator: " ").map(String.init)
         var priority: Priority = .medium
         var labels: [String] = []
+        var projectName: String?
         var dueDate: Date?
         var timeOfDay: (hour: Int, minute: Int)?
         var consumed = Set<Int>()
@@ -27,7 +29,15 @@ public struct DateExpressionParser: Sendable {
             if !raw.isEmpty, raw.allSatisfy({ $0 == "!" }) {
                 priority = raw.count >= 2 ? .urgent : .high
                 consumed.insert(index)
-            } else if raw.count > 1, raw.hasPrefix("#") || raw.hasPrefix("@") {
+            } else if let level = priorityLevel(for: raw) {
+                priority = level
+                consumed.insert(index)
+            } else if raw.count > 1, raw.hasPrefix("#") {
+                // Last one wins: a second `#` reads as a correction, and a task
+                // belongs to exactly one project.
+                projectName = String(raw.dropFirst())
+                consumed.insert(index)
+            } else if raw.count > 1, raw.hasPrefix("@") {
                 labels.append(String(raw.dropFirst()))
                 consumed.insert(index)
             } else if let day = relativeDay(for: word) {
@@ -68,11 +78,26 @@ public struct DateExpressionParser: Sendable {
             title: title.isEmpty ? input : title,
             dueDate: dueDate,
             priority: priority,
-            labels: labels
+            labels: labels,
+            projectName: projectName
         )
     }
 
     // MARK: - Helpers
+
+    /// Todoist's numeric scale, where `!1` is the most urgent. Levels outside 1–4
+    /// return nil so the token stays in the title — "!5" is far likelier a typo
+    /// than a request for a fifth level, and silently clamping it would hide that.
+    private func priorityLevel(for raw: String) -> Priority? {
+        guard raw.count == 2, raw.hasPrefix("!") else { return nil }
+        switch raw.last {
+        case "1": return .urgent
+        case "2": return .high
+        case "3": return .medium
+        case "4": return .low
+        default: return nil
+        }
+    }
 
     private func relativeDay(for word: String) -> Date? {
         switch word {
