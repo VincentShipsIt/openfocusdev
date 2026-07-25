@@ -145,7 +145,10 @@ struct TaskServiceTests {
     }
 }
 
-private actor NoopReminderScheduler: ReminderNotificationScheduling {
+/// Shared no-op scheduler for the DataTests target — used by TaskServiceTests,
+/// SectionServiceTests, and ProjectHierarchyTests. Target-internal (not `private`)
+/// so every suite in the module can build a `ReminderService` without notifications.
+actor NoopReminderScheduler: ReminderNotificationScheduling {
     func authorizationStatus() async -> ReminderAuthorizationStatus {
         .denied
     }
