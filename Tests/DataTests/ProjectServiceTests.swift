@@ -62,6 +62,34 @@ struct ProjectServiceTests {
         #expect(service.all().isEmpty)
     }
 
+    /// Typing `#work` where an archived "Work" exists brings it back rather than
+    /// creating a second project with the same name — a duplicate name would make
+    /// every later `#work` ambiguous, and filing into a hidden project would make
+    /// the task look lost.
+    @Test func findOrCreateRestoresAnArchivedMatch() throws {
+        let service = try makeService()
+        let archived = service.create(name: "Work")
+        service.archive(archived)
+
+        let resolved = service.findOrCreate(named: "work")
+
+        #expect(resolved === archived)
+        #expect(archived.isArchived == false)
+        #expect(service.all().count == 1)
+    }
+
+    /// With both an archived and a live project of the same name, the live one wins
+    /// and the archived one stays archived.
+    @Test func findOrCreatePrefersALiveMatchOverAnArchivedOne() throws {
+        let service = try makeService()
+        let archived = service.create(name: "Work")
+        service.archive(archived)
+        let live = service.create(name: "Work")
+
+        #expect(service.findOrCreate(named: "Work") === live)
+        #expect(archived.isArchived)
+    }
+
     @Test func deleteRemovesTheProject() throws {
         let service = try makeService()
         let project = service.create(name: "Work")

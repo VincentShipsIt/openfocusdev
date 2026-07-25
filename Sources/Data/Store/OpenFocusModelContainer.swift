@@ -7,7 +7,7 @@ import SwiftData
 /// `.none` to `.automatic` (see ARCHITECTURE.md). The model graph is already
 /// CloudKit-compatible, so that single flip is enough.
 public enum OpenFocusModelContainer {
-    public static let schema = Schema([TodoTask.self, Project.self])
+    public static let schema = Schema([TodoTask.self, Project.self, ProjectSection.self])
 
     /// Builds a container without recovery. Tests use this entry point so a
     /// persistence setup failure is reported instead of silently falling back.
