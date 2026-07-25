@@ -86,6 +86,14 @@ targets:
         # platforms is what makes this one App Store product (Universal Purchase),
         # lets the two share an iCloud container, and lets Handoff pair them.
         # Don't re-add a .macos/.ios suffix — it splits the app in two.
+        #
+        # Safe to change now because nothing has shipped: no git tags, no GitHub
+        # releases, and no App Store or TestFlight build ever went out under the old
+        # dev.openfocus.app.macos / dev.openfocus.app.ios ids, so there is no install
+        # base to migrate. After the first release this becomes a one-way door — a
+        # SwiftData store lives in a directory keyed to the bundle id, so changing it
+        # again would leave users' tasks behind unless the container is pointed at the
+        # legacy store URL explicitly.
         PRODUCT_BUNDLE_IDENTIFIER: dev.openfocus.app
         PRODUCT_NAME: OpenFocus
         GENERATE_INFOPLIST_FILE: YES

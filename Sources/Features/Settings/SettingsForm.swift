@@ -202,7 +202,14 @@ struct SettingsForm: View {
     private var aboutSection: some View {
         Section("About") {
             LabeledContent("Version", value: Self.versionString)
-            caption("Tasks live on this device only — nothing is uploaded.")
+            // Planning is the one thing that leaves the device, and it leaves through
+            // whichever backend is selected above — the CLI backends included, since
+            // they talk to their own provider. Claiming "nothing is uploaded" would be
+            // false the moment anyone taps Plan.
+            caption(
+                "Your tasks are stored on this device. Text you send to AI planning goes to "
+                    + "the provider behind the backend you picked above."
+            )
         }
     }
 
