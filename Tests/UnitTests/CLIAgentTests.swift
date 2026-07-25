@@ -14,59 +14,7 @@ import Testing
     }
 }
 
-@Suite struct AIBackendTests {
-    @Test func roundTripsRawValue() {
-        for backend in AIBackend.allCases {
-            #expect(AIBackend(rawValue: backend.rawValue) == backend)
-        }
-    }
-
-    @Test func mapsToTheRightCLIAgent() {
-        #expect(AIBackend.claudeCLI.cliAgent == .claude)
-        #expect(AIBackend.codexCLI.cliAgent == .codex)
-        #expect(AIBackend.openRouter.cliAgent == nil)
-    }
-
-    @Test func openRouterIsAlwaysAvailable() {
-        #expect(AIBackend.available().contains(.openRouter))
-    }
-
-    /// OpenRouter is the shipped default; the CLI backends are opt-in and must
-    /// never be selected by auto-detection alone.
-    @Test func defaultBackendIsOpenRouter() {
-        #expect(AIBackend.defaultBackend == .openRouter)
-    }
-
-    @Test func preferencesDefaultToOpenRouterWhenUnset() {
-        withScratchDefaults { defaults in
-            #expect(AIPreferences(defaults: defaults).backend == .openRouter)
-        }
-    }
-
-    @Test func preferencesFallBackToTheDefaultForAnUnknownStoredValue() {
-        withScratchDefaults { defaults in
-            defaults.set("some_retired_backend", forKey: "ai.backend")
-            #expect(AIPreferences(defaults: defaults).backend == .openRouter)
-        }
-    }
-
-    @Test func preferencesRoundTripBackend() {
-        withScratchDefaults { defaults in
-            let prefs = AIPreferences(defaults: defaults)
-            prefs.backend = .codexCLI
-            #expect(AIPreferences(defaults: defaults).backend == .codexCLI)
-        }
-    }
-
-    /// Run `body` against an isolated `UserDefaults` suite, torn down afterwards
-    /// so tests never touch (or leak into) the real app domain.
-    private func withScratchDefaults(_ body: (UserDefaults) -> Void) {
-        let suiteName = "openfocus.tests.\(UUID().uuidString)"
-        let defaults = UserDefaults(suiteName: suiteName)!
-        defer { defaults.removePersistentDomain(forName: suiteName) }
-        body(defaults)
-    }
-}
+// `AIBackend` and `AIPreferences` are covered in `AIBackendTests.swift`.
 
 @Suite struct CLIAgentAIClientTests {
     /// Claude mode: system prompt is a flag, user message is piped on stdin, and

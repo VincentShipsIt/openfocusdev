@@ -3,6 +3,30 @@ import Testing
 @testable import OpenFocusCore
 
 @Suite struct AIBackendTests {
+    // MARK: - Identity
+
+    @Test func roundTripsRawValue() {
+        for backend in AIBackend.allCases {
+            #expect(AIBackend(rawValue: backend.rawValue) == backend)
+        }
+    }
+
+    @Test func mapsToTheRightCLIAgent() {
+        #expect(AIBackend.claudeCLI.cliAgent == .claude)
+        #expect(AIBackend.codexCLI.cliAgent == .codex)
+        #expect(AIBackend.openRouter.cliAgent == nil)
+    }
+
+    @Test func openRouterIsAlwaysAvailable() {
+        #expect(AIBackend.available().contains(.openRouter))
+    }
+
+    /// OpenRouter is the shipped default; the CLI backends are opt-in and must
+    /// never be selected by auto-detection alone.
+    @Test func defaultBackendIsOpenRouter() {
+        #expect(AIBackend.defaultBackend == .openRouter)
+    }
+
     // MARK: - requiresLocalShell
 
     @Test func onlyTheCLIBackendsNeedAShell() {
@@ -44,35 +68,47 @@ import Testing
 
     // MARK: - AIPreferences
 
-    /// Isolated defaults so these never touch the developer's real preferences.
-    private func preferences(allowsLocalShell: Bool) -> (AIPreferences, UserDefaults) {
-        let suite = UserDefaults(suiteName: "AIBackendTests.\(UUID().uuidString)")!
-        return (AIPreferences(defaults: suite, allowsLocalShell: allowsLocalShell), suite)
-    }
-
     @Test func unsetPreferenceReadsAsTheDefaultBackend() {
-        let (prefs, _) = preferences(allowsLocalShell: true)
-        #expect(prefs.backend == AIBackend.defaultBackend)
+        withPreferences(allowsLocalShell: true) { prefs, _ in
+            #expect(prefs.backend == AIBackend.defaultBackend)
+        }
     }
 
     @Test func roundTripsASelectionOnMac() {
-        let (prefs, _) = preferences(allowsLocalShell: true)
-        prefs.backend = .codexCLI
-        #expect(prefs.backend == .codexCLI)
+        withPreferences(allowsLocalShell: true) { prefs, defaults in
+            prefs.backend = .codexCLI
+            // Re-read through a fresh instance: the round trip has to survive the
+            // store, not just the in-memory property.
+            #expect(AIPreferences(defaults: defaults, allowsLocalShell: true).backend == .codexCLI)
+        }
     }
 
     @Test func storedCLIBackendNeverReachesTheClientWithoutAShell() {
         // The write is kept verbatim — a Mac and an iPhone can share defaults — but
         // the read resolves to something that actually works here.
-        let (prefs, suite) = preferences(allowsLocalShell: false)
-        prefs.backend = .claudeCLI
-        #expect(suite.string(forKey: "ai.backend") == AIBackend.claudeCLI.rawValue)
-        #expect(prefs.backend == .openRouter)
+        withPreferences(allowsLocalShell: false) { prefs, defaults in
+            prefs.backend = .claudeCLI
+            #expect(defaults.string(forKey: "ai.backend") == AIBackend.claudeCLI.rawValue)
+            #expect(prefs.backend == .openRouter)
+        }
     }
 
     @Test func garbledStoredValueFallsBackToTheDefault() {
-        let (prefs, suite) = preferences(allowsLocalShell: true)
-        suite.set("gpt-9", forKey: "ai.backend")
-        #expect(prefs.backend == AIBackend.defaultBackend)
+        withPreferences(allowsLocalShell: true) { prefs, defaults in
+            defaults.set("some_retired_backend", forKey: "ai.backend")
+            #expect(prefs.backend == AIBackend.defaultBackend)
+        }
+    }
+
+    /// Run `body` against an isolated `UserDefaults` suite, torn down afterwards so
+    /// tests never touch — or leak into — the real app domain.
+    private func withPreferences(
+        allowsLocalShell: Bool,
+        _ body: (AIPreferences, UserDefaults) -> Void
+    ) {
+        let suiteName = "openfocus.tests.\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: suiteName)!
+        defer { defaults.removePersistentDomain(forName: suiteName) }
+        body(AIPreferences(defaults: defaults, allowsLocalShell: allowsLocalShell), defaults)
     }
 }
