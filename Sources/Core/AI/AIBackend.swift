@@ -36,6 +36,9 @@ public enum AIBackend: String, CaseIterable, Sendable, Identifiable {
         }
     }
 
+    /// Whether this backend has to spawn a local process to answer.
+    public var requiresLocalShell: Bool { cliAgent != nil }
+
     /// The backend used until the user picks one. OpenRouter: it's the only
     /// backend that works on every platform and needs nothing installed, so the
     /// CLI backends stay an explicit opt-in rather than something auto-detection
@@ -50,6 +53,20 @@ public enum AIBackend: String, CaseIterable, Sendable, Identifiable {
             return CLIToolLocator.resolve(agent.commandName) != nil
         }
     }
+
+    /// The backends worth showing the user. Pass `allowsLocalShell: false` on
+    /// platforms with no shell to spawn — the CLI backends are dropped entirely
+    /// rather than shown disabled, so there's nothing to pick that can only fail.
+    public static func offered(allowsLocalShell: Bool) -> [AIBackend] {
+        allowsLocalShell ? allCases : allCases.filter { !$0.requiresLocalShell }
+    }
+
+    /// The backend actually usable for `stored` on this platform. A CLI choice that
+    /// arrived from a Mac (shared defaults, a restored backup, an older build) falls
+    /// back to the default instead of failing every request on iOS.
+    public static func resolved(_ stored: AIBackend, allowsLocalShell: Bool) -> AIBackend {
+        offered(allowsLocalShell: allowsLocalShell).contains(stored) ? stored : defaultBackend
+    }
 }
 
 /// User-facing AI settings that aren't secrets (the API key stays in the
@@ -57,20 +74,39 @@ public enum AIBackend: String, CaseIterable, Sendable, Identifiable {
 /// closure off the main actor.
 public struct AIPreferences: @unchecked Sendable {
     private let defaults: UserDefaults
+    private let allowsLocalShell: Bool
     private static let backendKey = "ai.backend"
 
-    public init(defaults: UserDefaults = .standard) {
+    /// Whether this platform can run a local CLI at all. iOS is sandboxed with no
+    /// shell, so the CLI backends are neither offered nor honoured there. One
+    /// constant, read by both this type and the Settings form.
+    public static let platformAllowsLocalShell: Bool = {
+        #if os(macOS)
+        return true
+        #else
+        return false
+        #endif
+    }()
+
+    public init(
+        defaults: UserDefaults = .standard,
+        allowsLocalShell: Bool = AIPreferences.platformAllowsLocalShell
+    ) {
         self.defaults = defaults
+        self.allowsLocalShell = allowsLocalShell
     }
 
     /// The selected backend, defaulting to `AIBackend.defaultBackend` until the
     /// user chooses otherwise in Settings.
+    ///
+    /// The stored value is resolved against the platform on the way out, so a CLI
+    /// backend can never reach `RoutingAIClient` somewhere it can't run.
     public var backend: AIBackend {
         get {
             guard let raw = defaults.string(forKey: Self.backendKey),
-                  let backend = AIBackend(rawValue: raw)
+                  let stored = AIBackend(rawValue: raw)
             else { return AIBackend.defaultBackend }
-            return backend
+            return AIBackend.resolved(stored, allowsLocalShell: allowsLocalShell)
         }
         nonmutating set {
             defaults.set(newValue.rawValue, forKey: Self.backendKey)

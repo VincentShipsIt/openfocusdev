@@ -26,15 +26,11 @@ struct MainTabView: View {
                 .badge(badgeCount(for: list))
             }
 
+            // Settings deliberately has no tab: it lives behind Browse's profile
+            // avatar, so there's exactly one settings surface to keep in step.
             Tab("Browse", systemImage: "square.grid.2x2") {
                 NavigationStack {
                     BrowseView()
-                }
-            }
-
-            Tab("Settings", systemImage: "gearshape") {
-                NavigationStack {
-                    SettingsView()
                 }
             }
         }

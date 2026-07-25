@@ -23,6 +23,31 @@ public final class ProjectService {
         return project
     }
 
+    /// Resolve a typed `#project` token to a real project, creating one on a miss.
+    ///
+    /// Matching is case-insensitive so "#Work" and "#work" don't end up as two
+    /// projects, and creating on a miss is the point of the syntax — `#reading`
+    /// should file the task without a detour through the project sheet. Returns
+    /// nil only for a blank name, which is what a bare `#` produces.
+    ///
+    /// An archived match is restored rather than shadowed by a new project: two
+    /// projects sharing a name would make every later `#work` ambiguous, and
+    /// filing into a hidden project would make the task look lost.
+    @discardableResult
+    public func findOrCreate(named name: String) -> Project? {
+        let trimmed = name.trimmingCharacters(in: .whitespaces)
+        guard !trimmed.isEmpty else { return nil }
+
+        let matches = allProjects().filter {
+            $0.name.localizedCaseInsensitiveCompare(trimmed) == .orderedSame
+        }
+        guard let existing = matches.first(where: { !$0.isArchived }) ?? matches.first else {
+            return create(name: trimmed)
+        }
+        restore(existing)
+        return existing
+    }
+
     /// Create a nested project under `parent`. Returns `nil` — creating nothing —
     /// when `parent` is already at the deepest supported level, so the caller can
     /// surface "can't nest any deeper" instead of silently building an invalid tree.

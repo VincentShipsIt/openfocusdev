@@ -23,11 +23,45 @@ import Testing
         #expect(parser().parse("call dentist !").priority == .high)
     }
 
-    @Test func parsesAndStripsLabels() {
+    @Test(arguments: [
+        ("!1", Priority.urgent),
+        ("!2", Priority.high),
+        ("!3", Priority.medium),
+        ("!4", Priority.low),
+    ])
+    func numberedBangSetsPriority(token: String, expected: Priority) {
+        let draft = parser().parse("file taxes \(token)")
+        #expect(draft.title == "file taxes")
+        #expect(draft.priority == expected)
+    }
+
+    /// Out-of-range levels are far likelier typos than a request for a fifth
+    /// priority, so they stay in the title instead of being clamped silently.
+    @Test func unknownBangLevelStaysInTitle() {
+        let draft = parser().parse("fix build !5")
+        #expect(draft.title == "fix build !5")
+        #expect(draft.priority == .medium)
+    }
+
+    @Test func hashAssignsProjectAndAtAssignsLabels() {
         let draft = parser().parse("email boss #work @urgent")
-        #expect(draft.labels.contains("work"))
-        #expect(draft.labels.contains("urgent"))
+        #expect(draft.projectName == "work")
+        #expect(draft.labels == ["urgent"])
         #expect(draft.title == "email boss")
+    }
+
+    /// A second `#` reads as a correction, not a second project — a task belongs
+    /// to exactly one.
+    @Test func lastProjectTokenWins() {
+        let draft = parser().parse("draft memo #home #work")
+        #expect(draft.projectName == "work")
+        #expect(draft.title == "draft memo")
+    }
+
+    @Test func bareHashIsNotAProject() {
+        let draft = parser().parse("count the # of rows")
+        #expect(draft.projectName == nil)
+        #expect(draft.title == "count the # of rows")
     }
 
     @Test func parsesTomorrow() {

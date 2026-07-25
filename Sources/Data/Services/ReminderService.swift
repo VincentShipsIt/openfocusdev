@@ -142,6 +142,22 @@ public final class ReminderService {
         authorizationStatus = await scheduler.authorizationStatus()
     }
 
+    /// Ask for notification permission on its own, without a reminder to schedule.
+    ///
+    /// `synchronize` already prompts when the first reminder needs it, but that
+    /// leaves Settings unable to explain itself: on `notDetermined` the app doesn't
+    /// appear in the system notification list yet, so "enable it in Settings" is
+    /// wrong advice. Callers read `authorizationStatus` afterwards.
+    public func requestAuthorization() async {
+        lastErrorMessage = nil
+        do {
+            authorizationStatus = try await scheduler.requestAuthorization()
+        } catch {
+            lastErrorMessage = "OpenFocus could not request notification permission."
+            authorizationStatus = await scheduler.authorizationStatus()
+        }
+    }
+
     public func synchronize(
         _ reminder: ReminderSnapshot,
         requestAuthorizationIfNeeded: Bool

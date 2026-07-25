@@ -21,6 +21,10 @@ struct TaskListContainer: View {
     @AppStorage private var layout: TaskLayout
     @State private var quickAddText = ""
     @State private var quickAddReminderEnabled = false
+    /// Which project the compose sheet is filing into. Seeded from the current
+    /// selection each time the sheet opens, so adding from inside a project lands
+    /// there by default.
+    @State private var quickAddProjectID: UUID?
     @State private var showingQuickAdd = false
     @State private var showingPlan = false
 
@@ -83,7 +87,8 @@ struct TaskListContainer: View {
                 QuickAddSheet(
                     text: $quickAddText,
                     reminderEnabled: $quickAddReminderEnabled,
-                    reminderAvailable: quickAddHasDueDate,
+                    projectID: $quickAddProjectID,
+                    projects: projects.sorted { $0.order < $1.order },
                     onSubmit: submit
                 )
             }
@@ -142,19 +147,30 @@ struct TaskListContainer: View {
         }
     }
 
-    /// Just the layout picker — "Plan my day" moved into the quick-add chip so the
+    /// Just the layout switch — "Plan my day" moved into the quick-add chip so the
     /// top of the pane stays clear.
+    ///
+    /// A menu, not a segmented control: iOS 26 gives every toolbar item its own
+    /// glass background, so an icon-only segmented picker rendered as two separate
+    /// pills under the title that read like unlabelled tabs. One button, and the
+    /// layouts get named in words when you open it.
     @ToolbarContentBuilder
     private var toolbarContent: some ToolbarContent {
         if supportsBoard {
             ToolbarItem(placement: .primaryAction) {
-                Picker("Layout", selection: $layout) {
-                    ForEach(TaskLayout.allCases) { option in
-                        Label(option.title, systemImage: option.symbol).tag(option)
+                Menu {
+                    Picker("Layout", selection: $layout) {
+                        ForEach(TaskLayout.allCases) { option in
+                            Label(option.title, systemImage: option.symbol).tag(option)
+                        }
                     }
+                    .pickerStyle(.inline)
+                } label: {
+                    // Icon-only explicitly: the toolbar's glass pill is tight, and
+                    // the `Label` still carries "Layout" for VoiceOver.
+                    Label("Layout", systemImage: effectiveLayout.symbol)
+                        .labelStyle(.iconOnly)
                 }
-                .pickerStyle(.segmented)
-                .labelsHidden()
             }
         }
     }
@@ -170,20 +186,19 @@ struct TaskListContainer: View {
         return false
     }
 
-    private var quickAddHasDueDate: Bool {
-        NaturalLanguageTaskParser().parse(quickAddText).dueDate != nil
-    }
-
     private var emptyState: some View {
         ContentUnavailableView(
             "Nothing here",
             systemImage: "checkmark.circle",
-            description: Text("Tap Add task — try \"report fri 5pm !!\".")
+            description: Text("Tap Add task — try \"report fri 5pm !1 #work\".")
         )
         .padding(.top, 80)
     }
 
     private func presentQuickAdd() {
+        // Opening quick-add inside a project files into it by default; the sheet's
+        // picker and a typed `#token` can still override.
+        quickAddProjectID = project?.id
         showingQuickAdd = true
     }
 
@@ -191,9 +206,12 @@ struct TaskListContainer: View {
         let text = quickAddText.trimmingCharacters(in: .whitespaces)
         guard !text.isEmpty else { return }
         let reminderEnabled = quickAddReminderEnabled
-        let selectedProject = project
+        // The picked project, falling back to the pane's own — a `#project` in the
+        // text still outranks both, resolved in `TaskService.create`.
+        let selectedProject = projects.first { $0.id == quickAddProjectID } ?? project
         quickAddText = ""
         quickAddReminderEnabled = false
+        quickAddProjectID = nil
         Task {
             await aiService.quickAdd(
                 text,

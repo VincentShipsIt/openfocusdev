@@ -25,9 +25,17 @@ struct SidebarView: View {
 
             Section("Projects") {
                 ForEach(sortedProjects) { project in
-                    Label(project.name, systemImage: project.symbol)
-                        .foregroundStyle(Color(hex: project.colorHex))
-                        .tag(SidebarSelection.project(project.id))
+                    // Colour on the glyph only, matching iOS Browse — a tinted
+                    // sidebar label loses contrast against the selection highlight.
+                    Label {
+                        Text(project.name)
+                    } icon: {
+                        Image(systemName: project.symbol)
+                            .foregroundStyle(Color(hex: project.colorHex))
+                    }
+                    .tag(SidebarSelection.project(project.id))
+                    // Matches the iOS Browse list; zero renders nothing.
+                    .badge(project.activeTaskCount)
                 }
             }
         }

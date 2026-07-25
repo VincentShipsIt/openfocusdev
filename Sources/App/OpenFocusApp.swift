@@ -18,15 +18,19 @@ struct OpenFocusApp: App {
                 .environment(container.projectService)
                 .environment(container.aiService)
                 .environment(container.reminderService)
+                .storedAppearance()
                 .task { await container.taskService.reconcileReminders() }
         }
         .modelContainer(container.modelContainer)
         .commands { OpenFocusCommands() }
         .defaultSize(width: 1100, height: 720)
 
+        // Its own scene, so it needs the appearance override applied separately —
+        // `preferredColorScheme` only reaches the window it's attached to.
         Settings {
             SettingsView()
                 .environmentObject(container)
+                .storedAppearance()
         }
         #else
         WindowGroup {
@@ -36,6 +40,7 @@ struct OpenFocusApp: App {
                 .environment(container.projectService)
                 .environment(container.aiService)
                 .environment(container.reminderService)
+                .storedAppearance()
                 .task { await container.taskService.reconcileReminders() }
         }
         .modelContainer(container.modelContainer)

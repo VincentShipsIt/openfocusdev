@@ -28,9 +28,16 @@ public final class OpenFocusServices {
         let context = modelContainer.mainContext
         let reminderService = ReminderService(scheduler: UserNotificationScheduler())
         self.reminderService = reminderService
-        let taskService = TaskService(context: context, reminderService: reminderService)
+        // Projects first: `TaskService` resolves a typed `#project` through it, so
+        // it has to exist before the task service is built.
+        let projectService = ProjectService(context: context)
+        self.projectService = projectService
+        let taskService = TaskService(
+            context: context,
+            reminderService: reminderService,
+            projectService: projectService
+        )
         self.taskService = taskService
-        self.projectService = ProjectService(context: context)
         self.sectionService = SectionService(context: context)
 
         // Route to whichever backend Settings selects (OpenRouter by default, or

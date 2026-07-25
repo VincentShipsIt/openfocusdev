@@ -17,13 +17,16 @@ struct SectionServiceTests {
     private func makeHarness() throws -> Harness {
         let container = try OpenFocusModelContainer.make(inMemory: true)
         let context = container.mainContext
+        // Projects first: `TaskService` resolves a typed `#project` through it.
+        let projects = ProjectService(context: context)
         return Harness(
             container: container,
             tasks: TaskService(
                 context: context,
-                reminderService: ReminderService(scheduler: NoopReminderScheduler())
+                reminderService: ReminderService(scheduler: NoopReminderScheduler()),
+                projectService: projects
             ),
-            projects: ProjectService(context: context),
+            projects: projects,
             sections: SectionService(context: context)
         )
     }
