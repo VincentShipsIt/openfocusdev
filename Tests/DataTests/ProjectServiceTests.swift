@@ -7,13 +7,22 @@ import SwiftData
 @MainActor
 @Suite
 struct ProjectServiceTests {
-    private func makeService() throws -> ProjectService {
+    /// Holds the container alongside the service: `mainContext` doesn't keep its
+    /// container alive, so returning the service on its own lets the store
+    /// deallocate mid-test and crashes the runner.
+    private struct Harness {
+        let container: ModelContainer
+        let projects: ProjectService
+    }
+
+    private func makeHarness() throws -> Harness {
         let container = try OpenFocusModelContainer.make(inMemory: true)
-        return ProjectService(context: container.mainContext)
+        return Harness(container: container, projects: ProjectService(context: container.mainContext))
     }
 
     @Test func createAssignsSequentialOrder() throws {
-        let service = try makeService()
+        let harness = try makeHarness()
+        let service = harness.projects
         let first = service.create(name: "Work")
         let second = service.create(name: "Home")
 
@@ -23,7 +32,8 @@ struct ProjectServiceTests {
     }
 
     @Test func findOrCreateReturnsAnExistingProject() throws {
-        let service = try makeService()
+        let harness = try makeHarness()
+        let service = harness.projects
         let existing = service.create(name: "Work")
 
         #expect(service.findOrCreate(named: "Work") === existing)
@@ -34,7 +44,8 @@ struct ProjectServiceTests {
     /// near-duplicate on every capitalization slip.
     @Test(arguments: ["work", "WORK", "  Work  "])
     func findOrCreateMatchesCaseAndWhitespaceInsensitively(input: String) throws {
-        let service = try makeService()
+        let harness = try makeHarness()
+        let service = harness.projects
         let existing = service.create(name: "Work")
 
         #expect(service.findOrCreate(named: input) === existing)
@@ -42,7 +53,8 @@ struct ProjectServiceTests {
     }
 
     @Test func findOrCreateCreatesOnAMiss() throws {
-        let service = try makeService()
+        let harness = try makeHarness()
+        let service = harness.projects
         service.create(name: "Work")
 
         let created = service.findOrCreate(named: "Reading")
@@ -56,7 +68,8 @@ struct ProjectServiceTests {
     /// an unlabelled row in Browse with no way to fix it.
     @Test(arguments: ["", "   "])
     func findOrCreateRejectsABlankName(input: String) throws {
-        let service = try makeService()
+        let harness = try makeHarness()
+        let service = harness.projects
 
         #expect(service.findOrCreate(named: input) == nil)
         #expect(service.all().isEmpty)
@@ -67,7 +80,8 @@ struct ProjectServiceTests {
     /// every later `#work` ambiguous, and filing into a hidden project would make
     /// the task look lost.
     @Test func findOrCreateRestoresAnArchivedMatch() throws {
-        let service = try makeService()
+        let harness = try makeHarness()
+        let service = harness.projects
         let archived = service.create(name: "Work")
         service.archive(archived)
 
@@ -81,7 +95,8 @@ struct ProjectServiceTests {
     /// With both an archived and a live project of the same name, the live one wins
     /// and the archived one stays archived.
     @Test func findOrCreatePrefersALiveMatchOverAnArchivedOne() throws {
-        let service = try makeService()
+        let harness = try makeHarness()
+        let service = harness.projects
         let archived = service.create(name: "Work")
         service.archive(archived)
         let live = service.create(name: "Work")
@@ -91,7 +106,8 @@ struct ProjectServiceTests {
     }
 
     @Test func deleteRemovesTheProject() throws {
-        let service = try makeService()
+        let harness = try makeHarness()
+        let service = harness.projects
         let project = service.create(name: "Work")
 
         service.delete(project)
