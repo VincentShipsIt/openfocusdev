@@ -13,6 +13,7 @@ public final class OpenFocusServices {
     public let aiPreferences: AIPreferences
     public let taskService: TaskService
     public let projectService: ProjectService
+    public let sectionService: SectionService
     public let aiService: AIService
 
     public init(
@@ -30,6 +31,7 @@ public final class OpenFocusServices {
         let taskService = TaskService(context: context, reminderService: reminderService)
         self.taskService = taskService
         self.projectService = ProjectService(context: context)
+        self.sectionService = SectionService(context: context)
 
         // Route to whichever backend Settings selects (OpenRouter by default, or
         // a local agent CLI if the user opts in), resolved fresh per call.

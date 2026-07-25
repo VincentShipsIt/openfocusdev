@@ -32,6 +32,9 @@ public final class TodoTask {
 
     // Relationships — optional for CloudKit. Self-relation for subtasks + project.
     public var project: Project?
+    /// Section within `project`, when the task is filed under a project header.
+    /// Nil means the project's unsectioned area (or the Inbox when `project` is nil).
+    public var section: ProjectSection?
     @Relationship(deleteRule: .cascade, inverse: \TodoTask.parent)
     public var subtasks: [TodoTask]?
     public var parent: TodoTask?

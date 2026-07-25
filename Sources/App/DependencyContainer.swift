@@ -14,6 +14,7 @@ final class DependencyContainer: ObservableObject {
     var reminderService: ReminderService { services.reminderService }
     var taskService: TaskService { services.taskService }
     var projectService: ProjectService { services.projectService }
+    var sectionService: SectionService { services.sectionService }
     var aiService: AIService { services.aiService }
     var keychain: KeychainService { services.keychain }
     var aiPreferences: AIPreferences { services.aiPreferences }
